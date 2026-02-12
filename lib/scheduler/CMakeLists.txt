@@ -30,6 +30,7 @@ set(SOURCES
         pdcch_scheduling/pdcch_resource_allocator_impl.cpp
         pdcch_scheduling/pdcch_slot_resource_allocator.cpp
         policy/scheduler_policy_factory.cpp
+        policy/scheduler_time_pf.cpp
         policy/scheduler_time_rr.cpp
         policy/scheduler_time_qos.cpp
         pucch_scheduling/pucch_allocator_impl.cpp
@@ -53,4 +54,4 @@ add_library(srsran_sched STATIC ${SOURCES}
         $<TARGET_OBJECTS:sched_cell>
         $<TARGET_OBJECTS:common_sched>
         $<TARGET_OBJECTS:ue_sched>)
-target_link_libraries(srsran_sched srsran_ran sched_config sched_ue_context sched_support scheduler_logger)
+target_link_libraries(srsran_sched srsran_ran sched_config sched_ue_context sched_support scheduler_logger edgeric)

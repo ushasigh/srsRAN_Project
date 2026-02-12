@@ -1,0 +1,33 @@
+# Find required packages
+find_package(Protobuf REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ZMQ REQUIRED libzmq)
+
+set(SRCS
+    edgeric.cpp
+    control_mcs.pb.cc
+    control_weights.pb.cc
+    metrics.pb.cc
+)
+
+# Create a static library from the edgeric source files
+add_library(edgeric STATIC ${SRCS})
+
+# Include the current directory for header files
+target_include_directories(edgeric PUBLIC 
+    ${CMAKE_CURRENT_SOURCE_DIR} 
+    ${Protobuf_INCLUDE_DIRS}
+    ${ZMQ_INCLUDE_DIRS}
+)
+
+# Link the ZeroMQ and Protocol Buffers libraries to the edgeric library
+target_link_libraries(edgeric PUBLIC ${Protobuf_LIBRARIES} ${ZMQ_LIBRARIES})
+
+# Add to exported libraries if ENABLE_EXPORT is on
+ADD_TO_EXPORTED_LIBS(edgeric)
+
+########################################################################
+# Disable specific warnings for Protobuf files
+########################################################################
+set_source_files_properties(control_mcs.pb.cc control_weights.pb.cc metrics.pb.cc PROPERTIES COMPILE_FLAGS -Wno-array-bounds)
+

@@ -21,7 +21,6 @@
  */
 
 #include "scheduler_policy_factory.h"
-#include "scheduler_time_pf.h"
 #include "scheduler_time_qos.h"
 #include "scheduler_time_rr.h"
 
@@ -36,7 +35,7 @@ std::unique_ptr<scheduler_policy> srsran::create_scheduler_strategy(const schedu
   if (std::holds_alternative<time_qos_scheduler_config>(expert_cfg_.policy_cfg)) {
     return std::make_unique<scheduler_time_qos>(expert_cfg_, cell_index);
   }
-  if (std::holds_alternative<time_pf_scheduler_config>(expert_cfg_.policy_cfg)) {
+  if (std::holds_alternative<time_pf_scheduler_expert_config>(expert_cfg_.strategy_cfg)) {
     return std::make_unique<scheduler_time_pf>(expert_cfg_);
   }
   return nullptr;

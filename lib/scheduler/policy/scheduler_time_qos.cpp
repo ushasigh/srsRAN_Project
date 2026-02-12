@@ -24,6 +24,7 @@
 #include "../slicing/slice_ue_repository.h"
 #include "../support/csi_report_helpers.h"
 #include "../ue_scheduling/grant_params_selector.h"
+#include "../../edgeric/edgeric.h"
 #include <algorithm>
 
 using namespace srsran;
@@ -152,6 +153,9 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
     return std::numeric_limits<double>::max();
   }
 
+  // Get RNTI for EdgeRIC lookups
+  uint16_t rnti = static_cast<uint16_t>(u.crnti());
+
   static constexpr uint16_t max_combined_prio_level = qos_prio_level_t::max() * arp_prio_level_t::max();
   uint16_t                  min_combined_prio       = max_combined_prio_level;
   double                    gbr_weight              = 0;
@@ -163,16 +167,41 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
         continue;
       }
 
+      // Get LCID for per-DRB EdgeRIC lookups
+      uint8_t lcid = static_cast<uint8_t>(lc->lcid);
+      
       // Track the LC with the lowest combined priority (combining QoS and ARP priority levels).
+      // EdgeRIC: Check for dynamic QoS priority override (per-UE, per-DRB)
       if (policy_params.priority_enabled) {
+        uint8_t effective_qos_prio = lc->qos->qos.priority.value();
+        uint8_t effective_arp_prio = lc->qos->arp_priority.value();
+        
+        // Apply EdgeRIC overrides if available for this specific DRB
+        auto edgeric_qos_prio = edgeric::get_qos_priority(rnti, lcid);
+        auto edgeric_arp_prio = edgeric::get_arp_priority(rnti, lcid);
+        if (edgeric_qos_prio.has_value()) {
+          effective_qos_prio = edgeric_qos_prio.value();
+        }
+        if (edgeric_arp_prio.has_value()) {
+          effective_arp_prio = edgeric_arp_prio.value();
+        }
+        
         min_combined_prio = std::min(
-            static_cast<uint16_t>(lc->qos->qos.priority.value() * lc->qos->arp_priority.value()), min_combined_prio);
+            static_cast<uint16_t>(effective_qos_prio * effective_arp_prio), min_combined_prio);
       }
 
+      // EdgeRIC: Check for dynamic PDB override (per-UE, per-DRB)
       slot_point hol_toa = u.dl_hol_toa(lc->lcid);
       if (hol_toa.valid() and slot_tx >= hol_toa) {
         const unsigned hol_delay_ms = (slot_tx - hol_toa) / slot_tx.nof_slots_per_subframe();
-        const unsigned pdb          = lc->qos->qos.packet_delay_budget_ms;
+        
+        // Use EdgeRIC PDB override if available for this specific DRB
+        unsigned pdb = lc->qos->qos.packet_delay_budget_ms;
+        auto edgeric_pdb = edgeric::get_pdb(rnti, lcid);
+        if (edgeric_pdb.has_value()) {
+          pdb = edgeric_pdb.value();
+        }
+        
         delay_weight += hol_delay_ms / static_cast<double>(pdb);
       }
 
@@ -182,9 +211,17 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
       }
 
       // GBR flow.
+      // EdgeRIC: Check for dynamic GBR override (per-UE, per-DRB)
       double dl_avg_rate = u.dl_avg_bit_rate(lc->lcid);
       if (dl_avg_rate != 0) {
-        gbr_weight += std::min(lc->qos->gbr_qos_info->gbr_dl / dl_avg_rate, max_metric_weight);
+        // Use EdgeRIC GBR override if available for this specific DRB
+        uint64_t effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
+        auto edgeric_gbr = edgeric::get_gbr_dl(rnti, lcid);
+        if (edgeric_gbr.has_value()) {
+          effective_gbr_dl = edgeric_gbr.value();
+        }
+        
+        gbr_weight += std::min(effective_gbr_dl / dl_avg_rate, max_metric_weight);
       } else {
         gbr_weight += max_metric_weight;
       }
@@ -216,6 +253,9 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
     return max_sched_priority;
   }
 
+  // Get RNTI for EdgeRIC lookups
+  uint16_t rnti = static_cast<uint16_t>(u.crnti());
+
   static constexpr uint16_t max_combined_prio_level = qos_prio_level_t::max() * arp_prio_level_t::max();
   uint16_t                  min_combined_prio       = max_combined_prio_level;
   double                    gbr_weight              = 0;
@@ -227,10 +267,27 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
         continue;
       }
 
+      // Get LCID for per-DRB EdgeRIC lookups
+      uint8_t lcid = static_cast<uint8_t>(lc->lcid);
+      
       // Track the LC with the lowest combined priority (combining QoS and ARP priority levels).
+      // EdgeRIC: Check for dynamic QoS priority override (per-UE, per-DRB)
       if (policy_params.priority_enabled) {
+        uint8_t effective_qos_prio = lc->qos->qos.priority.value();
+        uint8_t effective_arp_prio = lc->qos->arp_priority.value();
+        
+        // Apply EdgeRIC overrides if available for this specific DRB
+        auto edgeric_qos_prio = edgeric::get_qos_priority(rnti, lcid);
+        auto edgeric_arp_prio = edgeric::get_arp_priority(rnti, lcid);
+        if (edgeric_qos_prio.has_value()) {
+          effective_qos_prio = edgeric_qos_prio.value();
+        }
+        if (edgeric_arp_prio.has_value()) {
+          effective_arp_prio = edgeric_arp_prio.value();
+        }
+        
         min_combined_prio = std::min(
-            static_cast<uint16_t>(lc->qos->qos.priority.value() * lc->qos->arp_priority.value()), min_combined_prio);
+            static_cast<uint16_t>(effective_qos_prio * effective_arp_prio), min_combined_prio);
       }
 
       if (not lc->qos->gbr_qos_info.has_value()) {
@@ -239,10 +296,18 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
       }
 
       // GBR flow.
+      // EdgeRIC: Check for dynamic GBR override (per-UE, per-DRB)
       lcg_id_t lcg_id  = u.get_lcg_id(lc->lcid);
       double   ul_rate = u.ul_avg_bit_rate(lcg_id);
       if (ul_rate != 0) {
-        gbr_weight += std::min(lc->qos->gbr_qos_info->gbr_ul / ul_rate, max_metric_weight);
+        // Use EdgeRIC GBR override if available for this specific DRB
+        uint64_t effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
+        auto edgeric_gbr = edgeric::get_gbr_ul(rnti, lcid);
+        if (edgeric_gbr.has_value()) {
+          effective_gbr_ul = edgeric_gbr.value();
+        }
+        
+        gbr_weight += std::min(effective_gbr_ul / ul_rate, max_metric_weight);
       } else {
         gbr_weight = max_metric_weight;
       }

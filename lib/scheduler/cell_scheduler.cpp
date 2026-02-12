@@ -23,8 +23,11 @@
 #include "cell_scheduler.h"
 #include "logging/scheduler_metrics_handler.h"
 #include "ue_scheduling/ue_scheduler_impl.h"
+#include "../edgeric/edgeric.h"
 
 using namespace srsran;
+
+uint32_t tti_counter = 0;
 
 cell_scheduler::cell_scheduler(const scheduler_expert_config&                  sched_cfg,
                                const sched_cell_configuration_request_message& msg,
@@ -93,6 +96,12 @@ void cell_scheduler::run_slot(slot_point sl_tx)
 {
   // Mark the start of the slot.
   auto slot_start_tp = std::chrono::high_resolution_clock::now();
+  //Ushasi 
+  tti_counter = tti_counter + 1;
+  edgeric::setTTI(tti_counter);
+  edgeric::get_weights_from_er();
+  edgeric::get_mcs_from_er();
+  
 
   // If there are skipped slots, handle them. Otherwise, the cell grid and cached results are not correctly cleared.
   if (SRSRAN_LIKELY(res_grid.slot_tx().valid())) {
@@ -132,6 +141,9 @@ void cell_scheduler::run_slot(slot_point sl_tx)
   // > Schedule UE DL and UL data.
   ue_sched->run_slot(sl_tx);
 
+  //
+  edgeric::printmyvariables();
+  edgeric::send_to_er();
   // > Mark stop of the slot processing
   auto slot_stop_tp = std::chrono::high_resolution_clock::now();
   auto slot_dur     = std::chrono::duration_cast<std::chrono::microseconds>(slot_stop_tp - slot_start_tp);

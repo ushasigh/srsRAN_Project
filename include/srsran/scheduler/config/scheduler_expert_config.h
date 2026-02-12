@@ -72,8 +72,14 @@ struct time_qos_scheduler_config {
 /// \brief Round-Robin policy scheduler expert parameters.
 struct time_rr_scheduler_config {};
 
+/// \brief Proportional Fair policy scheduler expert parameters.
+struct time_pf_scheduler_config {
+  /// Fairness coefficient for PF scheduler. Higher values mean more fairness.
+  double pf_sched_fairness_coeff = 1.0;
+};
+
 /// \brief Scheduler policy parameters.
-using scheduler_policy_config = std::variant<time_qos_scheduler_config, time_rr_scheduler_config>;
+using scheduler_policy_config = std::variant<time_qos_scheduler_config, time_rr_scheduler_config, time_pf_scheduler_config>;
 
 struct ul_power_control {
   /// Enable closed-loop PUSCH power control.

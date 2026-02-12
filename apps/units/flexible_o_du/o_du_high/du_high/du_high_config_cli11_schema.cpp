@@ -626,6 +626,22 @@ static void configure_cli11_scheduler_policy_args(CLI::App& app, std::optional<s
       policy_cfg = time_rr_scheduler_config{};
     }
   });
+
+  // Proportional Fair scheduler
+  static time_pf_scheduler_config pf_cfg;
+  CLI::App*                       pf_sched_cfg_subcmd =
+      add_subcommand(app, "pf_sched", "Proportional Fair policy configuration")->configurable();
+  add_option(*pf_sched_cfg_subcmd,
+             "--pf_fairness_coeff",
+             pf_cfg.pf_sched_fairness_coeff,
+             "Fairness coefficient for PF scheduler. Higher values mean more fairness.")
+      ->capture_default_str();
+  pf_sched_cfg_subcmd->parse_complete_callback([&]() {
+    CLI::App* pf_sched_sub_cmd = app.get_subcommand("pf_sched");
+    if (pf_sched_sub_cmd->count() != 0) {
+      policy_cfg = pf_cfg;
+    }
+  });
 }
 
 static void configure_cli11_ta_control_args(CLI::App& app, du_high_unit_ta_sched_control_config& ta_params)

@@ -27,6 +27,10 @@
 #include "srsran/scheduler/result/dci_info.h"
 #include "srsran/support/error_handling.h"
 
+// EdgeRIC integration
+#include "../../edgeric/edgeric.h"
+#include <fstream>
+
 using namespace srsran;
 
 ue_cell_grid_allocator::ue_cell_grid_allocator(const scheduler_ue_expert_config& expert_cfg_,
@@ -242,7 +246,17 @@ void ue_cell_grid_allocator::set_pdsch_params(dl_grant_info&                    
   const cell_configuration&                    cell_cfg           = ue_cell_cfg.cell_cfg_common;
   const bool                                   is_retx            = grant.h_dl.nof_retxs() != 0;
   const unsigned                               nof_layers         = grant.cfg.recommended_ri;
-  const sch_mcs_index                          mcs                = grant.cfg.recommended_mcs;
+  sch_mcs_index                                mcs                = grant.cfg.recommended_mcs;
+  
+  // EdgeRIC: Check for MCS override from EdgeRIC agent
+  if (not is_retx) {
+    uint16_t rnti = static_cast<uint16_t>(u.crnti);
+    std::optional<uint8_t> opt_mcs_recvd = edgeric::get_mcs(rnti);
+    if (opt_mcs_recvd.has_value()) {
+      mcs = static_cast<sch_mcs_index>(opt_mcs_recvd.value());
+    }
+  }
+  
   const auto&                                  pdsch_cfg = ss_info.get_pdsch_config(pdsch_td_res_index, nof_layers);
   const unsigned                               k1        = grant.uci_alloc.k1;
 
@@ -284,6 +298,33 @@ void ue_cell_grid_allocator::set_pdsch_params(dl_grant_info&                    
                      u.crnti);
     }
     mcs_tbs_info = mcs_or_error.value_or(sch_mcs_tbs{sch_mcs_index{0}, 0});
+  }
+
+  // EdgeRIC: Report TBS and log allocation details
+  if (not is_retx and mcs_tbs_info.tbs > 0) {
+    uint16_t rnti = static_cast<uint16_t>(u.crnti);
+    edgeric::set_dl_tbs(static_cast<unsigned int>(rnti), mcs_tbs_info.tbs);
+    
+    // Get channel state info for logging
+    float effective_cqi = ue_cc.link_adaptation_controller().get_effective_cqi();
+    float effective_snr = ue_cc.channel_state_manager().get_pusch_snr();
+    
+    // Check for weights received from EdgeRIC
+    std::optional<float> opt_weights_recvd = edgeric::get_weights(rnti);
+    float weights_to_log = opt_weights_recvd.has_value() ? opt_weights_recvd.value() : 0.0f;
+    
+    // Log final allocation details
+    std::ofstream logfile("/tmp/scheduling-final.txt", std::ios_base::app);
+    if (logfile.is_open()) {
+      logfile << "Final Allocation - UE RNTI: " << static_cast<unsigned int>(u.crnti);
+      logfile << ", Weights Received: " << weights_to_log;
+      logfile << ", PRBs: " << (crbs.first.length() + crbs.second.length());
+      logfile << ", MCS: " << static_cast<unsigned int>(mcs_tbs_info.mcs.to_uint());
+      logfile << ", CQI: " << effective_cqi;
+      logfile << ", SNR: " << effective_snr;
+      logfile << ", TBS: " << mcs_tbs_info.tbs << std::endl;
+      logfile.close();
+    }
   }
 
   // Mark resources as occupied in the ResourceGrid.
