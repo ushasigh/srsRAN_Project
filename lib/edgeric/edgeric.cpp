@@ -36,6 +36,7 @@ zmq::context_t context;
 zmq::socket_t publisher(context, ZMQ_PUB);
 zmq::socket_t subscriber_weights(context, ZMQ_SUB);
 zmq::socket_t subscriber_mcs(context, ZMQ_SUB);
+zmq::socket_t subscriber_qos(context, ZMQ_SUB);
 
 void edgeric::init() {
     publisher.bind("ipc:///tmp/metrics");
@@ -50,6 +51,11 @@ void edgeric::init() {
     //subscriber_mcs.connect("tcp://172.10.10.2:5050");
     subscriber_mcs.set(zmq::sockopt::subscribe, "");
     subscriber_mcs.set(zmq::sockopt::conflate, 1);
+
+    // QoS control subscriber
+    subscriber_qos.connect("ipc:///tmp/control_qos_actions");
+    subscriber_qos.set(zmq::sockopt::subscribe, "");
+    subscriber_qos.set(zmq::sockopt::conflate, 1);
 
     initialized = true;
 }
@@ -504,8 +510,138 @@ std::optional<uint64_t> edgeric::get_gbr_ul(uint16_t rnti, uint8_t lcid) {
 }
 
 void edgeric::get_qos_from_er() {
-    // TODO: Implement ZMQ receiver for QoS control messages
-    // This would parse a protobuf message with per-UE per-DRB QoS parameters
-    // For now, QoS can be set directly via set_* functions from EdgeRIC agent
     ensure_initialized();
+    
+    zmq::message_t recv_message;
+    zmq::recv_result_t size = subscriber_qos.recv(recv_message, zmq::recv_flags::dontwait);
+    
+    if (size) {
+        // Parse the QoS control protobuf message
+        QosControl qos_msg;
+        if (qos_msg.ParseFromArray(recv_message.data(), recv_message.size())) {
+            er_ran_index_qos = qos_msg.ran_index();
+            
+            // Log received QoS control message
+            if (enable_logging) {
+                std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                if (logfile.is_open()) {
+                    logfile << "========== QoS Control Received (ran_index=" << er_ran_index_qos 
+                            << ", TTI=" << tti_cnt << ") ==========" << std::endl;
+                }
+            }
+            
+            // Process each DRB QoS override
+            for (int i = 0; i < qos_msg.drb_qos_size(); ++i) {
+                const DrbQosParams& drb = qos_msg.drb_qos(i);
+                uint16_t rnti = static_cast<uint16_t>(drb.rnti());
+                uint8_t lcid = static_cast<uint8_t>(drb.lcid());
+                ue_drb_key key = {rnti, lcid};
+                
+                if (drb.clear_override()) {
+                    // Clear the override for this DRB
+                    qos_overrides.erase(key);
+                    
+                    // Log clear action
+                    if (enable_logging) {
+                        std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                        if (logfile.is_open()) {
+                            logfile << "  CLEAR: RNTI=" << rnti << ", LCID=" << static_cast<int>(lcid) << std::endl;
+                        }
+                    }
+                } else {
+                    // Apply the overrides
+                    auto& params = qos_overrides[key];
+                    
+                    // Log the update
+                    if (enable_logging) {
+                        std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                        if (logfile.is_open()) {
+                            logfile << "  UPDATE: RNTI=" << rnti << ", LCID=" << static_cast<int>(lcid);
+                        }
+                    }
+                    
+                    if (drb.has_qos_priority()) {
+                        params.qos_priority = static_cast<uint8_t>(drb.qos_priority());
+                        params.override_qos_priority = true;
+                        if (enable_logging) {
+                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                            if (logfile.is_open()) {
+                                logfile << " qos_prio=" << static_cast<int>(params.qos_priority);
+                            }
+                        }
+                    }
+                    if (drb.has_arp_priority()) {
+                        params.arp_priority = static_cast<uint8_t>(drb.arp_priority());
+                        params.override_arp_priority = true;
+                        if (enable_logging) {
+                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                            if (logfile.is_open()) {
+                                logfile << " arp_prio=" << static_cast<int>(params.arp_priority);
+                            }
+                        }
+                    }
+                    if (drb.has_pdb_ms()) {
+                        params.pdb_ms = drb.pdb_ms();
+                        params.override_pdb = true;
+                        if (enable_logging) {
+                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                            if (logfile.is_open()) {
+                                logfile << " pdb_ms=" << params.pdb_ms;
+                            }
+                        }
+                    }
+                    if (drb.has_gbr_dl() || drb.has_gbr_ul()) {
+                        if (drb.has_gbr_dl()) {
+                            params.gbr_dl = drb.gbr_dl();
+                        }
+                        if (drb.has_gbr_ul()) {
+                            params.gbr_ul = drb.gbr_ul();
+                        }
+                        params.override_gbr = true;
+                        if (enable_logging) {
+                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                            if (logfile.is_open()) {
+                                logfile << " gbr_dl=" << params.gbr_dl << " gbr_ul=" << params.gbr_ul;
+                            }
+                        }
+                    }
+                    
+                    if (enable_logging) {
+                        std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                        if (logfile.is_open()) {
+                            logfile << std::endl;
+                        }
+                    }
+                }
+            }
+            
+            // Log current state of all QoS overrides
+            if (enable_logging && !qos_overrides.empty()) {
+                std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                if (logfile.is_open()) {
+                    logfile << "  --- Current QoS Override State ---" << std::endl;
+                    for (const auto& [key, params] : qos_overrides) {
+                        logfile << "    RNTI=" << key.first << " LCID=" << static_cast<int>(key.second) << ":";
+                        if (params.override_qos_priority) {
+                            logfile << " qos_prio=" << static_cast<int>(params.qos_priority);
+                        }
+                        if (params.override_arp_priority) {
+                            logfile << " arp_prio=" << static_cast<int>(params.arp_priority);
+                        }
+                        if (params.override_pdb) {
+                            logfile << " pdb_ms=" << params.pdb_ms;
+                        }
+                        if (params.override_gbr) {
+                            logfile << " gbr_dl=" << params.gbr_dl << " gbr_ul=" << params.gbr_ul;
+                        }
+                        logfile << std::endl;
+                    }
+                }
+            }
+            
+        } else {
+            std::cerr << "Failed to parse QosControl message." << std::endl;
+        }
+    }
+    // If no message received, keep existing overrides (they persist until cleared)
 }

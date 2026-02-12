@@ -12,6 +12,7 @@
 // #include "metrics.pb.h"
 #include "control_mcs.pb.h"
 #include "control_weights.pb.h"
+#include "control_qos.pb.h"
 #include "metrics.pb.h"
 
 /// Dynamic QoS parameters that EdgeRIC can override per-UE per-DRB
@@ -51,13 +52,13 @@ private:
     static uint32_t er_ran_index_weights;
     static uint32_t er_ran_index_mcs;
     static uint32_t er_ran_index_qos;
-    static bool enable_logging;
     static bool initialized;
 
     static void ensure_initialized();
     
 
 public:
+    static bool enable_logging;
     static uint32_t tti_cnt;
     static void setTTI(uint32_t tti_count) {tti_cnt = tti_count;}
     static void printmyvariables();

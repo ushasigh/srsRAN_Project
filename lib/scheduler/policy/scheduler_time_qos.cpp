@@ -26,6 +26,11 @@
 #include "../ue_scheduling/grant_params_selector.h"
 #include "../../edgeric/edgeric.h"
 #include <algorithm>
+#include <fstream>
+
+// Logging counter to reduce log frequency (log every N calls)
+static uint32_t qos_log_counter = 0;
+static constexpr uint32_t QOS_LOG_INTERVAL = 200; // Log every 200 TTIs
 
 using namespace srsran;
 
@@ -56,6 +61,12 @@ void scheduler_time_qos::compute_ue_dl_priorities(slot_point               pdcch
                                                   slot_point               pdsch_slot,
                                                   span<ue_newtx_candidate> ue_candidates)
 {
+  // Poll for dynamic QoS updates from EdgeRIC
+  edgeric::get_qos_from_er();
+  
+  // Increment log counter for periodic logging
+  qos_log_counter++;
+  
   unsigned nof_slots_elapsed = std::min(last_pdsch_slot.valid() ? pdsch_slot - last_pdsch_slot : 1U, MAX_SLOT_SKIPPED);
   last_pdsch_slot            = pdsch_slot;
 
@@ -172,40 +183,61 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
       
       // Track the LC with the lowest combined priority (combining QoS and ARP priority levels).
       // EdgeRIC: Check for dynamic QoS priority override (per-UE, per-DRB)
+      uint8_t effective_qos_prio = 0;
+      uint8_t effective_arp_prio = 0;
+      unsigned effective_pdb = 0;
+      uint64_t effective_gbr_dl = 0;
+      bool has_edgeric_override = false;
+      
       if (policy_params.priority_enabled) {
-        uint8_t effective_qos_prio = lc->qos->qos.priority.value();
-        uint8_t effective_arp_prio = lc->qos->arp_priority.value();
+        effective_qos_prio = lc->qos->qos.priority.value();
+        effective_arp_prio = lc->qos->arp_priority.value();
         
         // Apply EdgeRIC overrides if available for this specific DRB
         auto edgeric_qos_prio = edgeric::get_qos_priority(rnti, lcid);
         auto edgeric_arp_prio = edgeric::get_arp_priority(rnti, lcid);
         if (edgeric_qos_prio.has_value()) {
           effective_qos_prio = edgeric_qos_prio.value();
+          has_edgeric_override = true;
         }
         if (edgeric_arp_prio.has_value()) {
           effective_arp_prio = edgeric_arp_prio.value();
+          has_edgeric_override = true;
         }
         
         min_combined_prio = std::min(
             static_cast<uint16_t>(effective_qos_prio * effective_arp_prio), min_combined_prio);
       }
 
+      // Get effective PDB (always, for logging)
+      effective_pdb = lc->qos->qos.packet_delay_budget_ms;
+      auto edgeric_pdb = edgeric::get_pdb(rnti, lcid);
+      if (edgeric_pdb.has_value()) {
+        effective_pdb = edgeric_pdb.value();
+        has_edgeric_override = true;
+      }
+      
       // EdgeRIC: Check for dynamic PDB override (per-UE, per-DRB)
       slot_point hol_toa = u.dl_hol_toa(lc->lcid);
       if (hol_toa.valid() and slot_tx >= hol_toa) {
         const unsigned hol_delay_ms = (slot_tx - hol_toa) / slot_tx.nof_slots_per_subframe();
-        
-        // Use EdgeRIC PDB override if available for this specific DRB
-        unsigned pdb = lc->qos->qos.packet_delay_budget_ms;
-        auto edgeric_pdb = edgeric::get_pdb(rnti, lcid);
-        if (edgeric_pdb.has_value()) {
-          pdb = edgeric_pdb.value();
-        }
-        
-        delay_weight += hol_delay_ms / static_cast<double>(pdb);
+        delay_weight += hol_delay_ms / static_cast<double>(effective_pdb);
       }
 
       if (not lc->qos->gbr_qos_info.has_value()) {
+        // Log non-GBR DRB QoS parameters
+        if (qos_log_counter % QOS_LOG_INTERVAL == 0 && edgeric::enable_logging) {
+          std::ofstream logfile("edgeric_qos_sched_log.txt", std::ios_base::app);
+          if (logfile.is_open()) {
+            logfile << "[DL] RNTI=" << rnti << " LCID=" << static_cast<int>(lcid)
+                    << " qos_prio=" << static_cast<int>(effective_qos_prio)
+                    << " arp_prio=" << static_cast<int>(effective_arp_prio)
+                    << " pdb=" << effective_pdb << "ms"
+                    << " (non-GBR)"
+                    << (has_edgeric_override ? " [EdgeRIC override]" : "")
+                    << std::endl;
+          }
+        }
         // LC is a non-GBR flow.
         continue;
       }
@@ -215,15 +247,32 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
       double dl_avg_rate = u.dl_avg_bit_rate(lc->lcid);
       if (dl_avg_rate != 0) {
         // Use EdgeRIC GBR override if available for this specific DRB
-        uint64_t effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
+        effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
         auto edgeric_gbr = edgeric::get_gbr_dl(rnti, lcid);
         if (edgeric_gbr.has_value()) {
           effective_gbr_dl = edgeric_gbr.value();
+          has_edgeric_override = true;
         }
         
         gbr_weight += std::min(effective_gbr_dl / dl_avg_rate, max_metric_weight);
       } else {
+        effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
         gbr_weight += max_metric_weight;
+      }
+      
+      // Log GBR DRB QoS parameters
+      if (qos_log_counter % QOS_LOG_INTERVAL == 0 && edgeric::enable_logging) {
+        std::ofstream logfile("edgeric_qos_sched_log.txt", std::ios_base::app);
+        if (logfile.is_open()) {
+          logfile << "[DL] RNTI=" << rnti << " LCID=" << static_cast<int>(lcid)
+                  << " qos_prio=" << static_cast<int>(effective_qos_prio)
+                  << " arp_prio=" << static_cast<int>(effective_arp_prio)
+                  << " pdb=" << effective_pdb << "ms"
+                  << " gbr_dl=" << effective_gbr_dl << "bps"
+                  << " avg_rate=" << dl_avg_rate << "bps"
+                  << (has_edgeric_override ? " [EdgeRIC override]" : "")
+                  << std::endl;
+        }
       }
     }
   }
@@ -272,18 +321,25 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
       
       // Track the LC with the lowest combined priority (combining QoS and ARP priority levels).
       // EdgeRIC: Check for dynamic QoS priority override (per-UE, per-DRB)
+      uint8_t effective_qos_prio = 0;
+      uint8_t effective_arp_prio = 0;
+      uint64_t effective_gbr_ul = 0;
+      bool has_edgeric_override = false;
+      
       if (policy_params.priority_enabled) {
-        uint8_t effective_qos_prio = lc->qos->qos.priority.value();
-        uint8_t effective_arp_prio = lc->qos->arp_priority.value();
+        effective_qos_prio = lc->qos->qos.priority.value();
+        effective_arp_prio = lc->qos->arp_priority.value();
         
         // Apply EdgeRIC overrides if available for this specific DRB
         auto edgeric_qos_prio = edgeric::get_qos_priority(rnti, lcid);
         auto edgeric_arp_prio = edgeric::get_arp_priority(rnti, lcid);
         if (edgeric_qos_prio.has_value()) {
           effective_qos_prio = edgeric_qos_prio.value();
+          has_edgeric_override = true;
         }
         if (edgeric_arp_prio.has_value()) {
           effective_arp_prio = edgeric_arp_prio.value();
+          has_edgeric_override = true;
         }
         
         min_combined_prio = std::min(
@@ -291,6 +347,18 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
       }
 
       if (not lc->qos->gbr_qos_info.has_value()) {
+        // Log non-GBR UL DRB QoS parameters
+        if (qos_log_counter % QOS_LOG_INTERVAL == 0 && edgeric::enable_logging) {
+          std::ofstream logfile("edgeric_qos_sched_log.txt", std::ios_base::app);
+          if (logfile.is_open()) {
+            logfile << "[UL] RNTI=" << rnti << " LCID=" << static_cast<int>(lcid)
+                    << " qos_prio=" << static_cast<int>(effective_qos_prio)
+                    << " arp_prio=" << static_cast<int>(effective_arp_prio)
+                    << " (non-GBR)"
+                    << (has_edgeric_override ? " [EdgeRIC override]" : "")
+                    << std::endl;
+          }
+        }
         // LC is a non-GBR flow.
         continue;
       }
@@ -301,15 +369,31 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
       double   ul_rate = u.ul_avg_bit_rate(lcg_id);
       if (ul_rate != 0) {
         // Use EdgeRIC GBR override if available for this specific DRB
-        uint64_t effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
+        effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
         auto edgeric_gbr = edgeric::get_gbr_ul(rnti, lcid);
         if (edgeric_gbr.has_value()) {
           effective_gbr_ul = edgeric_gbr.value();
+          has_edgeric_override = true;
         }
         
         gbr_weight += std::min(effective_gbr_ul / ul_rate, max_metric_weight);
       } else {
+        effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
         gbr_weight = max_metric_weight;
+      }
+      
+      // Log GBR UL DRB QoS parameters
+      if (qos_log_counter % QOS_LOG_INTERVAL == 0 && edgeric::enable_logging) {
+        std::ofstream logfile("edgeric_qos_sched_log.txt", std::ios_base::app);
+        if (logfile.is_open()) {
+          logfile << "[UL] RNTI=" << rnti << " LCID=" << static_cast<int>(lcid)
+                  << " qos_prio=" << static_cast<int>(effective_qos_prio)
+                  << " arp_prio=" << static_cast<int>(effective_arp_prio)
+                  << " gbr_ul=" << effective_gbr_ul << "bps"
+                  << " avg_rate=" << ul_rate << "bps"
+                  << (has_edgeric_override ? " [EdgeRIC override]" : "")
+                  << std::endl;
+        }
       }
     }
   }

@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+// QoS control message for per-UE, per-DRB dynamic QoS override
+message QosControl {
+    uint32 ran_index = 1;
+    repeated DrbQosParams drb_qos = 2;
+}
+
+// QoS parameters for a specific DRB of a specific UE
+message DrbQosParams {
+    uint32 rnti = 1;           // UE identifier
+    uint32 lcid = 2;           // Logical Channel ID (identifies the DRB)
+    
+    // QoS parameters (only set fields will be overridden)
+    optional uint32 qos_priority = 3;   // QoS Priority Level (1-127, lower = higher priority)
+    optional uint32 arp_priority = 4;   // ARP Priority Level (1-15, lower = higher priority)
+    optional uint32 pdb_ms = 5;         // Packet Delay Budget in milliseconds
+    optional uint64 gbr_dl = 6;         // Guaranteed Bit Rate DL (bps)
+    optional uint64 gbr_ul = 7;         // Guaranteed Bit Rate UL (bps)
+    
+    // Set to true to clear the override for this DRB (revert to static config)
+    bool clear_override = 8;
+}

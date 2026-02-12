@@ -7,6 +7,7 @@ set(SRCS
     edgeric.cpp
     control_mcs.pb.cc
     control_weights.pb.cc
+    control_qos.pb.cc
     metrics.pb.cc
 )
 
@@ -29,5 +30,5 @@ ADD_TO_EXPORTED_LIBS(edgeric)
 ########################################################################
 # Disable specific warnings for Protobuf files
 ########################################################################
-set_source_files_properties(control_mcs.pb.cc control_weights.pb.cc metrics.pb.cc PROPERTIES COMPILE_FLAGS -Wno-array-bounds)
+set_source_files_properties(control_mcs.pb.cc control_weights.pb.cc control_qos.pb.cc metrics.pb.cc PROPERTIES COMPILE_FLAGS -Wno-array-bounds)
 
