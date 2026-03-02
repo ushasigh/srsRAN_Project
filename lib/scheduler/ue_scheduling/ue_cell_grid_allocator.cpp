@@ -300,30 +300,34 @@ void ue_cell_grid_allocator::set_pdsch_params(dl_grant_info&                    
     mcs_tbs_info = mcs_or_error.value_or(sch_mcs_tbs{sch_mcs_index{0}, 0});
   }
 
-  // EdgeRIC: Report TBS and log allocation details
-  if (not is_retx and mcs_tbs_info.tbs > 0) {
+  // EdgeRIC: Report TBS and tx_bytes for DL allocation
+  if (mcs_tbs_info.tbs > 0) {
     uint16_t rnti = static_cast<uint16_t>(u.crnti);
     edgeric::set_dl_tbs(static_cast<unsigned int>(rnti), mcs_tbs_info.tbs);
+    // Accumulate TX bytes (DL throughput tracking)
+    edgeric::set_tx_bytes(rnti, static_cast<float>(mcs_tbs_info.tbs));
     
-    // Get channel state info for logging
-    float effective_cqi = ue_cc.link_adaptation_controller().get_effective_cqi();
-    float effective_snr = ue_cc.channel_state_manager().get_pusch_snr();
-    
-    // Check for weights received from EdgeRIC
-    std::optional<float> opt_weights_recvd = edgeric::get_weights(rnti);
-    float weights_to_log = opt_weights_recvd.has_value() ? opt_weights_recvd.value() : 0.0f;
-    
-    // Log final allocation details
-    std::ofstream logfile("/tmp/scheduling-final.txt", std::ios_base::app);
-    if (logfile.is_open()) {
-      logfile << "Final Allocation - UE RNTI: " << static_cast<unsigned int>(u.crnti);
-      logfile << ", Weights Received: " << weights_to_log;
-      logfile << ", PRBs: " << (crbs.first.length() + crbs.second.length());
-      logfile << ", MCS: " << static_cast<unsigned int>(mcs_tbs_info.mcs.to_uint());
-      logfile << ", CQI: " << effective_cqi;
-      logfile << ", SNR: " << effective_snr;
-      logfile << ", TBS: " << mcs_tbs_info.tbs << std::endl;
-      logfile.close();
+    if (not is_retx) {
+      // Get channel state info for logging
+      float effective_cqi = ue_cc.link_adaptation_controller().get_effective_cqi();
+      float effective_snr = ue_cc.channel_state_manager().get_pusch_snr();
+      
+      // Check for weights received from EdgeRIC
+      std::optional<float> opt_weights_recvd = edgeric::get_weights(rnti);
+      float weights_to_log = opt_weights_recvd.has_value() ? opt_weights_recvd.value() : 0.0f;
+      
+      // Log final allocation details
+      std::ofstream logfile("/tmp/scheduling-final.txt", std::ios_base::app);
+      if (logfile.is_open()) {
+        logfile << "Final Allocation - UE RNTI: " << static_cast<unsigned int>(u.crnti);
+        logfile << ", Weights Received: " << weights_to_log;
+        logfile << ", PRBs: " << (crbs.first.length() + crbs.second.length());
+        logfile << ", MCS: " << static_cast<unsigned int>(mcs_tbs_info.mcs.to_uint());
+        logfile << ", CQI: " << effective_cqi;
+        logfile << ", SNR: " << effective_snr;
+        logfile << ", TBS: " << mcs_tbs_info.tbs << std::endl;
+        logfile.close();
+      }
     }
   }
 
@@ -431,6 +435,15 @@ void ue_cell_grid_allocator::set_pdsch_params(dl_grant_info&                    
                                   u.logical_channels(),
                                   msg.pdsch_cfg.codewords[0].tb_size_bytes,
                                   grant.user->ran_slice_id());
+
+    // EdgeRIC: Track per-DRB TX bytes from the allocated subPDUs
+    uint16_t rnti = static_cast<uint16_t>(u.crnti);
+    for (const dl_msg_lc_info& lc : msg.tb_list[0].lc_chs_to_sched) {
+      if (lc.lcid.is_sdu()) {
+        edgeric::add_drb_tx_bytes(rnti, static_cast<uint8_t>(lc.lcid.to_lcid()), 
+                                   static_cast<float>(lc.sched_bytes));
+      }
+    }
 
     // Update context with buffer occupancy after the TB is built.
     msg.context.buffer_occupancy = u.logical_channels().dl_pending_bytes();
@@ -710,6 +723,13 @@ void ue_cell_grid_allocator::set_pusch_params(ul_grant_info& grant, const vrb_in
                       "Invalid calculation of PUSCH RBs. Used CRBs={:i}. Allocated CRBs={}.",
                       pusch_alloc.ul_res_grid.used_crbs(scs, {0, cell_cfg.nof_ul_prbs}, pusch_td_cfg.symbols),
                       crbs);
+
+  // EdgeRIC: Track rx_bytes for UL allocation
+  if (mcs_tbs_info.has_value() && mcs_tbs_info.value().tbs > 0) {
+    uint16_t rnti = static_cast<uint16_t>(u.crnti);
+    // Accumulate RX bytes (UL throughput tracking)
+    edgeric::set_rx_bytes(rnti, static_cast<float>(mcs_tbs_info.value().tbs));
+  }
 
   // Mark resources as occupied in the ResourceGrid.
   pusch_alloc.ul_res_grid.fill(grant_info{scs, pusch_td_cfg.symbols, crbs});

@@ -5,11 +5,12 @@
 #include <iostream>
 #include <map>
 #include <tuple>
+#include <vector>
 #include <zmq.hpp>
 #include <optional>
 #include <cstdint>
 
-// #include "metrics.pb.h"
+// Protobuf messages
 #include "control_mcs.pb.h"
 #include "control_weights.pb.h"
 #include "control_qos.pb.h"
@@ -48,6 +49,17 @@ private:
     static std::map<uint16_t, uint32_t> ue_ul_buffers;
     static std::map<uint16_t, uint32_t> ue_dl_buffers;
     static std::map<uint16_t, float> dl_tbs_ues;
+    // HARQ ACK/NACK counters per TTI
+    static std::map<uint16_t, uint32_t> dl_ok_cnt;
+    static std::map<uint16_t, uint32_t> dl_nok_cnt;
+    static std::map<uint16_t, uint32_t> ul_ok_cnt;
+    static std::map<uint16_t, uint32_t> ul_nok_cnt;
+    
+    // Per-DRB metrics: key = (RNTI, LCID)
+    static std::map<ue_drb_key, uint32_t> drb_dl_buffers;  // DL buffer per DRB
+    static std::map<ue_drb_key, uint32_t> drb_ul_buffers;  // UL buffer per DRB (per LCG mapped to LCID)
+    static std::map<ue_drb_key, float> drb_tx_bytes;       // DL bytes scheduled per DRB
+    static std::map<ue_drb_key, float> drb_rx_bytes;       // UL bytes received per DRB
 
     static uint32_t er_ran_index_weights;
     static uint32_t er_ran_index_mcs;
@@ -71,6 +83,27 @@ public:
     static void set_tx_bytes(uint16_t rnti, float tbs) {tx_bytes[rnti] += tbs;} // ue_dl_buffers[rnti] -= tbs; }
     static void set_rx_bytes(uint16_t rnti, float tbs) {rx_bytes[rnti] += tbs;} // ue_ul_buffers[rnti] -= tbs;}
     static void set_dl_tbs(uint16_t rnti, float tbs) {dl_tbs_ues[rnti] = tbs;}
+    // HARQ ACK/NACK setters - called from scheduler feedback handlers
+    static void inc_dl_ok(uint16_t rnti) {dl_ok_cnt[rnti]++;}
+    static void inc_dl_nok(uint16_t rnti) {dl_nok_cnt[rnti]++;}
+    static void inc_ul_ok(uint16_t rnti) {ul_ok_cnt[rnti]++;}
+    static void inc_ul_nok(uint16_t rnti) {ul_nok_cnt[rnti]++;}
+    
+    // Per-DRB setters - called for per-bearer telemetry
+    static void set_drb_dl_buffer(uint16_t rnti, uint8_t lcid, uint32_t dl_buffer) {
+        drb_dl_buffers[{rnti, lcid}] = dl_buffer;
+    }
+    static void set_drb_ul_buffer(uint16_t rnti, uint8_t lcid, uint32_t ul_buffer) {
+        drb_ul_buffers[{rnti, lcid}] = ul_buffer;
+    }
+    static void add_drb_tx_bytes(uint16_t rnti, uint8_t lcid, float bytes) {
+        drb_tx_bytes[{rnti, lcid}] += bytes;
+    }
+    static void add_drb_rx_bytes(uint16_t rnti, uint8_t lcid, float bytes) {
+        drb_rx_bytes[{rnti, lcid}] += bytes;
+    }
+    // Get all DRBs for a given RNTI (returns list of LCIDs with data)
+    static std::vector<uint8_t> get_drb_lcids(uint16_t rnti);
     //////////////////////////////////// ZMQ function to send RT-E2 Report 
     static void send_to_er();
     
@@ -113,6 +146,16 @@ public:
     
     /// ZMQ function to receive QoS control from EdgeRIC agent
     static void get_qos_from_er();
+    
+    //////////////////////////////////// Centralized Telemetry Collection
+    /// Collect telemetry for a single UE - called from scheduler every TTI
+    /// @param rnti UE RNTI
+    /// @param cqi Wideband CQI value
+    /// @param snr PUSCH SNR in dB
+    /// @param dl_buffer_bytes Pending DL buffer bytes
+    /// @param ul_buffer_bytes Pending UL buffer bytes
+    static void collect_ue_telemetry(uint16_t rnti, float cqi, float snr, 
+                                      uint32_t dl_buffer_bytes, uint32_t ul_buffer_bytes);
 };
 
 #endif // EDGERIC_H

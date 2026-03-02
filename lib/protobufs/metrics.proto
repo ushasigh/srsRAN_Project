@@ -1,14 +1,30 @@
 syntax = "proto3";
 
+// Per-DRB (Data Radio Bearer) metrics
+message DrbMetrics {
+    uint32 lcid = 1;           // Logical Channel ID (4+ for DRBs, 1-3 for SRBs)
+    uint32 dl_buffer = 2;      // DL pending bytes for this DRB
+    uint32 ul_buffer = 3;      // UL pending bytes for this DRB (from BSR)
+    float tx_bytes = 4;        // DL bytes scheduled for this DRB
+    float rx_bytes = 5;        // UL bytes received for this DRB
+}
+
 message UeMetrics {
     uint32 rnti = 1;
     uint32 cqi = 2;
     float snr = 3;
-    float tx_bytes = 4;
-    float rx_bytes = 5;
-    uint32 dl_buffer = 6;
-    uint32 ul_buffer = 7;
+    float tx_bytes = 4;        // Total DL bytes (aggregate)
+    float rx_bytes = 5;        // Total UL bytes (aggregate)
+    uint32 dl_buffer = 6;      // Total DL pending bytes (aggregate)
+    uint32 ul_buffer = 7;      // Total UL pending bytes (aggregate)
     float dl_tbs = 8;
+    // HARQ ACK/NACK counters per TTI
+    uint32 dl_ok = 9;          // DL packets ACKed (HARQ ACK from UE)
+    uint32 dl_nok = 10;        // DL packets NACKed (HARQ NACK from UE)
+    uint32 ul_ok = 11;         // UL packets OK (CRC pass)
+    uint32 ul_nok = 12;        // UL packets NOK (CRC fail)
+    // Per-DRB metrics
+    repeated DrbMetrics drb_metrics = 13;
 }
 
 message Metrics {

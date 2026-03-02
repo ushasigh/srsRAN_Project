@@ -27,6 +27,7 @@
 #include "srsran/scheduler/result/sched_result.h"
 #include "srsran/scheduler/scheduler_configurator.h"
 #include "srsran/srslog/srslog.h"
+#include "../../edgeric/edgeric.h"
 
 using namespace srsran;
 
@@ -168,6 +169,13 @@ void cell_metrics_handler::handle_crc_indication(slot_point                   sl
     auto& u = ues[crc_pdu.ue_index];
     u.data.count_crc_acks += crc_pdu.tb_crc_success ? 1 : 0;
     ++u.data.count_crc_pdus;
+    
+    // EdgeRIC: Track UL OK/NOK (CRC pass/fail)
+    if (crc_pdu.tb_crc_success) {
+      edgeric::inc_ul_ok(static_cast<uint16_t>(u.rnti));
+    } else {
+      edgeric::inc_ul_nok(static_cast<uint16_t>(u.rnti));
+    }
     if (crc_pdu.ul_sinr_dB.has_value()) {
       ++u.data.nof_pusch_snr_reports;
       u.data.sum_pusch_snrs += crc_pdu.ul_sinr_dB.value();
@@ -246,6 +254,13 @@ void cell_metrics_handler::handle_dl_harq_ack(du_ue_index_t ue_index, bool ack, 
     ++u.data.count_uci_harqs;
     if (ack) {
       u.data.sum_dl_tb_bytes += tbs.value();
+    }
+    
+    // EdgeRIC: Track DL OK/NOK (HARQ ACK/NACK)
+    if (ack) {
+      edgeric::inc_dl_ok(static_cast<uint16_t>(u.rnti));
+    } else {
+      edgeric::inc_dl_nok(static_cast<uint16_t>(u.rnti));
     }
   }
 }

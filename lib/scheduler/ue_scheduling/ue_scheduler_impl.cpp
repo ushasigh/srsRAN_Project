@@ -22,6 +22,7 @@
 
 #include "ue_scheduler_impl.h"
 #include "../logging/scheduler_metrics_handler.h"
+#include "../../edgeric/edgeric.h"
 
 using namespace srsran;
 
@@ -224,6 +225,59 @@ void ue_scheduler_impl::run_slot_impl(slot_point slot_tx)
 
     srsran_sanity_check(puxch_grant_sanitizer(*group_cell.cell_res_alloc, logger),
                         "PUCCH and PUSCH found for the same UE in the same slot");
+    
+    // EdgeRIC: Collect telemetry for all UEs in this cell
+    // This is done centrally here instead of in the scheduler policy
+    // The collected data will be logged via printmyvariables() and sent via send_to_er()
+    // which are called in cell_scheduler::run_slot() after ue_sched->run_slot() returns
+    for (const auto& ue_cell_ptr : group_cell.ue_cell_db) {
+      if (ue_cell_ptr != nullptr && ue_cell_ptr->is_active()) {
+        const ue_cell& ue_cc = *ue_cell_ptr;
+        ue* ue_ptr = ue_db.find(ue_cc.ue_index);
+        if (ue_ptr != nullptr) {
+          uint16_t rnti = static_cast<uint16_t>(ue_cc.rnti());
+          // Get CQI from channel state (wideband CQI as float)
+          float effective_cqi = static_cast<float>(ue_cc.channel_state_manager().get_wideband_cqi().to_uint());
+          // Get SNR from channel state
+          float effective_snr = ue_cc.channel_state_manager().get_pusch_snr();
+          // Get buffer status from UE's logical channels
+          uint32_t dl_buffer = ue_ptr->logical_channels().dl_pending_bytes();
+          uint32_t ul_buffer = ue_ptr->pending_ul_newtx_bytes();
+          
+          // Collect telemetry - will be logged to log.txt via printmyvariables()
+          edgeric::collect_ue_telemetry(
+            rnti,
+            effective_cqi,
+            effective_snr,
+            dl_buffer,
+            ul_buffer
+          );
+          
+          // Collect per-DRB (per-LCID) DL buffer status
+          const auto& lc_repo = ue_ptr->logical_channels();
+          for (lcid_t lcid : lc_repo.get_prioritized_logical_channels()) {
+            uint32_t lcid_dl_buffer = lc_repo.pending_bytes(lcid);
+            if (lcid_dl_buffer > 0) {
+              edgeric::set_drb_dl_buffer(rnti, static_cast<uint8_t>(lcid), lcid_dl_buffer);
+            }
+          }
+          
+          // Collect per-LCG UL buffer status (BSR is per LCG, map to LCID)
+          // LCG 0 typically maps to SRBs, LCG 1+ maps to DRBs
+          // We report per LCG but use LCG ID as "LCID" for simplicity
+          for (unsigned lcg_idx = 0; lcg_idx <= 7; ++lcg_idx) {
+            lcg_id_t lcgid = uint_to_lcg_id(lcg_idx);
+            if (lc_repo.is_active(lcgid)) {
+              uint32_t lcg_ul_buffer = lc_repo.pending_bytes(lcgid);
+              if (lcg_ul_buffer > 0) {
+                // Use LCG ID as identifier for UL buffer
+                edgeric::set_drb_ul_buffer(rnti, static_cast<uint8_t>(lcg_idx), lcg_ul_buffer);
+              }
+            }
+          }
+        }
+      }
+    }
   }
 }
 

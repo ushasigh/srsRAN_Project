@@ -1,4 +1,5 @@
 #include "edgeric.h"
+#include <set>
 
 // Definition of static member variables
 uint32_t edgeric::tti_cnt = 0;
@@ -12,6 +13,17 @@ std::map<uint16_t, float> edgeric::tx_bytes = {};
 std::map<uint16_t, uint32_t> edgeric::ue_ul_buffers = {};
 std::map<uint16_t, uint32_t> edgeric::ue_dl_buffers = {};
 std::map<uint16_t, float> edgeric::dl_tbs_ues = {};
+// HARQ ACK/NACK counters
+std::map<uint16_t, uint32_t> edgeric::dl_ok_cnt = {};
+std::map<uint16_t, uint32_t> edgeric::dl_nok_cnt = {};
+std::map<uint16_t, uint32_t> edgeric::ul_ok_cnt = {};
+std::map<uint16_t, uint32_t> edgeric::ul_nok_cnt = {};
+
+// Per-DRB metrics
+std::map<ue_drb_key, uint32_t> edgeric::drb_dl_buffers = {};
+std::map<ue_drb_key, uint32_t> edgeric::drb_ul_buffers = {};
+std::map<ue_drb_key, float> edgeric::drb_tx_bytes = {};
+std::map<ue_drb_key, float> edgeric::drb_rx_bytes = {};
 
 // std::map<uint16_t, float> edgeric::weights_recved = {};
 std::map<uint16_t, float> edgeric::weights_recved = {};
@@ -103,9 +115,42 @@ void edgeric::send_to_er() {
         auto ul_buffer_it = ue_ul_buffers.find(rnti);
         ue_metrics->set_ul_buffer((ul_buffer_it != ue_ul_buffers.end()) ? ul_buffer_it->second : 0);
 
-        // Set UL Buffer, default to 0 if not available
+        // Set DL TBS, default to 0 if not available
         auto dl_tbs_it = dl_tbs_ues.find(rnti);
         ue_metrics->set_dl_tbs((dl_tbs_it != dl_tbs_ues.end()) ? dl_tbs_it->second : 0);
+
+        // Set HARQ ACK/NACK counters
+        auto dl_ok_it = dl_ok_cnt.find(rnti);
+        ue_metrics->set_dl_ok((dl_ok_it != dl_ok_cnt.end()) ? dl_ok_it->second : 0);
+
+        auto dl_nok_it = dl_nok_cnt.find(rnti);
+        ue_metrics->set_dl_nok((dl_nok_it != dl_nok_cnt.end()) ? dl_nok_it->second : 0);
+
+        auto ul_ok_it = ul_ok_cnt.find(rnti);
+        ue_metrics->set_ul_ok((ul_ok_it != ul_ok_cnt.end()) ? ul_ok_it->second : 0);
+
+        auto ul_nok_it = ul_nok_cnt.find(rnti);
+        ue_metrics->set_ul_nok((ul_nok_it != ul_nok_cnt.end()) ? ul_nok_it->second : 0);
+        
+        // Add per-DRB metrics for this UE
+        std::vector<uint8_t> lcids = get_drb_lcids(rnti);
+        for (uint8_t lcid : lcids) {
+            ue_drb_key key = {rnti, lcid};
+            DrbMetrics* drb = ue_metrics->add_drb_metrics();
+            drb->set_lcid(lcid);
+            
+            auto dl_buf_it = drb_dl_buffers.find(key);
+            drb->set_dl_buffer((dl_buf_it != drb_dl_buffers.end()) ? dl_buf_it->second : 0);
+            
+            auto ul_buf_it = drb_ul_buffers.find(key);
+            drb->set_ul_buffer((ul_buf_it != drb_ul_buffers.end()) ? ul_buf_it->second : 0);
+            
+            auto tx_it = drb_tx_bytes.find(key);
+            drb->set_tx_bytes((tx_it != drb_tx_bytes.end()) ? tx_it->second : 0.0f);
+            
+            auto rx_it = drb_rx_bytes.find(key);
+            drb->set_rx_bytes((rx_it != drb_rx_bytes.end()) ? rx_it->second : 0.0f);
+        }
     }
 
     // Serialize the Metrics message to a string
@@ -127,10 +172,50 @@ void edgeric::send_to_er() {
     tx_bytes.clear();
     rx_bytes.clear();
     dl_tbs_ues.clear();
+    // Clear HARQ counters each TTI
+    dl_ok_cnt.clear();
+    dl_nok_cnt.clear();
+    ul_ok_cnt.clear();
+    ul_nok_cnt.clear();
+    // Clear per-DRB metrics each TTI
+    drb_dl_buffers.clear();
+    drb_ul_buffers.clear();
+    drb_tx_bytes.clear();
+    drb_rx_bytes.clear();
     // ue_dl_buffers.clear();
     // ue_ul_buffers.clear();
 }
 
+// Get all DRB LCIDs for a given RNTI
+std::vector<uint8_t> edgeric::get_drb_lcids(uint16_t rnti) {
+    std::vector<uint8_t> lcids;
+    std::set<uint8_t> lcid_set;  // Use set to avoid duplicates
+    
+    // Collect LCIDs from all per-DRB maps
+    for (const auto& pair : drb_dl_buffers) {
+        if (pair.first.first == rnti) {
+            lcid_set.insert(pair.first.second);
+        }
+    }
+    for (const auto& pair : drb_ul_buffers) {
+        if (pair.first.first == rnti) {
+            lcid_set.insert(pair.first.second);
+        }
+    }
+    for (const auto& pair : drb_tx_bytes) {
+        if (pair.first.first == rnti) {
+            lcid_set.insert(pair.first.second);
+        }
+    }
+    for (const auto& pair : drb_rx_bytes) {
+        if (pair.first.first == rnti) {
+            lcid_set.insert(pair.first.second);
+        }
+    }
+    
+    lcids.assign(lcid_set.begin(), lcid_set.end());
+    return lcids;
+}
 
 // Get weights function
 std::optional<float> edgeric::get_weights(uint16_t rnti) {
@@ -178,6 +263,11 @@ void edgeric::printmyvariables() {
                 int ul_buffer = (ue_ul_buffers.count(rnti) > 0) ? static_cast<int>(ue_ul_buffers.at(rnti)) : 0;
                 int dl_buffer = (ue_dl_buffers.count(rnti) > 0) ? static_cast<int>(ue_dl_buffers.at(rnti)) : 0;
                 float dl_tbs = (dl_tbs_ues.count(rnti) > 0) ? static_cast<int>(dl_tbs_ues.at(rnti)) : 0;
+                // HARQ counters
+                uint32_t dl_ok = (dl_ok_cnt.count(rnti) > 0) ? dl_ok_cnt.at(rnti) : 0;
+                uint32_t dl_nok = (dl_nok_cnt.count(rnti) > 0) ? dl_nok_cnt.at(rnti) : 0;
+                uint32_t ul_ok = (ul_ok_cnt.count(rnti) > 0) ? ul_ok_cnt.at(rnti) : 0;
+                uint32_t ul_nok = (ul_nok_cnt.count(rnti) > 0) ? ul_nok_cnt.at(rnti) : 0;
 
                 // Print all metrics in one line
                 logfile << "RNTI: " << rnti 
@@ -190,7 +280,29 @@ void edgeric::printmyvariables() {
                         << " UL Buffer: " << ul_buffer
                         << " DL Buffer: " << dl_buffer
                         << " DL TBS: " << dl_tbs
+                        << " DL_OK: " << dl_ok
+                        << " DL_NOK: " << dl_nok
+                        << " UL_OK: " << ul_ok
+                        << " UL_NOK: " << ul_nok
                         << std::endl;
+                
+                // Log per-DRB metrics for this UE
+                std::vector<uint8_t> lcids = get_drb_lcids(rnti);
+                for (uint8_t lcid : lcids) {
+                    ue_drb_key key = {rnti, lcid};
+                    uint32_t drb_dl_buf = (drb_dl_buffers.count(key) > 0) ? drb_dl_buffers.at(key) : 0;
+                    uint32_t drb_ul_buf = (drb_ul_buffers.count(key) > 0) ? drb_ul_buffers.at(key) : 0;
+                    float drb_tx = (drb_tx_bytes.count(key) > 0) ? drb_tx_bytes.at(key) : 0.0f;
+                    float drb_rx = (drb_rx_bytes.count(key) > 0) ? drb_rx_bytes.at(key) : 0.0f;
+                    
+                    logfile << "  DRB RNTI: " << rnti 
+                            << " LCID: " << static_cast<int>(lcid)
+                            << " DL_BUF: " << drb_dl_buf
+                            << " UL_BUF: " << drb_ul_buf
+                            << " TX: " << static_cast<int>(drb_tx)
+                            << " RX: " << static_cast<int>(drb_rx)
+                            << std::endl;
+                }
             }
 
             logfile.close();
@@ -523,10 +635,11 @@ void edgeric::get_qos_from_er() {
             
             // Log received QoS control message
             if (enable_logging) {
-                std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
+                std::ofstream logfile("log.txt", std::ios_base::app);
                 if (logfile.is_open()) {
-                    logfile << "========== QoS Control Received (ran_index=" << er_ran_index_qos 
-                            << ", TTI=" << tti_cnt << ") ==========" << std::endl;
+                    logfile << "QoS Control Received (ran_index=" << er_ran_index_qos 
+                            << ", TTI=" << tti_cnt << ")" << std::endl;
+                    logfile.close();
                 }
             }
             
@@ -540,55 +653,21 @@ void edgeric::get_qos_from_er() {
                 if (drb.clear_override()) {
                     // Clear the override for this DRB
                     qos_overrides.erase(key);
-                    
-                    // Log clear action
-                    if (enable_logging) {
-                        std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                        if (logfile.is_open()) {
-                            logfile << "  CLEAR: RNTI=" << rnti << ", LCID=" << static_cast<int>(lcid) << std::endl;
-                        }
-                    }
                 } else {
                     // Apply the overrides
                     auto& params = qos_overrides[key];
                     
-                    // Log the update
-                    if (enable_logging) {
-                        std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                        if (logfile.is_open()) {
-                            logfile << "  UPDATE: RNTI=" << rnti << ", LCID=" << static_cast<int>(lcid);
-                        }
-                    }
-                    
                     if (drb.has_qos_priority()) {
                         params.qos_priority = static_cast<uint8_t>(drb.qos_priority());
                         params.override_qos_priority = true;
-                        if (enable_logging) {
-                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                            if (logfile.is_open()) {
-                                logfile << " qos_prio=" << static_cast<int>(params.qos_priority);
-                            }
-                        }
                     }
                     if (drb.has_arp_priority()) {
                         params.arp_priority = static_cast<uint8_t>(drb.arp_priority());
                         params.override_arp_priority = true;
-                        if (enable_logging) {
-                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                            if (logfile.is_open()) {
-                                logfile << " arp_prio=" << static_cast<int>(params.arp_priority);
-                            }
-                        }
                     }
                     if (drb.has_pdb_ms()) {
                         params.pdb_ms = drb.pdb_ms();
                         params.override_pdb = true;
-                        if (enable_logging) {
-                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                            if (logfile.is_open()) {
-                                logfile << " pdb_ms=" << params.pdb_ms;
-                            }
-                        }
                     }
                     if (drb.has_gbr_dl() || drb.has_gbr_ul()) {
                         if (drb.has_gbr_dl()) {
@@ -598,50 +677,26 @@ void edgeric::get_qos_from_er() {
                             params.gbr_ul = drb.gbr_ul();
                         }
                         params.override_gbr = true;
-                        if (enable_logging) {
-                            std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                            if (logfile.is_open()) {
-                                logfile << " gbr_dl=" << params.gbr_dl << " gbr_ul=" << params.gbr_ul;
-                            }
-                        }
-                    }
-                    
-                    if (enable_logging) {
-                        std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                        if (logfile.is_open()) {
-                            logfile << std::endl;
-                        }
                     }
                 }
             }
-            
-            // Log current state of all QoS overrides
-            if (enable_logging && !qos_overrides.empty()) {
-                std::ofstream logfile("edgeric_qos_log.txt", std::ios_base::app);
-                if (logfile.is_open()) {
-                    logfile << "  --- Current QoS Override State ---" << std::endl;
-                    for (const auto& [key, params] : qos_overrides) {
-                        logfile << "    RNTI=" << key.first << " LCID=" << static_cast<int>(key.second) << ":";
-                        if (params.override_qos_priority) {
-                            logfile << " qos_prio=" << static_cast<int>(params.qos_priority);
-                        }
-                        if (params.override_arp_priority) {
-                            logfile << " arp_prio=" << static_cast<int>(params.arp_priority);
-                        }
-                        if (params.override_pdb) {
-                            logfile << " pdb_ms=" << params.pdb_ms;
-                        }
-                        if (params.override_gbr) {
-                            logfile << " gbr_dl=" << params.gbr_dl << " gbr_ul=" << params.gbr_ul;
-                        }
-                        logfile << std::endl;
-                    }
-                }
-            }
-            
         } else {
             std::cerr << "Failed to parse QosControl message." << std::endl;
         }
     }
     // If no message received, keep existing overrides (they persist until cleared)
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// Centralized Telemetry Collection
+//////////////////////////////////////////////////////////////////////////////
+
+void edgeric::collect_ue_telemetry(uint16_t rnti, float cqi, float snr, 
+                                    uint32_t dl_buffer_bytes, uint32_t ul_buffer_bytes) {
+    // Store metrics in the static maps - these will be logged via printmyvariables()
+    // and sent via send_to_er() which are already called in cell_scheduler::run_slot()
+    ue_cqis[rnti] = cqi;
+    ue_snrs[rnti] = snr;
+    ue_dl_buffers[rnti] = dl_buffer_bytes;
+    ue_ul_buffers[rnti] = ul_buffer_bytes;
 }

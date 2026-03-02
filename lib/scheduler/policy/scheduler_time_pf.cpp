@@ -24,15 +24,8 @@
 #include "../slicing/slice_ue_repository.h"
 #include "../ue_context/ue_cell.h"
 #include <cmath>
-#include <fstream>
-
-// EdgeRIC integration
-#include "../../edgeric/edgeric.h"
 
 using namespace srsran;
-
-// Global TTI counter for EdgeRIC
-static uint32_t tti_cnt = 0;
 
 scheduler_time_pf::scheduler_time_pf(const scheduler_ue_expert_config& expert_cfg_) :
   fairness_coeff(std::get<time_pf_scheduler_config>(expert_cfg_.policy_cfg).pf_sched_fairness_coeff)
@@ -55,9 +48,6 @@ void scheduler_time_pf::compute_ue_dl_priorities(slot_point               pdcch_
                                                   slot_point               pdsch_slot,
                                                   span<ue_newtx_candidate> ue_candidates)
 {
-  // Increment TTI counter
-  tti_cnt++;
-
   // Number of slots elapsed since last scheduling.
   unsigned nof_slots_elapsed = 1;
   if (last_pdsch_slot.valid()) {
@@ -66,24 +56,8 @@ void scheduler_time_pf::compute_ue_dl_priorities(slot_point               pdcch_
   last_pdsch_slot = pdsch_slot;
 
   for (ue_newtx_candidate& candidate : ue_candidates) {
-    // EdgeRIC: Extract and send UE metrics
-    if (candidate.ue_cc != nullptr) {
-      const ue_cell& ue_cc = *candidate.ue_cc;
-      
-      // Get CQI and SNR from channel state
-      float effective_cqi = ue_cc.link_adaptation_controller().get_effective_cqi();
-      float effective_snr = ue_cc.channel_state_manager().get_pusch_snr();
-      
-      // Get buffer status
-      uint32_t dl_newtx_bytes = candidate.ue->pending_dl_newtx_bytes();
-      uint32_t ul_newtx_bytes = candidate.ue->pending_ul_newtx_bytes();
-      
-      // Send to EdgeRIC
-      edgeric::set_cqi(static_cast<unsigned int>(ue_cc.rnti()), effective_cqi);
-      edgeric::set_snr(static_cast<unsigned int>(ue_cc.rnti()), effective_snr);
-      edgeric::set_dl_buffer(static_cast<unsigned int>(ue_cc.rnti()), dl_newtx_bytes);
-      edgeric::set_ul_buffer(static_cast<unsigned int>(ue_cc.rnti()), ul_newtx_bytes);
-    }
+    // Note: EdgeRIC telemetry collection is now done centrally in ue_scheduler_impl::run_slot_impl()
+    // This allows collecting metrics for ALL UEs, not just scheduling candidates
 
     if (not ue_history_db.contains(candidate.ue->ue_index())) {
       // UE not yet added, assign a default high priority.
@@ -105,15 +79,6 @@ void scheduler_time_pf::compute_ue_dl_priorities(slot_point               pdcch_
     double pf_metric = static_cast<double>(candidate.pending_bytes) / std::pow(avg_rate, fairness_coeff);
     candidate.priority = pf_metric;
     ctxt.dl_prio = pf_metric;
-  }
-
-  // EdgeRIC: Log scheduling info from PF scheduler
-  std::ofstream logfile("pf-scheduler-log.txt", std::ios_base::app);
-  if (logfile.is_open()) {
-    logfile << "PF_SCHED TTI: " << tti_cnt 
-            << ", EdgeRIC TTI: " << edgeric::tti_cnt 
-            << ", Candidates: " << ue_candidates.size() << std::endl;
-    logfile.close();
   }
 }
 
