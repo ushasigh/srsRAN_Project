@@ -87,6 +87,7 @@ target_link_libraries(srsran_cu_cp
         srsran_support
         srsran_security
         srsran_e2
+        edgeric
         ${CMAKE_DL_LIBS}
 )
 

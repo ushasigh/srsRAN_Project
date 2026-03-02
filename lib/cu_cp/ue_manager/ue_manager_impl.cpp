@@ -23,6 +23,7 @@
 #include "ue_manager_impl.h"
 #include "srsran/cu_cp/cu_cp_configuration.h"
 #include "srsran/cu_cp/security_manager_config.h"
+#include "../../edgeric/edgeric.h"
 
 using namespace srsran;
 using namespace srs_cu_cp;
@@ -154,6 +155,9 @@ void ue_manager::remove_ue(ue_index_t ue_index)
     logger.debug("ue={}: PCI not found", ue_index);
   }
 
+  // EdgeRIC: Unregister UE index to RNTI mapping
+  edgeric::unregister_ue(static_cast<uint32_t>(ue_index));
+  
   // Remove CU-CP UE from database
   ues.erase(ue_index);
 

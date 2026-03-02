@@ -28,6 +28,7 @@
 #include "srsran/gtpu/gtpu_config.h"
 #include "srsran/gtpu/gtpu_tunnel_ngu_tx.h"
 #include "srsran/support/bit_encoding.h"
+#include "../edgeric/edgeric.h"
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
@@ -41,7 +42,9 @@ public:
                           const gtpu_tunnel_ngu_config::gtpu_tunnel_ngu_tx_config& cfg_,
                           dlt_pcap&                                                gtpu_pcap_,
                           gtpu_tunnel_common_tx_upper_layer_notifier&              upper_dn_) :
-    gtpu_tunnel_base_tx(gtpu_tunnel_log_prefix{ue_index, cfg_.peer_teid, "UL"}, gtpu_pcap_, upper_dn_), cfg(cfg_)
+    gtpu_tunnel_base_tx(gtpu_tunnel_log_prefix{ue_index, cfg_.peer_teid, "UL"}, gtpu_pcap_, upper_dn_), 
+    cfg(cfg_),
+    ue_idx(static_cast<uint32_t>(ue_index))
   {
     to_sockaddr(peer_sockaddr, cfg.peer_addr.c_str(), cfg.peer_port);
     logger.log_info("GTPU NGU Tx configured. {}", cfg);
@@ -58,6 +61,9 @@ public:
     if (stopped) {
       return;
     }
+
+    // Report GTP-U UL packet to edgeric for telemetry (before adding headers)
+    edgeric::report_gtp_ul_pkt(ue_idx, buf.length());
 
     gtpu_header hdr         = {};
     hdr.flags.version       = GTPU_FLAGS_VERSION_V1;
@@ -102,5 +108,6 @@ private:
   const gtpu_tunnel_ngu_config::gtpu_tunnel_ngu_tx_config cfg;
   sockaddr_storage                                        peer_sockaddr = {};
   bool                                                    stopped       = false;
+  uint32_t                                                ue_idx;  // UE index for edgeric telemetry
 };
 } // namespace srsran

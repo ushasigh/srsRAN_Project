@@ -60,6 +60,35 @@ private:
     static std::map<ue_drb_key, uint32_t> drb_ul_buffers;  // UL buffer per DRB (per LCG mapped to LCID)
     static std::map<ue_drb_key, float> drb_tx_bytes;       // DL bytes scheduled per DRB
     static std::map<ue_drb_key, float> drb_rx_bytes;       // UL bytes received per DRB
+    
+    // UE Index to RNTI mapping (for CU-UP to DU correlation)
+    static std::map<uint32_t, uint16_t> ue_index_to_rnti;  // CU-CP ue_index -> RNTI
+    
+    // E1AP-based CU-UP to RNTI correlation
+    static std::map<uint32_t, uint16_t> e1ap_id_to_rnti;  // gnb_cu_cp_ue_e1ap_id -> RNTI
+    static std::map<uint32_t, uint32_t> cu_up_ue_to_e1ap_id;  // cu_up_ue_index -> gnb_cu_cp_ue_e1ap_id
+    
+    // PDCP metrics per UE per DRB: key = (CU-UP ue_index, DRB_ID)
+    using cu_up_drb_key = std::pair<uint32_t, uint8_t>;  // (ue_index, drb_id)
+    struct pdcp_drb_metrics {
+        uint32_t tx_pdus = 0;
+        uint32_t tx_pdu_bytes = 0;
+        uint32_t tx_dropped_sdus = 0;
+        uint32_t rx_pdus = 0;
+        uint32_t rx_pdu_bytes = 0;
+        uint32_t rx_dropped_pdus = 0;
+        uint32_t rx_delivered_sdus = 0;
+    };
+    static std::map<cu_up_drb_key, pdcp_drb_metrics> pdcp_metrics;  // key = (ue_index, DRB_ID)
+    
+    // GTP-U metrics per UE (N3 interface to/from UPF)
+    struct gtp_ue_metrics {
+        uint32_t dl_pkts = 0;    // DL GTP-U packets received from core
+        uint32_t dl_bytes = 0;   // DL GTP-U bytes received from core
+        uint32_t ul_pkts = 0;    // UL GTP-U packets sent to core
+        uint32_t ul_bytes = 0;   // UL GTP-U bytes sent to core
+    };
+    static std::map<uint32_t, gtp_ue_metrics> gtp_metrics;  // key = ue_index
 
     static uint32_t er_ran_index_weights;
     static uint32_t er_ran_index_mcs;
@@ -104,6 +133,60 @@ public:
     }
     // Get all DRBs for a given RNTI (returns list of LCIDs with data)
     static std::vector<uint8_t> get_drb_lcids(uint16_t rnti);
+    
+    //////////////////////////////////// UE Index to RNTI Mapping (CU-CP populates this)
+    /// Register UE index to RNTI mapping - called from CU-CP when UE is created
+    static void register_ue(uint32_t ue_index, uint16_t rnti);
+    /// Unregister UE - called when UE is removed
+    static void unregister_ue(uint32_t ue_index);
+    /// Get RNTI from UE index (returns 0 if not found)
+    static uint16_t get_rnti_from_ue_index(uint32_t ue_index);
+    /// Get UE index from RNTI (returns UINT32_MAX if not found)
+    static uint32_t get_ue_index_from_rnti(uint16_t rnti);
+    
+    //////////////////////////////////// E1AP-based CU-UP to RNTI Correlation
+    /// Register E1AP ID to RNTI mapping - called from CU-CP when bearer context is set up
+    /// @param gnb_cu_cp_ue_e1ap_id The E1AP UE ID assigned by CU-CP
+    /// @param rnti The RNTI of the UE
+    static void register_e1ap_rnti(uint32_t gnb_cu_cp_ue_e1ap_id, uint16_t rnti);
+    
+    /// Register CU-UP UE index to E1AP ID mapping - called from CU-UP E1AP when bearer context is set up
+    /// @param cu_up_ue_index The CU-UP internal UE index
+    /// @param gnb_cu_cp_ue_e1ap_id The E1AP UE ID from CU-CP (received in bearer context setup request)
+    static void register_cu_up_ue_e1ap(uint32_t cu_up_ue_index, uint32_t gnb_cu_cp_ue_e1ap_id);
+    
+    /// Get RNTI from CU-UP UE index using E1AP correlation (returns 0 if not found)
+    static uint16_t get_rnti_from_cu_up_ue_index(uint32_t cu_up_ue_index);
+    
+    //////////////////////////////////// PDCP Metrics (from CU-UP)
+    /// Report PDCP metrics for a UE/DRB - called from PDCP metrics aggregator
+    /// @param ue_index CU-UP UE index
+    /// @param drb_id DRB ID (1-32)
+    /// @param tx TX (DL) metrics
+    /// @param rx RX (UL) metrics
+    static void report_pdcp_metrics(uint32_t ue_index, uint8_t drb_id,
+                                    uint32_t tx_pdus, uint32_t tx_pdu_bytes, uint32_t tx_dropped_sdus,
+                                    uint32_t rx_pdus, uint32_t rx_pdu_bytes, uint32_t rx_dropped_pdus,
+                                    uint32_t rx_delivered_sdus);
+    /// Get all DRB IDs with PDCP metrics for a given RNTI (deprecated - use get_pdcp_drb_ids_by_ue_index)
+    static std::vector<uint8_t> get_pdcp_drb_ids(uint16_t rnti);
+    /// Get all DRB IDs with PDCP metrics for a given CU-UP UE index
+    static std::vector<uint8_t> get_pdcp_drb_ids_by_ue_index(uint32_t ue_index);
+    
+    //////////////////////////////////// GTP-U Metrics (from CU-UP, N3 interface)
+    /// Report GTP-U DL packet received (from UPF to gNB)
+    /// @param ue_index CU-UP UE index
+    /// @param pdu_len Length of the GTP-U payload (SDU)
+    static void report_gtp_dl_pkt(uint32_t ue_index, uint32_t pdu_len);
+    
+    /// Report GTP-U UL packet sent (from gNB to UPF)
+    /// @param ue_index CU-UP UE index
+    /// @param pdu_len Length of the GTP-U payload (SDU)
+    static void report_gtp_ul_pkt(uint32_t ue_index, uint32_t pdu_len);
+    
+    /// Get GTP metrics for a UE by RNTI (returns nullopt if not found)
+    static std::optional<gtp_ue_metrics> get_gtp_metrics(uint16_t rnti);
+    
     //////////////////////////////////// ZMQ function to send RT-E2 Report 
     static void send_to_er();
     

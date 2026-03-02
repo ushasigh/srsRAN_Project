@@ -21,6 +21,7 @@
  */
 
 #include "cu_cp_ue_impl.h"
+#include "../../edgeric/edgeric.h"
 
 using namespace srsran;
 using namespace srs_cu_cp;
@@ -80,6 +81,8 @@ void cu_cp_ue::update_du_ue(gnb_du_id_t du_id_, pci_t pci_, rnti_t c_rnti_, du_c
 
   if (c_rnti_ != rnti_t::INVALID_RNTI) {
     ue_ctxt.crnti = c_rnti_;
+    // EdgeRIC: Register UE index to RNTI mapping
+    edgeric::register_ue(static_cast<uint32_t>(ue_index), static_cast<uint16_t>(c_rnti_));
   }
 
   if (pcell_index_ != du_cell_index_t::invalid) {

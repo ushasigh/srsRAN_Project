@@ -47,15 +47,23 @@ extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table
 class DrbMetrics;
 struct DrbMetricsDefaultTypeInternal;
 extern DrbMetricsDefaultTypeInternal _DrbMetrics_default_instance_;
+class GtpMetrics;
+struct GtpMetricsDefaultTypeInternal;
+extern GtpMetricsDefaultTypeInternal _GtpMetrics_default_instance_;
 class Metrics;
 struct MetricsDefaultTypeInternal;
 extern MetricsDefaultTypeInternal _Metrics_default_instance_;
+class PdcpDrbMetrics;
+struct PdcpDrbMetricsDefaultTypeInternal;
+extern PdcpDrbMetricsDefaultTypeInternal _PdcpDrbMetrics_default_instance_;
 class UeMetrics;
 struct UeMetricsDefaultTypeInternal;
 extern UeMetricsDefaultTypeInternal _UeMetrics_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
 template<> ::DrbMetrics* Arena::CreateMaybeMessage<::DrbMetrics>(Arena*);
+template<> ::GtpMetrics* Arena::CreateMaybeMessage<::GtpMetrics>(Arena*);
 template<> ::Metrics* Arena::CreateMaybeMessage<::Metrics>(Arena*);
+template<> ::PdcpDrbMetrics* Arena::CreateMaybeMessage<::PdcpDrbMetrics>(Arena*);
 template<> ::UeMetrics* Arena::CreateMaybeMessage<::UeMetrics>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 
@@ -253,6 +261,412 @@ class DrbMetrics final :
 };
 // -------------------------------------------------------------------
 
+class PdcpDrbMetrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:PdcpDrbMetrics) */ {
+ public:
+  inline PdcpDrbMetrics() : PdcpDrbMetrics(nullptr) {}
+  ~PdcpDrbMetrics() override;
+  explicit PROTOBUF_CONSTEXPR PdcpDrbMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  PdcpDrbMetrics(const PdcpDrbMetrics& from);
+  PdcpDrbMetrics(PdcpDrbMetrics&& from) noexcept
+    : PdcpDrbMetrics() {
+    *this = ::std::move(from);
+  }
+
+  inline PdcpDrbMetrics& operator=(const PdcpDrbMetrics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline PdcpDrbMetrics& operator=(PdcpDrbMetrics&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const PdcpDrbMetrics& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const PdcpDrbMetrics* internal_default_instance() {
+    return reinterpret_cast<const PdcpDrbMetrics*>(
+               &_PdcpDrbMetrics_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(PdcpDrbMetrics& a, PdcpDrbMetrics& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(PdcpDrbMetrics* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(PdcpDrbMetrics* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  PdcpDrbMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<PdcpDrbMetrics>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const PdcpDrbMetrics& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const PdcpDrbMetrics& from) {
+    PdcpDrbMetrics::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(PdcpDrbMetrics* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "PdcpDrbMetrics";
+  }
+  protected:
+  explicit PdcpDrbMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDrbIdFieldNumber = 1,
+    kTxPdusFieldNumber = 2,
+    kTxPduBytesFieldNumber = 3,
+    kTxDroppedSdusFieldNumber = 4,
+    kRxPdusFieldNumber = 5,
+    kRxPduBytesFieldNumber = 6,
+    kRxDroppedPdusFieldNumber = 7,
+    kRxDeliveredSdusFieldNumber = 8,
+  };
+  // uint32 drb_id = 1;
+  void clear_drb_id();
+  uint32_t drb_id() const;
+  void set_drb_id(uint32_t value);
+  private:
+  uint32_t _internal_drb_id() const;
+  void _internal_set_drb_id(uint32_t value);
+  public:
+
+  // uint32 tx_pdus = 2;
+  void clear_tx_pdus();
+  uint32_t tx_pdus() const;
+  void set_tx_pdus(uint32_t value);
+  private:
+  uint32_t _internal_tx_pdus() const;
+  void _internal_set_tx_pdus(uint32_t value);
+  public:
+
+  // uint32 tx_pdu_bytes = 3;
+  void clear_tx_pdu_bytes();
+  uint32_t tx_pdu_bytes() const;
+  void set_tx_pdu_bytes(uint32_t value);
+  private:
+  uint32_t _internal_tx_pdu_bytes() const;
+  void _internal_set_tx_pdu_bytes(uint32_t value);
+  public:
+
+  // uint32 tx_dropped_sdus = 4;
+  void clear_tx_dropped_sdus();
+  uint32_t tx_dropped_sdus() const;
+  void set_tx_dropped_sdus(uint32_t value);
+  private:
+  uint32_t _internal_tx_dropped_sdus() const;
+  void _internal_set_tx_dropped_sdus(uint32_t value);
+  public:
+
+  // uint32 rx_pdus = 5;
+  void clear_rx_pdus();
+  uint32_t rx_pdus() const;
+  void set_rx_pdus(uint32_t value);
+  private:
+  uint32_t _internal_rx_pdus() const;
+  void _internal_set_rx_pdus(uint32_t value);
+  public:
+
+  // uint32 rx_pdu_bytes = 6;
+  void clear_rx_pdu_bytes();
+  uint32_t rx_pdu_bytes() const;
+  void set_rx_pdu_bytes(uint32_t value);
+  private:
+  uint32_t _internal_rx_pdu_bytes() const;
+  void _internal_set_rx_pdu_bytes(uint32_t value);
+  public:
+
+  // uint32 rx_dropped_pdus = 7;
+  void clear_rx_dropped_pdus();
+  uint32_t rx_dropped_pdus() const;
+  void set_rx_dropped_pdus(uint32_t value);
+  private:
+  uint32_t _internal_rx_dropped_pdus() const;
+  void _internal_set_rx_dropped_pdus(uint32_t value);
+  public:
+
+  // uint32 rx_delivered_sdus = 8;
+  void clear_rx_delivered_sdus();
+  uint32_t rx_delivered_sdus() const;
+  void set_rx_delivered_sdus(uint32_t value);
+  private:
+  uint32_t _internal_rx_delivered_sdus() const;
+  void _internal_set_rx_delivered_sdus(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:PdcpDrbMetrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint32_t drb_id_;
+    uint32_t tx_pdus_;
+    uint32_t tx_pdu_bytes_;
+    uint32_t tx_dropped_sdus_;
+    uint32_t rx_pdus_;
+    uint32_t rx_pdu_bytes_;
+    uint32_t rx_dropped_pdus_;
+    uint32_t rx_delivered_sdus_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
+class GtpMetrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:GtpMetrics) */ {
+ public:
+  inline GtpMetrics() : GtpMetrics(nullptr) {}
+  ~GtpMetrics() override;
+  explicit PROTOBUF_CONSTEXPR GtpMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  GtpMetrics(const GtpMetrics& from);
+  GtpMetrics(GtpMetrics&& from) noexcept
+    : GtpMetrics() {
+    *this = ::std::move(from);
+  }
+
+  inline GtpMetrics& operator=(const GtpMetrics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline GtpMetrics& operator=(GtpMetrics&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const GtpMetrics& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const GtpMetrics* internal_default_instance() {
+    return reinterpret_cast<const GtpMetrics*>(
+               &_GtpMetrics_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    2;
+
+  friend void swap(GtpMetrics& a, GtpMetrics& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(GtpMetrics* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(GtpMetrics* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  GtpMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<GtpMetrics>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const GtpMetrics& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const GtpMetrics& from) {
+    GtpMetrics::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(GtpMetrics* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "GtpMetrics";
+  }
+  protected:
+  explicit GtpMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kDlPktsFieldNumber = 1,
+    kDlBytesFieldNumber = 2,
+    kUlPktsFieldNumber = 3,
+    kUlBytesFieldNumber = 4,
+  };
+  // uint32 dl_pkts = 1;
+  void clear_dl_pkts();
+  uint32_t dl_pkts() const;
+  void set_dl_pkts(uint32_t value);
+  private:
+  uint32_t _internal_dl_pkts() const;
+  void _internal_set_dl_pkts(uint32_t value);
+  public:
+
+  // uint32 dl_bytes = 2;
+  void clear_dl_bytes();
+  uint32_t dl_bytes() const;
+  void set_dl_bytes(uint32_t value);
+  private:
+  uint32_t _internal_dl_bytes() const;
+  void _internal_set_dl_bytes(uint32_t value);
+  public:
+
+  // uint32 ul_pkts = 3;
+  void clear_ul_pkts();
+  uint32_t ul_pkts() const;
+  void set_ul_pkts(uint32_t value);
+  private:
+  uint32_t _internal_ul_pkts() const;
+  void _internal_set_ul_pkts(uint32_t value);
+  public:
+
+  // uint32 ul_bytes = 4;
+  void clear_ul_bytes();
+  uint32_t ul_bytes() const;
+  void set_ul_bytes(uint32_t value);
+  private:
+  uint32_t _internal_ul_bytes() const;
+  void _internal_set_ul_bytes(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:GtpMetrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint32_t dl_pkts_;
+    uint32_t dl_bytes_;
+    uint32_t ul_pkts_;
+    uint32_t ul_bytes_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
 class UeMetrics final :
     public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:UeMetrics) */ {
  public:
@@ -301,7 +715,7 @@ class UeMetrics final :
                &_UeMetrics_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    3;
 
   friend void swap(UeMetrics& a, UeMetrics& b) {
     a.Swap(&b);
@@ -375,6 +789,8 @@ class UeMetrics final :
 
   enum : int {
     kDrbMetricsFieldNumber = 13,
+    kPdcpDrbMetricsFieldNumber = 14,
+    kGtpMetricsFieldNumber = 15,
     kRntiFieldNumber = 1,
     kCqiFieldNumber = 2,
     kSnrFieldNumber = 3,
@@ -405,6 +821,42 @@ class UeMetrics final :
   ::DrbMetrics* add_drb_metrics();
   const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics >&
       drb_metrics() const;
+
+  // repeated .PdcpDrbMetrics pdcp_drb_metrics = 14;
+  int pdcp_drb_metrics_size() const;
+  private:
+  int _internal_pdcp_drb_metrics_size() const;
+  public:
+  void clear_pdcp_drb_metrics();
+  ::PdcpDrbMetrics* mutable_pdcp_drb_metrics(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >*
+      mutable_pdcp_drb_metrics();
+  private:
+  const ::PdcpDrbMetrics& _internal_pdcp_drb_metrics(int index) const;
+  ::PdcpDrbMetrics* _internal_add_pdcp_drb_metrics();
+  public:
+  const ::PdcpDrbMetrics& pdcp_drb_metrics(int index) const;
+  ::PdcpDrbMetrics* add_pdcp_drb_metrics();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >&
+      pdcp_drb_metrics() const;
+
+  // .GtpMetrics gtp_metrics = 15;
+  bool has_gtp_metrics() const;
+  private:
+  bool _internal_has_gtp_metrics() const;
+  public:
+  void clear_gtp_metrics();
+  const ::GtpMetrics& gtp_metrics() const;
+  PROTOBUF_NODISCARD ::GtpMetrics* release_gtp_metrics();
+  ::GtpMetrics* mutable_gtp_metrics();
+  void set_allocated_gtp_metrics(::GtpMetrics* gtp_metrics);
+  private:
+  const ::GtpMetrics& _internal_gtp_metrics() const;
+  ::GtpMetrics* _internal_mutable_gtp_metrics();
+  public:
+  void unsafe_arena_set_allocated_gtp_metrics(
+      ::GtpMetrics* gtp_metrics);
+  ::GtpMetrics* unsafe_arena_release_gtp_metrics();
 
   // uint32 rnti = 1;
   void clear_rnti();
@@ -523,6 +975,8 @@ class UeMetrics final :
   typedef void DestructorSkippable_;
   struct Impl_ {
     ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics > drb_metrics_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics > pdcp_drb_metrics_;
+    ::GtpMetrics* gtp_metrics_;
     uint32_t rnti_;
     uint32_t cqi_;
     float snr_;
@@ -590,7 +1044,7 @@ class Metrics final :
                &_Metrics_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    4;
 
   friend void swap(Metrics& a, Metrics& b) {
     a.Swap(&b);
@@ -817,6 +1271,254 @@ inline void DrbMetrics::_internal_set_rx_bytes(float value) {
 inline void DrbMetrics::set_rx_bytes(float value) {
   _internal_set_rx_bytes(value);
   // @@protoc_insertion_point(field_set:DrbMetrics.rx_bytes)
+}
+
+// -------------------------------------------------------------------
+
+// PdcpDrbMetrics
+
+// uint32 drb_id = 1;
+inline void PdcpDrbMetrics::clear_drb_id() {
+  _impl_.drb_id_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_drb_id() const {
+  return _impl_.drb_id_;
+}
+inline uint32_t PdcpDrbMetrics::drb_id() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.drb_id)
+  return _internal_drb_id();
+}
+inline void PdcpDrbMetrics::_internal_set_drb_id(uint32_t value) {
+  
+  _impl_.drb_id_ = value;
+}
+inline void PdcpDrbMetrics::set_drb_id(uint32_t value) {
+  _internal_set_drb_id(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.drb_id)
+}
+
+// uint32 tx_pdus = 2;
+inline void PdcpDrbMetrics::clear_tx_pdus() {
+  _impl_.tx_pdus_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_tx_pdus() const {
+  return _impl_.tx_pdus_;
+}
+inline uint32_t PdcpDrbMetrics::tx_pdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_pdus)
+  return _internal_tx_pdus();
+}
+inline void PdcpDrbMetrics::_internal_set_tx_pdus(uint32_t value) {
+  
+  _impl_.tx_pdus_ = value;
+}
+inline void PdcpDrbMetrics::set_tx_pdus(uint32_t value) {
+  _internal_set_tx_pdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_pdus)
+}
+
+// uint32 tx_pdu_bytes = 3;
+inline void PdcpDrbMetrics::clear_tx_pdu_bytes() {
+  _impl_.tx_pdu_bytes_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_tx_pdu_bytes() const {
+  return _impl_.tx_pdu_bytes_;
+}
+inline uint32_t PdcpDrbMetrics::tx_pdu_bytes() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_pdu_bytes)
+  return _internal_tx_pdu_bytes();
+}
+inline void PdcpDrbMetrics::_internal_set_tx_pdu_bytes(uint32_t value) {
+  
+  _impl_.tx_pdu_bytes_ = value;
+}
+inline void PdcpDrbMetrics::set_tx_pdu_bytes(uint32_t value) {
+  _internal_set_tx_pdu_bytes(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_pdu_bytes)
+}
+
+// uint32 tx_dropped_sdus = 4;
+inline void PdcpDrbMetrics::clear_tx_dropped_sdus() {
+  _impl_.tx_dropped_sdus_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_tx_dropped_sdus() const {
+  return _impl_.tx_dropped_sdus_;
+}
+inline uint32_t PdcpDrbMetrics::tx_dropped_sdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_dropped_sdus)
+  return _internal_tx_dropped_sdus();
+}
+inline void PdcpDrbMetrics::_internal_set_tx_dropped_sdus(uint32_t value) {
+  
+  _impl_.tx_dropped_sdus_ = value;
+}
+inline void PdcpDrbMetrics::set_tx_dropped_sdus(uint32_t value) {
+  _internal_set_tx_dropped_sdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_dropped_sdus)
+}
+
+// uint32 rx_pdus = 5;
+inline void PdcpDrbMetrics::clear_rx_pdus() {
+  _impl_.rx_pdus_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_rx_pdus() const {
+  return _impl_.rx_pdus_;
+}
+inline uint32_t PdcpDrbMetrics::rx_pdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_pdus)
+  return _internal_rx_pdus();
+}
+inline void PdcpDrbMetrics::_internal_set_rx_pdus(uint32_t value) {
+  
+  _impl_.rx_pdus_ = value;
+}
+inline void PdcpDrbMetrics::set_rx_pdus(uint32_t value) {
+  _internal_set_rx_pdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_pdus)
+}
+
+// uint32 rx_pdu_bytes = 6;
+inline void PdcpDrbMetrics::clear_rx_pdu_bytes() {
+  _impl_.rx_pdu_bytes_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_rx_pdu_bytes() const {
+  return _impl_.rx_pdu_bytes_;
+}
+inline uint32_t PdcpDrbMetrics::rx_pdu_bytes() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_pdu_bytes)
+  return _internal_rx_pdu_bytes();
+}
+inline void PdcpDrbMetrics::_internal_set_rx_pdu_bytes(uint32_t value) {
+  
+  _impl_.rx_pdu_bytes_ = value;
+}
+inline void PdcpDrbMetrics::set_rx_pdu_bytes(uint32_t value) {
+  _internal_set_rx_pdu_bytes(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_pdu_bytes)
+}
+
+// uint32 rx_dropped_pdus = 7;
+inline void PdcpDrbMetrics::clear_rx_dropped_pdus() {
+  _impl_.rx_dropped_pdus_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_rx_dropped_pdus() const {
+  return _impl_.rx_dropped_pdus_;
+}
+inline uint32_t PdcpDrbMetrics::rx_dropped_pdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_dropped_pdus)
+  return _internal_rx_dropped_pdus();
+}
+inline void PdcpDrbMetrics::_internal_set_rx_dropped_pdus(uint32_t value) {
+  
+  _impl_.rx_dropped_pdus_ = value;
+}
+inline void PdcpDrbMetrics::set_rx_dropped_pdus(uint32_t value) {
+  _internal_set_rx_dropped_pdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_dropped_pdus)
+}
+
+// uint32 rx_delivered_sdus = 8;
+inline void PdcpDrbMetrics::clear_rx_delivered_sdus() {
+  _impl_.rx_delivered_sdus_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_rx_delivered_sdus() const {
+  return _impl_.rx_delivered_sdus_;
+}
+inline uint32_t PdcpDrbMetrics::rx_delivered_sdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_delivered_sdus)
+  return _internal_rx_delivered_sdus();
+}
+inline void PdcpDrbMetrics::_internal_set_rx_delivered_sdus(uint32_t value) {
+  
+  _impl_.rx_delivered_sdus_ = value;
+}
+inline void PdcpDrbMetrics::set_rx_delivered_sdus(uint32_t value) {
+  _internal_set_rx_delivered_sdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_delivered_sdus)
+}
+
+// -------------------------------------------------------------------
+
+// GtpMetrics
+
+// uint32 dl_pkts = 1;
+inline void GtpMetrics::clear_dl_pkts() {
+  _impl_.dl_pkts_ = 0u;
+}
+inline uint32_t GtpMetrics::_internal_dl_pkts() const {
+  return _impl_.dl_pkts_;
+}
+inline uint32_t GtpMetrics::dl_pkts() const {
+  // @@protoc_insertion_point(field_get:GtpMetrics.dl_pkts)
+  return _internal_dl_pkts();
+}
+inline void GtpMetrics::_internal_set_dl_pkts(uint32_t value) {
+  
+  _impl_.dl_pkts_ = value;
+}
+inline void GtpMetrics::set_dl_pkts(uint32_t value) {
+  _internal_set_dl_pkts(value);
+  // @@protoc_insertion_point(field_set:GtpMetrics.dl_pkts)
+}
+
+// uint32 dl_bytes = 2;
+inline void GtpMetrics::clear_dl_bytes() {
+  _impl_.dl_bytes_ = 0u;
+}
+inline uint32_t GtpMetrics::_internal_dl_bytes() const {
+  return _impl_.dl_bytes_;
+}
+inline uint32_t GtpMetrics::dl_bytes() const {
+  // @@protoc_insertion_point(field_get:GtpMetrics.dl_bytes)
+  return _internal_dl_bytes();
+}
+inline void GtpMetrics::_internal_set_dl_bytes(uint32_t value) {
+  
+  _impl_.dl_bytes_ = value;
+}
+inline void GtpMetrics::set_dl_bytes(uint32_t value) {
+  _internal_set_dl_bytes(value);
+  // @@protoc_insertion_point(field_set:GtpMetrics.dl_bytes)
+}
+
+// uint32 ul_pkts = 3;
+inline void GtpMetrics::clear_ul_pkts() {
+  _impl_.ul_pkts_ = 0u;
+}
+inline uint32_t GtpMetrics::_internal_ul_pkts() const {
+  return _impl_.ul_pkts_;
+}
+inline uint32_t GtpMetrics::ul_pkts() const {
+  // @@protoc_insertion_point(field_get:GtpMetrics.ul_pkts)
+  return _internal_ul_pkts();
+}
+inline void GtpMetrics::_internal_set_ul_pkts(uint32_t value) {
+  
+  _impl_.ul_pkts_ = value;
+}
+inline void GtpMetrics::set_ul_pkts(uint32_t value) {
+  _internal_set_ul_pkts(value);
+  // @@protoc_insertion_point(field_set:GtpMetrics.ul_pkts)
+}
+
+// uint32 ul_bytes = 4;
+inline void GtpMetrics::clear_ul_bytes() {
+  _impl_.ul_bytes_ = 0u;
+}
+inline uint32_t GtpMetrics::_internal_ul_bytes() const {
+  return _impl_.ul_bytes_;
+}
+inline uint32_t GtpMetrics::ul_bytes() const {
+  // @@protoc_insertion_point(field_get:GtpMetrics.ul_bytes)
+  return _internal_ul_bytes();
+}
+inline void GtpMetrics::_internal_set_ul_bytes(uint32_t value) {
+  
+  _impl_.ul_bytes_ = value;
+}
+inline void GtpMetrics::set_ul_bytes(uint32_t value) {
+  _internal_set_ul_bytes(value);
+  // @@protoc_insertion_point(field_set:GtpMetrics.ul_bytes)
 }
 
 // -------------------------------------------------------------------
@@ -1103,6 +1805,136 @@ UeMetrics::drb_metrics() const {
   return _impl_.drb_metrics_;
 }
 
+// repeated .PdcpDrbMetrics pdcp_drb_metrics = 14;
+inline int UeMetrics::_internal_pdcp_drb_metrics_size() const {
+  return _impl_.pdcp_drb_metrics_.size();
+}
+inline int UeMetrics::pdcp_drb_metrics_size() const {
+  return _internal_pdcp_drb_metrics_size();
+}
+inline void UeMetrics::clear_pdcp_drb_metrics() {
+  _impl_.pdcp_drb_metrics_.Clear();
+}
+inline ::PdcpDrbMetrics* UeMetrics::mutable_pdcp_drb_metrics(int index) {
+  // @@protoc_insertion_point(field_mutable:UeMetrics.pdcp_drb_metrics)
+  return _impl_.pdcp_drb_metrics_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >*
+UeMetrics::mutable_pdcp_drb_metrics() {
+  // @@protoc_insertion_point(field_mutable_list:UeMetrics.pdcp_drb_metrics)
+  return &_impl_.pdcp_drb_metrics_;
+}
+inline const ::PdcpDrbMetrics& UeMetrics::_internal_pdcp_drb_metrics(int index) const {
+  return _impl_.pdcp_drb_metrics_.Get(index);
+}
+inline const ::PdcpDrbMetrics& UeMetrics::pdcp_drb_metrics(int index) const {
+  // @@protoc_insertion_point(field_get:UeMetrics.pdcp_drb_metrics)
+  return _internal_pdcp_drb_metrics(index);
+}
+inline ::PdcpDrbMetrics* UeMetrics::_internal_add_pdcp_drb_metrics() {
+  return _impl_.pdcp_drb_metrics_.Add();
+}
+inline ::PdcpDrbMetrics* UeMetrics::add_pdcp_drb_metrics() {
+  ::PdcpDrbMetrics* _add = _internal_add_pdcp_drb_metrics();
+  // @@protoc_insertion_point(field_add:UeMetrics.pdcp_drb_metrics)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >&
+UeMetrics::pdcp_drb_metrics() const {
+  // @@protoc_insertion_point(field_list:UeMetrics.pdcp_drb_metrics)
+  return _impl_.pdcp_drb_metrics_;
+}
+
+// .GtpMetrics gtp_metrics = 15;
+inline bool UeMetrics::_internal_has_gtp_metrics() const {
+  return this != internal_default_instance() && _impl_.gtp_metrics_ != nullptr;
+}
+inline bool UeMetrics::has_gtp_metrics() const {
+  return _internal_has_gtp_metrics();
+}
+inline void UeMetrics::clear_gtp_metrics() {
+  if (GetArenaForAllocation() == nullptr && _impl_.gtp_metrics_ != nullptr) {
+    delete _impl_.gtp_metrics_;
+  }
+  _impl_.gtp_metrics_ = nullptr;
+}
+inline const ::GtpMetrics& UeMetrics::_internal_gtp_metrics() const {
+  const ::GtpMetrics* p = _impl_.gtp_metrics_;
+  return p != nullptr ? *p : reinterpret_cast<const ::GtpMetrics&>(
+      ::_GtpMetrics_default_instance_);
+}
+inline const ::GtpMetrics& UeMetrics::gtp_metrics() const {
+  // @@protoc_insertion_point(field_get:UeMetrics.gtp_metrics)
+  return _internal_gtp_metrics();
+}
+inline void UeMetrics::unsafe_arena_set_allocated_gtp_metrics(
+    ::GtpMetrics* gtp_metrics) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.gtp_metrics_);
+  }
+  _impl_.gtp_metrics_ = gtp_metrics;
+  if (gtp_metrics) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:UeMetrics.gtp_metrics)
+}
+inline ::GtpMetrics* UeMetrics::release_gtp_metrics() {
+  
+  ::GtpMetrics* temp = _impl_.gtp_metrics_;
+  _impl_.gtp_metrics_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::GtpMetrics* UeMetrics::unsafe_arena_release_gtp_metrics() {
+  // @@protoc_insertion_point(field_release:UeMetrics.gtp_metrics)
+  
+  ::GtpMetrics* temp = _impl_.gtp_metrics_;
+  _impl_.gtp_metrics_ = nullptr;
+  return temp;
+}
+inline ::GtpMetrics* UeMetrics::_internal_mutable_gtp_metrics() {
+  
+  if (_impl_.gtp_metrics_ == nullptr) {
+    auto* p = CreateMaybeMessage<::GtpMetrics>(GetArenaForAllocation());
+    _impl_.gtp_metrics_ = p;
+  }
+  return _impl_.gtp_metrics_;
+}
+inline ::GtpMetrics* UeMetrics::mutable_gtp_metrics() {
+  ::GtpMetrics* _msg = _internal_mutable_gtp_metrics();
+  // @@protoc_insertion_point(field_mutable:UeMetrics.gtp_metrics)
+  return _msg;
+}
+inline void UeMetrics::set_allocated_gtp_metrics(::GtpMetrics* gtp_metrics) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.gtp_metrics_;
+  }
+  if (gtp_metrics) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(gtp_metrics);
+    if (message_arena != submessage_arena) {
+      gtp_metrics = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, gtp_metrics, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.gtp_metrics_ = gtp_metrics;
+  // @@protoc_insertion_point(field_set_allocated:UeMetrics.gtp_metrics)
+}
+
 // -------------------------------------------------------------------
 
 // Metrics
@@ -1170,6 +2002,10 @@ Metrics::ue_metrics() const {
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

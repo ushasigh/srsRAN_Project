@@ -1,5 +1,6 @@
 #include "edgeric.h"
 #include <set>
+#include <algorithm>
 
 // Definition of static member variables
 uint32_t edgeric::tti_cnt = 0;
@@ -24,6 +25,19 @@ std::map<ue_drb_key, uint32_t> edgeric::drb_dl_buffers = {};
 std::map<ue_drb_key, uint32_t> edgeric::drb_ul_buffers = {};
 std::map<ue_drb_key, float> edgeric::drb_tx_bytes = {};
 std::map<ue_drb_key, float> edgeric::drb_rx_bytes = {};
+
+// UE Index to RNTI mapping
+std::map<uint32_t, uint16_t> edgeric::ue_index_to_rnti = {};
+
+// E1AP-based CU-UP to RNTI correlation
+std::map<uint32_t, uint16_t> edgeric::e1ap_id_to_rnti = {};
+std::map<uint32_t, uint32_t> edgeric::cu_up_ue_to_e1ap_id = {};
+
+// PDCP metrics per UE per DRB (keyed by CU-UP ue_index, not RNTI)
+std::map<edgeric::cu_up_drb_key, edgeric::pdcp_drb_metrics> edgeric::pdcp_metrics = {};
+
+// GTP-U metrics per UE (N3 interface)
+std::map<uint32_t, edgeric::gtp_ue_metrics> edgeric::gtp_metrics = {};
 
 // std::map<uint16_t, float> edgeric::weights_recved = {};
 std::map<uint16_t, float> edgeric::weights_recved = {};
@@ -151,6 +165,10 @@ void edgeric::send_to_er() {
             auto rx_it = drb_rx_bytes.find(key);
             drb->set_rx_bytes((rx_it != drb_rx_bytes.end()) ? rx_it->second : 0.0f);
         }
+        
+        // Note: PDCP and GTP metrics are keyed by CU-UP ue_index, not RNTI
+        // They are logged separately in printmyvariables() but not added to protobuf
+        // as we cannot correlate CU-UP ue_index with DU RNTI in split architecture
     }
 
     // Serialize the Metrics message to a string
@@ -177,11 +195,14 @@ void edgeric::send_to_er() {
     dl_nok_cnt.clear();
     ul_ok_cnt.clear();
     ul_nok_cnt.clear();
-    // Clear per-DRB metrics each TTI
+    // Clear per-DRB MAC/RLC metrics each TTI (from DU scheduler)
     drb_dl_buffers.clear();
     drb_ul_buffers.clear();
     drb_tx_bytes.clear();
     drb_rx_bytes.clear();
+    // NOTE: Do NOT clear pdcp_metrics and gtp_metrics here!
+    // They are reported asynchronously from CU-UP and not synced with scheduler TTI.
+    // They will accumulate and be displayed each TTI until overwritten by next report.
     // ue_dl_buffers.clear();
     // ue_ul_buffers.clear();
 }
@@ -217,6 +238,124 @@ std::vector<uint8_t> edgeric::get_drb_lcids(uint16_t rnti) {
     return lcids;
 }
 
+// UE Index to RNTI mapping functions
+void edgeric::register_ue(uint32_t ue_index, uint16_t rnti) {
+    ue_index_to_rnti[ue_index] = rnti;
+    std::ofstream logfile("log.txt", std::ios_base::app);
+    if (logfile.is_open()) {
+        logfile << "EdgeRIC: Registered UE index " << ue_index << " -> RNTI " << rnti << std::endl;
+        logfile.close();
+    }
+}
+
+void edgeric::unregister_ue(uint32_t ue_index) {
+    ue_index_to_rnti.erase(ue_index);
+}
+
+uint16_t edgeric::get_rnti_from_ue_index(uint32_t ue_index) {
+    auto it = ue_index_to_rnti.find(ue_index);
+    return (it != ue_index_to_rnti.end()) ? it->second : 0;
+}
+
+uint32_t edgeric::get_ue_index_from_rnti(uint16_t rnti) {
+    for (const auto& pair : ue_index_to_rnti) {
+        if (pair.second == rnti) {
+            return pair.first;
+        }
+    }
+    return UINT32_MAX;
+}
+
+// E1AP-based CU-UP to RNTI correlation
+void edgeric::register_e1ap_rnti(uint32_t gnb_cu_cp_ue_e1ap_id, uint16_t rnti) {
+    e1ap_id_to_rnti[gnb_cu_cp_ue_e1ap_id] = rnti;
+}
+
+void edgeric::register_cu_up_ue_e1ap(uint32_t cu_up_ue_index, uint32_t gnb_cu_cp_ue_e1ap_id) {
+    cu_up_ue_to_e1ap_id[cu_up_ue_index] = gnb_cu_cp_ue_e1ap_id;
+}
+
+uint16_t edgeric::get_rnti_from_cu_up_ue_index(uint32_t cu_up_ue_index) {
+    // Step 1: Get the E1AP ID from CU-UP UE index
+    auto e1ap_it = cu_up_ue_to_e1ap_id.find(cu_up_ue_index);
+    if (e1ap_it == cu_up_ue_to_e1ap_id.end()) {
+        return 0;  // CU-UP UE not registered
+    }
+    
+    uint32_t e1ap_id = e1ap_it->second;
+    
+    // Step 2: Get the RNTI from E1AP ID
+    auto rnti_it = e1ap_id_to_rnti.find(e1ap_id);
+    if (rnti_it == e1ap_id_to_rnti.end()) {
+        return 0;  // E1AP ID not mapped to RNTI yet
+    }
+    
+    return rnti_it->second;
+}
+
+// PDCP metrics reporting
+void edgeric::report_pdcp_metrics(uint32_t ue_index, uint8_t drb_id,
+                                   uint32_t tx_pdus, uint32_t tx_pdu_bytes, uint32_t tx_dropped_sdus,
+                                   uint32_t rx_pdus, uint32_t rx_pdu_bytes, uint32_t rx_dropped_pdus,
+                                   uint32_t rx_delivered_sdus) {
+    // Store by CU-UP ue_index directly (not RNTI, as CU-UP has different indices)
+    cu_up_drb_key key = {ue_index, drb_id};
+    pdcp_drb_metrics& m = pdcp_metrics[key];
+    m.tx_pdus = tx_pdus;
+    m.tx_pdu_bytes = tx_pdu_bytes;
+    m.tx_dropped_sdus = tx_dropped_sdus;
+    m.rx_pdus = rx_pdus;
+    m.rx_pdu_bytes = rx_pdu_bytes;
+    m.rx_dropped_pdus = rx_dropped_pdus;
+    m.rx_delivered_sdus = rx_delivered_sdus;
+}
+
+std::vector<uint8_t> edgeric::get_pdcp_drb_ids(uint16_t rnti) {
+    // This function is deprecated - PDCP metrics are now keyed by ue_index
+    // Return empty for now
+    return {};
+}
+
+std::vector<uint8_t> edgeric::get_pdcp_drb_ids_by_ue_index(uint32_t ue_index) {
+    std::vector<uint8_t> drb_ids;
+    std::set<uint8_t> drb_id_set;
+    
+    for (const auto& pair : pdcp_metrics) {
+        if (pair.first.first == ue_index) {
+            drb_id_set.insert(pair.first.second);
+        }
+    }
+    
+    drb_ids.assign(drb_id_set.begin(), drb_id_set.end());
+    return drb_ids;
+}
+
+// GTP-U metrics reporting
+void edgeric::report_gtp_dl_pkt(uint32_t ue_index, uint32_t pdu_len) {
+    gtp_ue_metrics& m = gtp_metrics[ue_index];
+    m.dl_pkts++;
+    m.dl_bytes += pdu_len;
+}
+
+void edgeric::report_gtp_ul_pkt(uint32_t ue_index, uint32_t pdu_len) {
+    gtp_ue_metrics& m = gtp_metrics[ue_index];
+    m.ul_pkts++;
+    m.ul_bytes += pdu_len;
+}
+
+std::optional<edgeric::gtp_ue_metrics> edgeric::get_gtp_metrics(uint16_t rnti) {
+    // Need to find ue_index from rnti
+    uint32_t ue_index = get_ue_index_from_rnti(rnti);
+    if (ue_index == UINT32_MAX) {
+        return std::nullopt;
+    }
+    auto it = gtp_metrics.find(ue_index);
+    if (it != gtp_metrics.end()) {
+        return it->second;
+    }
+    return std::nullopt;
+}
+
 // Get weights function
 std::optional<float> edgeric::get_weights(uint16_t rnti) {
     if (weights_recved.empty()) {
@@ -248,12 +387,12 @@ void edgeric::printmyvariables() {
     if (enable_logging) { // Check if logging is enabled
         std::ofstream logfile("log.txt", std::ios_base::app); // Open log file in append mode
         if (logfile.is_open()) {
-            logfile << "TTI: " << tti_cnt << ", Weights index: " << er_ran_index_weights << ", MCS index: " << er_ran_index_mcs << std::endl;
+            logfile << "========== TTI: " << tti_cnt << " ==========" << std::endl;
 
             for (const auto& cqi_pair : ue_cqis) {
                 auto rnti = cqi_pair.first;
 
-                // Fetch or default metrics for the RNTI
+                // Fetch UE-level metrics
                 float weight = (weights_recved.count(rnti) > 0) ? weights_recved.at(rnti) : 0;
                 int mcs = (mcs_recved.count(rnti) > 0) ? static_cast<int>(mcs_recved.at(rnti)) : 0;
                 int cqi = static_cast<int>(cqi_pair.second);
@@ -269,39 +408,99 @@ void edgeric::printmyvariables() {
                 uint32_t ul_ok = (ul_ok_cnt.count(rnti) > 0) ? ul_ok_cnt.at(rnti) : 0;
                 uint32_t ul_nok = (ul_nok_cnt.count(rnti) > 0) ? ul_nok_cnt.at(rnti) : 0;
 
-                // Print all metrics in one line
-                logfile << "RNTI: " << rnti 
-                        << " Weights: " << weight
-                        << " MCS: " << mcs
-                        << " CQI: " << cqi
-                        << " SNR: " << snr
-                        << " Rx Bytes: " << rx_byte
-                        << " Tx Bytes: " << tx_byte
-                        << " UL Buffer: " << ul_buffer
-                        << " DL Buffer: " << dl_buffer
-                        << " DL TBS: " << dl_tbs
-                        << " DL_OK: " << dl_ok
-                        << " DL_NOK: " << dl_nok
-                        << " UL_OK: " << ul_ok
-                        << " UL_NOK: " << ul_nok
-                        << std::endl;
+                // Print UE header with PHY/aggregate metrics
+                logfile << "  RNTI: " << rnti << std::endl;
+                logfile << "    PHY: CQI=" << cqi << " SNR=" << snr 
+                        << " MCS=" << mcs << " Weights=" << weight << std::endl;
+                logfile << "    HARQ: DL_OK=" << dl_ok << " DL_NOK=" << dl_nok 
+                        << " UL_OK=" << ul_ok << " UL_NOK=" << ul_nok << std::endl;
+                logfile << "    Aggregate: TX=" << tx_byte << " RX=" << rx_byte 
+                        << " DL_BUF=" << dl_buffer << " UL_BUF=" << ul_buffer 
+                        << " TBS=" << static_cast<int>(dl_tbs) << std::endl;
                 
-                // Log per-DRB metrics for this UE
+                // Collect all DRBs for this UE from MAC/RLC layer
+                std::set<uint8_t> all_drbs;
                 std::vector<uint8_t> lcids = get_drb_lcids(rnti);
+                
+                // MAC uses LCID (4+ for DRBs), convert to DRB ID
+                // LCID = DRB_ID + 3 typically (LCID 4 = DRB 1, LCID 5 = DRB 2, etc.)
                 for (uint8_t lcid : lcids) {
-                    ue_drb_key key = {rnti, lcid};
-                    uint32_t drb_dl_buf = (drb_dl_buffers.count(key) > 0) ? drb_dl_buffers.at(key) : 0;
-                    uint32_t drb_ul_buf = (drb_ul_buffers.count(key) > 0) ? drb_ul_buffers.at(key) : 0;
-                    float drb_tx = (drb_tx_bytes.count(key) > 0) ? drb_tx_bytes.at(key) : 0.0f;
-                    float drb_rx = (drb_rx_bytes.count(key) > 0) ? drb_rx_bytes.at(key) : 0.0f;
+                    if (lcid >= 4) {  // Skip SRBs (LCID 0-3)
+                        all_drbs.insert(lcid - 3);  // Convert LCID to DRB ID
+                    } else {
+                        all_drbs.insert(lcid);  // For LCG-based UL (0-7), keep as-is
+                    }
+                }
+                
+                // Log per-DRB MAC/RLC metrics (PDCP/GTP logged separately below by CU-UP UE index)
+                for (uint8_t drb_id : all_drbs) {
+                    logfile << "    DRB " << static_cast<int>(drb_id) << ":" << std::endl;
                     
-                    logfile << "  DRB RNTI: " << rnti 
-                            << " LCID: " << static_cast<int>(lcid)
-                            << " DL_BUF: " << drb_dl_buf
-                            << " UL_BUF: " << drb_ul_buf
-                            << " TX: " << static_cast<int>(drb_tx)
-                            << " RX: " << static_cast<int>(drb_rx)
-                            << std::endl;
+                    // MAC/RLC metrics (using LCID = DRB_ID + 3 for DRBs, or direct for LCG)
+                    uint8_t lcid = (drb_id >= 1 && drb_id <= 29) ? (drb_id + 3) : drb_id;
+                    ue_drb_key mac_key = {rnti, lcid};
+                    uint32_t drb_dl_buf = (drb_dl_buffers.count(mac_key) > 0) ? drb_dl_buffers.at(mac_key) : 0;
+                    uint32_t drb_ul_buf = (drb_ul_buffers.count({rnti, drb_id}) > 0) ? drb_ul_buffers.at({rnti, drb_id}) : 0;
+                    float drb_tx = (drb_tx_bytes.count(mac_key) > 0) ? drb_tx_bytes.at(mac_key) : 0.0f;
+                    float drb_rx = (drb_rx_bytes.count(mac_key) > 0) ? drb_rx_bytes.at(mac_key) : 0.0f;
+                    
+                    logfile << "      MAC/RLC: TX=" << static_cast<int>(drb_tx) 
+                            << " RX=" << static_cast<int>(drb_rx)
+                            << " DL_BUF=" << drb_dl_buf 
+                            << " UL_BUF=" << drb_ul_buf << std::endl;
+                }
+                
+            }
+            
+            // Output CU-UP metrics separately (PDCP/GTP keyed by CU-UP UE index)
+            // These use different UE indices than DU/scheduler, so output separately
+            // Debug: always show section header with counts
+            logfile << "  --- CU-UP Metrics (PDCP=" << pdcp_metrics.size() 
+                    << " GTP=" << gtp_metrics.size() << ") ---" << std::endl;
+            
+            // Collect all CU-UP UE indices with metrics
+            std::set<uint32_t> cu_up_ue_indices;
+            for (const auto& p : pdcp_metrics) {
+                cu_up_ue_indices.insert(p.first.first);  // key = (ue_index, drb_id)
+            }
+            for (const auto& g : gtp_metrics) {
+                cu_up_ue_indices.insert(g.first);  // key is ue_index
+            }
+            
+            for (uint32_t ue_idx : cu_up_ue_indices) {
+                uint16_t rnti = get_rnti_from_cu_up_ue_index(ue_idx);
+                logfile << "  CU-UP UE_IDX=" << ue_idx;
+                if (rnti != 0) {
+                    logfile << " (RNTI=" << rnti << ")";
+                }
+                logfile << std::endl;
+                
+                // PDCP metrics for this UE (iterate over all DRBs)
+                std::vector<uint8_t> drb_ids = get_pdcp_drb_ids_by_ue_index(ue_idx);
+                for (uint8_t drb_id : drb_ids) {
+                    cu_up_drb_key key = {ue_idx, drb_id};
+                    auto pm_it = pdcp_metrics.find(key);
+                    if (pm_it != pdcp_metrics.end()) {
+                        const pdcp_drb_metrics& m = pm_it->second;
+                        logfile << "    PDCP DRB" << static_cast<int>(drb_id)
+                                << ": TX_PDUs=" << m.tx_pdus
+                                << " TX_Bytes=" << m.tx_pdu_bytes
+                                << " TX_Drop=" << m.tx_dropped_sdus
+                                << " RX_PDUs=" << m.rx_pdus
+                                << " RX_Bytes=" << m.rx_pdu_bytes
+                                << " RX_Drop=" << m.rx_dropped_pdus
+                                << " RX_SDUs=" << m.rx_delivered_sdus << std::endl;
+                    }
+                }
+                
+                // GTP metrics for this UE
+                auto gtp_it = gtp_metrics.find(ue_idx);
+                if (gtp_it != gtp_metrics.end()) {
+                    const gtp_ue_metrics& gm = gtp_it->second;
+                    logfile << "    GTP-U: DL_Pkts=" << gm.dl_pkts
+                            << " DL_Bytes=" << gm.dl_bytes
+                            << " UL_Pkts=" << gm.ul_pkts
+                            << " UL_Bytes=" << gm.ul_bytes << std::endl;
                 }
             }
 

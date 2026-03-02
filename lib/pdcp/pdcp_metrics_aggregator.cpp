@@ -22,6 +22,7 @@
 
 #include "pdcp_metrics_aggregator.h"
 #include "srsran/pdcp/pdcp_entity.h"
+#include "../edgeric/edgeric.h"
 
 using namespace srsran;
 
@@ -80,4 +81,21 @@ void pdcp_metrics_aggregator::push_report()
 
   pdcp_metrics_container metrics = {ue_index, rb_id, m_tx, m_rx, metrics_period};
   pdcp_metrics_notif->report_metrics(metrics);
+  
+  // EdgeRIC: Report PDCP metrics for this UE/DRB
+  // Only report for DRBs (drb_id starts at 1)
+  if (rb_id.is_drb()) {
+    uint8_t drb_id = static_cast<uint8_t>(rb_id.get_drb_id());
+    edgeric::report_pdcp_metrics(
+      ue_index,
+      drb_id,
+      m_tx.num_pdus,
+      m_tx.num_pdu_bytes,
+      m_tx.num_dropped_sdus,
+      m_rx.num_pdus,
+      m_rx.num_pdu_bytes,
+      m_rx.num_dropped_pdus,
+      m_rx.num_sdus
+    );
+  }
 }

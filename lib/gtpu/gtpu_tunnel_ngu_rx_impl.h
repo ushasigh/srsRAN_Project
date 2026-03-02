@@ -29,6 +29,7 @@
 #include "srsran/ran/cu_types.h"
 #include "srsran/support/sdu_window.h"
 #include "srsran/support/timers.h"
+#include "../edgeric/edgeric.h"
 
 namespace srsran {
 
@@ -66,7 +67,8 @@ public:
     lower_dn(rx_lower_),
     config(cfg),
     rx_window(logger, gtpu_rx_window_size),
-    ue_ctrl_timer_factory(ue_ctrl_timer_factory_)
+    ue_ctrl_timer_factory(ue_ctrl_timer_factory_),
+    ue_idx(static_cast<uint32_t>(ue_index))
   {
     srsran_assert(cfg.ue_ambr_limiter != nullptr, "No UE-AMBR limiter provided");
     if (config.t_reordering.count() != 0) {
@@ -231,6 +233,9 @@ protected:
 
   void deliver_sdu(gtpu_rx_sdu_info& sdu_info)
   {
+    // Report GTP-U DL packet to edgeric for telemetry
+    edgeric::report_gtp_dl_pkt(ue_idx, sdu_info.sdu.length());
+    
     logger.log_info(sdu_info.sdu.begin(),
                     sdu_info.sdu.end(),
                     "RX SDU. sdu_len={} qos_flow={} sn={}",
@@ -307,6 +312,9 @@ private:
 
   /// Timer factory
   timer_factory ue_ctrl_timer_factory;
+  
+  /// UE index for edgeric telemetry (must be after ue_ctrl_timer_factory for init order)
+  uint32_t ue_idx;
 
   /// Reordering callback (t-Reordering)
   class reordering_callback
