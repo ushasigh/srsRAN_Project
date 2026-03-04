@@ -554,10 +554,14 @@ void edgeric::get_mcs_from_er() {
             er_ran_index_mcs = mcs_msg.ran_index();
             mcs_recved.clear();
             // MCS values are indexed by order, map to active RNTIs
+            // MCS value of 255 means "no override" (use link adaptation)
             int idx = 0;
             for (const auto& [rnti, _] : mac_ue) {
                 if (idx < mcs_msg.mcs_size()) {
-                    mcs_recved[rnti] = static_cast<uint8_t>(mcs_msg.mcs(idx));
+                    uint8_t mcs_val = static_cast<uint8_t>(mcs_msg.mcs(idx));
+                    if (mcs_val < 255) {  // Only override if MCS < 255
+                        mcs_recved[rnti] = mcs_val;
+                    }
                     idx++;
                 }
             }

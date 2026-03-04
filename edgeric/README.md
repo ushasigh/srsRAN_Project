@@ -37,19 +37,20 @@ python3 collector.py --quiet
 ║   Buffers:  DL= 156.2KB  UL=      0B
 ║   DL Sched: TBS= 3329  MCS=28  PRBs= 40  Rate=26.6Mbps
 ║   UL Sched: TBS=  241  MCS= 1  PRBs= 47  Rate=1.9Mbps
-║   HARQ:     DL ACK/NACK=1/0 (0%BLER)  UL OK/FAIL=1/0 (0%BLER)
+║   HARQ TTI:  DL +1/+0  UL +1/+0
+║   BLER:      DL  0.52% (1924 total)  UL  0.00% (487 total)
 ║
-║ ▸ Per-DRB Metrics
+║ ▲ UL (Uplink)
 ║   DRB 1 (LCID 4)
-║     RLC: Buf DL= 156.2KB UL=      0B
-║          TX 2896SDU/3.87MB lat=43.24ms
-║          RX 1080SDU/58.1KB lost=0
-║     PDCP: TX 2883PDU/3.85MB drop=0 discard=0 lat=71.0us
-║           RX 1075PDU/57.8KB drop=0 lat=1.10ms
+║     RLC:  buf=      0B  RX   1080 SDU / 58.10KB  lat=    -     lost=0
+║     PDCP: RX   1075 PDU / 57.80KB  lat=  1.10ms  drop=0
+║   GTP-U:    11213 pkts /   573.4KB
 ║
-║ ▸ GTP-U (N3 Interface)
-║   DL:  30336 pkts /    40.47MB
-║   UL:  11213 pkts /    573.4KB
+║ ▼ DL (Downlink)
+║   DRB 1 (LCID 4)
+║     RLC:  buf= 156.2KB  TX   2896 SDU /  3.87MB  lat= 43.24ms  retx=0
+║     PDCP: TX   2883 PDU /  3.85MB  lat=  71.0us  drop=0  discard=0
+║   GTP-U:    30336 pkts /    40.47MB
 ╚════════════════════════════════════════════════════════════
 ```
 
