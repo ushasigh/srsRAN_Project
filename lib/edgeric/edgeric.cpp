@@ -766,5 +766,11 @@ std::optional<gtp_ue_metrics> edgeric::get_gtp_metrics(uint16_t rnti) {
 
 void edgeric::collect_ue_telemetry(uint16_t rnti, float cqi, float snr,
                                    uint32_t dl_buffer_bytes, uint32_t ul_buffer_bytes) {
-    set_mac_ue(rnti, static_cast<uint32_t>(cqi), snr, dl_buffer_bytes, ul_buffer_bytes, 0, 0);
+    // Only update CQI, SNR, and buffer values - DO NOT overwrite TBS/PRBs/MCS
+    // which are set earlier during the scheduling phase
+    auto& m = mac_ue[rnti];
+    m.cqi = static_cast<uint32_t>(cqi);
+    m.snr = snr;
+    m.dl_buffer = dl_buffer_bytes;
+    m.ul_buffer = ul_buffer_bytes;
 }

@@ -6,6 +6,8 @@ Python-side collector and controller for EdgeRIC real-time telemetry.
 
 ```bash
 cd srsRAN_Project/edgeric
+python3 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 ```
 
@@ -20,31 +22,101 @@ python3 collector.py
 # JSON output (one line per TTI)
 python3 collector.py --json
 
-# Quiet mode (UE-level only, no per-DRB)
+# Quiet mode (MAC-level only, no per-DRB details)
 python3 collector.py --quiet
-
-# Raw bytes (debugging)
-python3 collector.py --raw
 ```
 
 ### Output Example
 
 ```
-═══════════════════════════════════════════════════════════════
-TTI  1234 | 14:32:15.123 | 1 UE(s)
-═══════════════════════════════════════════════════════════════
+ TTI 04999 │ 17:43:48.859 │ 2 UE(s) 
 
-┌─ UE RNTI=17921 (0x4601)
-│  MAC: CQI=15 SNR=28.5dB DL_buf=1.2KB UL_buf=0B
-│       TBS: DL=1024 UL=256 | HARQ: ACK=1 NACK=0 | CRC: OK=1 FAIL=0
-│    MAC-DRB LCID=4: DL_buf=1.2KB UL_buf=0B DL=512B UL=0B
-│    RLC LCID=4: TX: 10SDU/5.0KB lat=150us | RX: 5SDU/2.0KB
-│    PDCP DRB=1 (LCID=4): TX: 10PDU/5.2KB drop=0 discard=0 lat=50us
-│                         RX: 5PDU/2.1KB drop=0 lat=30us
-│    GTP: DL: 100pkt/150.0KB | UL: 50pkt/25.0KB
-└─────────────────────────────────────────────
-
+╔══ UE RNTI 17921 (0x4601) ══════════════════════════════════════════
+║ ▸ MAC Layer
+║   Channel:  CQI=15  SNR=  1.2dB
+║   Buffers:  DL= 156.2KB  UL=      0B
+║   DL Sched: TBS= 3329  MCS=28  PRBs= 40  Rate=26.6Mbps
+║   UL Sched: TBS=  241  MCS= 1  PRBs= 47  Rate=1.9Mbps
+║   HARQ:     DL ACK/NACK=1/0 (0%BLER)  UL OK/FAIL=1/0 (0%BLER)
+║
+║ ▸ Per-DRB Metrics
+║   DRB 1 (LCID 4)
+║     RLC: Buf DL= 156.2KB UL=      0B
+║          TX 2896SDU/3.87MB lat=43.24ms
+║          RX 1080SDU/58.1KB lost=0
+║     PDCP: TX 2883PDU/3.85MB drop=0 discard=0 lat=71.0us
+║           RX 1075PDU/57.8KB drop=0 lat=1.10ms
+║
+║ ▸ GTP-U (N3 Interface)
+║   DL:  30336 pkts /    40.47MB
+║   UL:  11213 pkts /    573.4KB
+╚════════════════════════════════════════════════════════════
 ```
+
+## Metrics Reference
+
+### MAC Layer Metrics (per TTI)
+
+| Metric | Unit | Description |
+|--------|------|-------------|
+| `cqi` | Index (0-15) | Wideband Channel Quality Indicator |
+| `snr` | dB | PUSCH Signal-to-Noise Ratio |
+| `dl_buffer` | Bytes | Total DL pending bytes in RLC buffer |
+| `ul_buffer` | Bytes | Total UL pending bytes (from BSR) |
+| `dl_tbs` | Bytes | DL Transport Block Size this TTI |
+| `ul_tbs` | Bytes | UL Transport Block Size this TTI |
+| `dl_mcs` | Index (0-28) | DL Modulation and Coding Scheme |
+| `ul_mcs` | Index (0-28) | UL Modulation and Coding Scheme |
+| `dl_prbs` | Count | DL Physical Resource Blocks allocated |
+| `ul_prbs` | Count | UL Physical Resource Blocks allocated |
+| `dl_harq_ack` | Count | DL HARQ ACKs received this TTI |
+| `dl_harq_nack` | Count | DL HARQ NACKs received this TTI |
+| `ul_crc_ok` | Count | UL CRC passes this TTI |
+| `ul_crc_fail` | Count | UL CRC failures this TTI |
+
+### Rate Calculation
+
+Instantaneous rate is derived from TBS:
+```
+Rate (bps) = TBS (bytes) × 8 × 1000
+```
+Since 1 TTI = 1ms, TBS in bytes/TTI converts directly to rate.
+
+### RLC Metrics (per DRB, accumulated)
+
+| Metric | Unit | Description |
+|--------|------|-------------|
+| `dl_buffer` | Bytes | DL pending bytes in RLC TX buffer |
+| `ul_buffer` | Bytes | UL pending bytes (from BSR, per LCG) |
+| `tx_sdus` | Count | SDUs received from PDCP (DL) |
+| `tx_sdu_bytes` | Bytes | SDU bytes received from PDCP |
+| `tx_sdu_latency_us` | Microseconds | Avg SDU latency (PDCP→MAC queue delay) |
+| `rx_sdus` | Count | SDUs delivered to PDCP (UL) |
+| `rx_sdu_bytes` | Bytes | SDU bytes delivered to PDCP |
+| `rx_lost_pdus` | Count | Lost PDUs (detected gaps) |
+
+### PDCP Metrics (per DRB, accumulated)
+
+| Metric | Unit | Description |
+|--------|------|-------------|
+| `tx_pdus` | Count | PDCP PDUs transmitted (DL) |
+| `tx_pdu_bytes` | Bytes | TX PDU bytes |
+| `tx_dropped_sdus` | Count | SDUs dropped (discard timer, etc) |
+| `tx_discard_timeouts` | Count | Discard timer expirations |
+| `tx_pdu_latency_ns` | Nanoseconds | Avg latency: SDU in → PDU out |
+| `rx_pdus` | Count | PDCP PDUs received (UL) |
+| `rx_pdu_bytes` | Bytes | RX PDU bytes |
+| `rx_dropped_pdus` | Count | PDUs dropped (integrity fail, etc) |
+| `rx_sdu_latency_ns` | Nanoseconds | Avg latency: PDU in → SDU out |
+
+### GTP-U Metrics (per UE, accumulated)
+
+| Metric | Unit | Description |
+|--------|------|-------------|
+| `dl_pkts` | Count | DL GTP-U packets from core (N3) |
+| `dl_bytes` | Bytes | DL GTP-U bytes from core |
+| `ul_pkts` | Count | UL GTP-U packets to core |
+| `ul_bytes` | Bytes | UL GTP-U bytes to core |
 
 ## ZMQ Addresses
 
@@ -71,10 +143,22 @@ TtiMetrics
 ├── tti_index (uint32, rolls over at 10000)
 ├── timestamp_us (uint64, Unix time in microseconds)
 └── ues[] (repeated UeMetrics)
-    ├── rnti
+    ├── rnti (uint32, C-RNTI)
     ├── mac (MacUeMetrics)
-    ├── mac_drb[] (MacDrbMetrics)
-    ├── rlc_drb[] (RlcDrbMetrics)
-    ├── pdcp_drb[] (PdcpDrbMetrics)
+    │   ├── cqi, snr
+    │   ├── dl_buffer, ul_buffer
+    │   ├── dl_tbs, ul_tbs
+    │   ├── dl_mcs, ul_mcs
+    │   ├── dl_prbs, ul_prbs
+    │   └── dl_harq_ack, dl_harq_nack, ul_crc_ok, ul_crc_fail
+    ├── mac_drb[] (MacDrbMetrics per LCID)
+    ├── rlc_drb[] (RlcDrbMetrics per LCID)
+    ├── pdcp_drb[] (PdcpDrbMetrics per DRB)
     └── gtp (GtpMetrics)
 ```
+
+## Notes
+
+- **Per-TTI vs Accumulated**: MAC scheduling metrics (TBS, MCS, PRBs, HARQ) are per-TTI and reset after each report. RLC, PDCP, and GTP metrics are accumulated totals.
+- **LCID Mapping**: DRBs use LCID = DRB_ID + 3 (e.g., DRB 1 → LCID 4)
+- **Zero Values**: TBS=0 means the UE was not scheduled that TTI (normal behavior)
