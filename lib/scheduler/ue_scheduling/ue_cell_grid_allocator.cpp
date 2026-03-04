@@ -300,12 +300,12 @@ void ue_cell_grid_allocator::set_pdsch_params(dl_grant_info&                    
     mcs_tbs_info = mcs_or_error.value_or(sch_mcs_tbs{sch_mcs_index{0}, 0});
   }
 
-  // EdgeRIC: Report TBS and tx_bytes for DL allocation
+  // EdgeRIC: Report TBS, MCS, PRBs, and tx_bytes for DL allocation
   if (mcs_tbs_info.tbs > 0) {
     uint16_t rnti = static_cast<uint16_t>(u.crnti);
-    edgeric::set_dl_tbs(static_cast<unsigned int>(rnti), mcs_tbs_info.tbs);
-    // Accumulate TX bytes (DL throughput tracking)
-    edgeric::set_tx_bytes(rnti, static_cast<float>(mcs_tbs_info.tbs));
+    edgeric::set_dl_tbs(rnti, mcs_tbs_info.tbs);
+    edgeric::set_dl_mcs(rnti, mcs_tbs_info.mcs.to_uint());
+    edgeric::set_dl_prbs(rnti, crbs.first.length() + crbs.second.length());
     
     if (not is_retx) {
       // Get channel state info for logging
@@ -724,11 +724,12 @@ void ue_cell_grid_allocator::set_pusch_params(ul_grant_info& grant, const vrb_in
                       pusch_alloc.ul_res_grid.used_crbs(scs, {0, cell_cfg.nof_ul_prbs}, pusch_td_cfg.symbols),
                       crbs);
 
-  // EdgeRIC: Track rx_bytes for UL allocation
+  // EdgeRIC: Track UL metrics (TBS, MCS, PRBs, rx_bytes)
   if (mcs_tbs_info.has_value() && mcs_tbs_info.value().tbs > 0) {
     uint16_t rnti = static_cast<uint16_t>(u.crnti);
-    // Accumulate RX bytes (UL throughput tracking)
-    edgeric::set_rx_bytes(rnti, static_cast<float>(mcs_tbs_info.value().tbs));
+    edgeric::set_ul_tbs(rnti, mcs_tbs_info.value().tbs);
+    edgeric::set_ul_mcs(rnti, mcs_tbs_info.value().mcs.to_uint());
+    edgeric::set_ul_prbs(rnti, crbs.length());
   }
 
   // Mark resources as occupied in the ResourceGrid.

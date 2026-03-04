@@ -224,8 +224,12 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
         delay_weight += hol_delay_ms / static_cast<double>(effective_pdb);
       }
 
-      if (not lc->qos->gbr_qos_info.has_value()) {
-        // Log non-GBR DRB QoS parameters
+      // Check for EdgeRIC GBR override (works even for non-GBR flows)
+      auto edgeric_gbr = edgeric::get_gbr_dl(rnti, lcid);
+      bool has_native_gbr = lc->qos->gbr_qos_info.has_value();
+      
+      if (not has_native_gbr && not edgeric_gbr.has_value()) {
+        // No native GBR and no EdgeRIC override - skip GBR calculation
         if (qos_log_counter % QOS_LOG_INTERVAL == 0 && edgeric::enable_logging) {
           std::ofstream logfile("edgeric_qos_sched_log.txt", std::ios_base::app);
           if (logfile.is_open()) {
@@ -238,25 +242,28 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
                     << std::endl;
           }
         }
-        // LC is a non-GBR flow.
         continue;
       }
 
-      // GBR flow.
-      // EdgeRIC: Check for dynamic GBR override (per-UE, per-DRB)
+      // GBR flow (native or EdgeRIC-enforced)
       double dl_avg_rate = u.dl_avg_bit_rate(lc->lcid);
       if (dl_avg_rate != 0) {
-        // Use EdgeRIC GBR override if available for this specific DRB
-        effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
-        auto edgeric_gbr = edgeric::get_gbr_dl(rnti, lcid);
+        // Determine effective GBR: EdgeRIC override takes precedence
         if (edgeric_gbr.has_value()) {
           effective_gbr_dl = edgeric_gbr.value();
           has_edgeric_override = true;
+        } else if (has_native_gbr) {
+          effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
         }
         
         gbr_weight += std::min(effective_gbr_dl / dl_avg_rate, max_metric_weight);
       } else {
-        effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
+        if (edgeric_gbr.has_value()) {
+          effective_gbr_dl = edgeric_gbr.value();
+          has_edgeric_override = true;
+        } else if (has_native_gbr) {
+          effective_gbr_dl = lc->qos->gbr_qos_info->gbr_dl;
+        }
         gbr_weight += max_metric_weight;
       }
       
@@ -271,6 +278,7 @@ static double compute_dl_qos_weights(const slice_ue&                  u,
                   << " gbr_dl=" << effective_gbr_dl << "bps"
                   << " avg_rate=" << dl_avg_rate << "bps"
                   << (has_edgeric_override ? " [EdgeRIC override]" : "")
+                  << (has_native_gbr ? "" : " [EdgeRIC-enforced GBR]")
                   << std::endl;
         }
       }
@@ -346,8 +354,12 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
             static_cast<uint16_t>(effective_qos_prio * effective_arp_prio), min_combined_prio);
       }
 
-      if (not lc->qos->gbr_qos_info.has_value()) {
-        // Log non-GBR UL DRB QoS parameters
+      // Check for EdgeRIC GBR override (works even for non-GBR flows)
+      auto edgeric_gbr = edgeric::get_gbr_ul(rnti, lcid);
+      bool has_native_gbr = lc->qos->gbr_qos_info.has_value();
+      
+      if (not has_native_gbr && not edgeric_gbr.has_value()) {
+        // No native GBR and no EdgeRIC override - skip GBR calculation
         if (qos_log_counter % QOS_LOG_INTERVAL == 0 && edgeric::enable_logging) {
           std::ofstream logfile("edgeric_qos_sched_log.txt", std::ios_base::app);
           if (logfile.is_open()) {
@@ -359,26 +371,29 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
                     << std::endl;
           }
         }
-        // LC is a non-GBR flow.
         continue;
       }
 
-      // GBR flow.
-      // EdgeRIC: Check for dynamic GBR override (per-UE, per-DRB)
+      // GBR flow (native or EdgeRIC-enforced)
       lcg_id_t lcg_id  = u.get_lcg_id(lc->lcid);
       double   ul_rate = u.ul_avg_bit_rate(lcg_id);
       if (ul_rate != 0) {
-        // Use EdgeRIC GBR override if available for this specific DRB
-        effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
-        auto edgeric_gbr = edgeric::get_gbr_ul(rnti, lcid);
+        // Determine effective GBR: EdgeRIC override takes precedence
         if (edgeric_gbr.has_value()) {
           effective_gbr_ul = edgeric_gbr.value();
           has_edgeric_override = true;
+        } else if (has_native_gbr) {
+          effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
         }
         
         gbr_weight += std::min(effective_gbr_ul / ul_rate, max_metric_weight);
       } else {
-        effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
+        if (edgeric_gbr.has_value()) {
+          effective_gbr_ul = edgeric_gbr.value();
+          has_edgeric_override = true;
+        } else if (has_native_gbr) {
+          effective_gbr_ul = lc->qos->gbr_qos_info->gbr_ul;
+        }
         gbr_weight = max_metric_weight;
       }
       
@@ -392,6 +407,7 @@ static double compute_ul_qos_weights(const slice_ue&                  u,
                   << " gbr_ul=" << effective_gbr_ul << "bps"
                   << " avg_rate=" << ul_rate << "bps"
                   << (has_edgeric_override ? " [EdgeRIC override]" : "")
+                  << (has_native_gbr ? "" : " [EdgeRIC-enforced GBR]")
                   << std::endl;
         }
       }

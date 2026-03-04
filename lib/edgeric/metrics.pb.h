@@ -44,49 +44,69 @@ struct TableStruct_metrics_2eproto {
   static const uint32_t offsets[];
 };
 extern const ::PROTOBUF_NAMESPACE_ID::internal::DescriptorTable descriptor_table_metrics_2eproto;
-class DrbMetrics;
-struct DrbMetricsDefaultTypeInternal;
-extern DrbMetricsDefaultTypeInternal _DrbMetrics_default_instance_;
+class DrbMetricsLegacy;
+struct DrbMetricsLegacyDefaultTypeInternal;
+extern DrbMetricsLegacyDefaultTypeInternal _DrbMetricsLegacy_default_instance_;
 class GtpMetrics;
 struct GtpMetricsDefaultTypeInternal;
 extern GtpMetricsDefaultTypeInternal _GtpMetrics_default_instance_;
+class MacDrbMetrics;
+struct MacDrbMetricsDefaultTypeInternal;
+extern MacDrbMetricsDefaultTypeInternal _MacDrbMetrics_default_instance_;
+class MacUeMetrics;
+struct MacUeMetricsDefaultTypeInternal;
+extern MacUeMetricsDefaultTypeInternal _MacUeMetrics_default_instance_;
 class Metrics;
 struct MetricsDefaultTypeInternal;
 extern MetricsDefaultTypeInternal _Metrics_default_instance_;
 class PdcpDrbMetrics;
 struct PdcpDrbMetricsDefaultTypeInternal;
 extern PdcpDrbMetricsDefaultTypeInternal _PdcpDrbMetrics_default_instance_;
+class RlcDrbMetrics;
+struct RlcDrbMetricsDefaultTypeInternal;
+extern RlcDrbMetricsDefaultTypeInternal _RlcDrbMetrics_default_instance_;
+class TtiMetrics;
+struct TtiMetricsDefaultTypeInternal;
+extern TtiMetricsDefaultTypeInternal _TtiMetrics_default_instance_;
 class UeMetrics;
 struct UeMetricsDefaultTypeInternal;
 extern UeMetricsDefaultTypeInternal _UeMetrics_default_instance_;
+class UeMetricsLegacy;
+struct UeMetricsLegacyDefaultTypeInternal;
+extern UeMetricsLegacyDefaultTypeInternal _UeMetricsLegacy_default_instance_;
 PROTOBUF_NAMESPACE_OPEN
-template<> ::DrbMetrics* Arena::CreateMaybeMessage<::DrbMetrics>(Arena*);
+template<> ::DrbMetricsLegacy* Arena::CreateMaybeMessage<::DrbMetricsLegacy>(Arena*);
 template<> ::GtpMetrics* Arena::CreateMaybeMessage<::GtpMetrics>(Arena*);
+template<> ::MacDrbMetrics* Arena::CreateMaybeMessage<::MacDrbMetrics>(Arena*);
+template<> ::MacUeMetrics* Arena::CreateMaybeMessage<::MacUeMetrics>(Arena*);
 template<> ::Metrics* Arena::CreateMaybeMessage<::Metrics>(Arena*);
 template<> ::PdcpDrbMetrics* Arena::CreateMaybeMessage<::PdcpDrbMetrics>(Arena*);
+template<> ::RlcDrbMetrics* Arena::CreateMaybeMessage<::RlcDrbMetrics>(Arena*);
+template<> ::TtiMetrics* Arena::CreateMaybeMessage<::TtiMetrics>(Arena*);
 template<> ::UeMetrics* Arena::CreateMaybeMessage<::UeMetrics>(Arena*);
+template<> ::UeMetricsLegacy* Arena::CreateMaybeMessage<::UeMetricsLegacy>(Arena*);
 PROTOBUF_NAMESPACE_CLOSE
 
 // ===================================================================
 
-class DrbMetrics final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:DrbMetrics) */ {
+class MacDrbMetrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:MacDrbMetrics) */ {
  public:
-  inline DrbMetrics() : DrbMetrics(nullptr) {}
-  ~DrbMetrics() override;
-  explicit PROTOBUF_CONSTEXPR DrbMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline MacDrbMetrics() : MacDrbMetrics(nullptr) {}
+  ~MacDrbMetrics() override;
+  explicit PROTOBUF_CONSTEXPR MacDrbMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  DrbMetrics(const DrbMetrics& from);
-  DrbMetrics(DrbMetrics&& from) noexcept
-    : DrbMetrics() {
+  MacDrbMetrics(const MacDrbMetrics& from);
+  MacDrbMetrics(MacDrbMetrics&& from) noexcept
+    : MacDrbMetrics() {
     *this = ::std::move(from);
   }
 
-  inline DrbMetrics& operator=(const DrbMetrics& from) {
+  inline MacDrbMetrics& operator=(const MacDrbMetrics& from) {
     CopyFrom(from);
     return *this;
   }
-  inline DrbMetrics& operator=(DrbMetrics&& from) noexcept {
+  inline MacDrbMetrics& operator=(MacDrbMetrics&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -109,20 +129,20 @@ class DrbMetrics final :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const DrbMetrics& default_instance() {
+  static const MacDrbMetrics& default_instance() {
     return *internal_default_instance();
   }
-  static inline const DrbMetrics* internal_default_instance() {
-    return reinterpret_cast<const DrbMetrics*>(
-               &_DrbMetrics_default_instance_);
+  static inline const MacDrbMetrics* internal_default_instance() {
+    return reinterpret_cast<const MacDrbMetrics*>(
+               &_MacDrbMetrics_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
     0;
 
-  friend void swap(DrbMetrics& a, DrbMetrics& b) {
+  friend void swap(MacDrbMetrics& a, MacDrbMetrics& b) {
     a.Swap(&b);
   }
-  inline void Swap(DrbMetrics* other) {
+  inline void Swap(MacDrbMetrics* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -135,7 +155,7 @@ class DrbMetrics final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(DrbMetrics* other) {
+  void UnsafeArenaSwap(MacDrbMetrics* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -143,14 +163,14 @@ class DrbMetrics final :
 
   // implements Message ----------------------------------------------
 
-  DrbMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<DrbMetrics>(arena);
+  MacDrbMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MacDrbMetrics>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const DrbMetrics& from);
+  void CopyFrom(const MacDrbMetrics& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const DrbMetrics& from) {
-    DrbMetrics::MergeImpl(*this, from);
+  void MergeFrom( const MacDrbMetrics& from) {
+    MacDrbMetrics::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -168,15 +188,15 @@ class DrbMetrics final :
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(DrbMetrics* other);
+  void InternalSwap(MacDrbMetrics* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "DrbMetrics";
+    return "MacDrbMetrics";
   }
   protected:
-  explicit DrbMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit MacDrbMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -193,8 +213,8 @@ class DrbMetrics final :
     kLcidFieldNumber = 1,
     kDlBufferFieldNumber = 2,
     kUlBufferFieldNumber = 3,
-    kTxBytesFieldNumber = 4,
-    kRxBytesFieldNumber = 5,
+    kDlBytesFieldNumber = 4,
+    kUlBytesFieldNumber = 5,
   };
   // uint32 lcid = 1;
   void clear_lcid();
@@ -223,25 +243,25 @@ class DrbMetrics final :
   void _internal_set_ul_buffer(uint32_t value);
   public:
 
-  // float tx_bytes = 4;
-  void clear_tx_bytes();
-  float tx_bytes() const;
-  void set_tx_bytes(float value);
+  // uint32 dl_bytes = 4;
+  void clear_dl_bytes();
+  uint32_t dl_bytes() const;
+  void set_dl_bytes(uint32_t value);
   private:
-  float _internal_tx_bytes() const;
-  void _internal_set_tx_bytes(float value);
+  uint32_t _internal_dl_bytes() const;
+  void _internal_set_dl_bytes(uint32_t value);
   public:
 
-  // float rx_bytes = 5;
-  void clear_rx_bytes();
-  float rx_bytes() const;
-  void set_rx_bytes(float value);
+  // uint32 ul_bytes = 5;
+  void clear_ul_bytes();
+  uint32_t ul_bytes() const;
+  void set_ul_bytes(uint32_t value);
   private:
-  float _internal_rx_bytes() const;
-  void _internal_set_rx_bytes(float value);
+  uint32_t _internal_ul_bytes() const;
+  void _internal_set_ul_bytes(uint32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:DrbMetrics)
+  // @@protoc_insertion_point(class_scope:MacDrbMetrics)
  private:
   class _Internal;
 
@@ -252,8 +272,321 @@ class DrbMetrics final :
     uint32_t lcid_;
     uint32_t dl_buffer_;
     uint32_t ul_buffer_;
-    float tx_bytes_;
-    float rx_bytes_;
+    uint32_t dl_bytes_;
+    uint32_t ul_bytes_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
+class RlcDrbMetrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:RlcDrbMetrics) */ {
+ public:
+  inline RlcDrbMetrics() : RlcDrbMetrics(nullptr) {}
+  ~RlcDrbMetrics() override;
+  explicit PROTOBUF_CONSTEXPR RlcDrbMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  RlcDrbMetrics(const RlcDrbMetrics& from);
+  RlcDrbMetrics(RlcDrbMetrics&& from) noexcept
+    : RlcDrbMetrics() {
+    *this = ::std::move(from);
+  }
+
+  inline RlcDrbMetrics& operator=(const RlcDrbMetrics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline RlcDrbMetrics& operator=(RlcDrbMetrics&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const RlcDrbMetrics& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const RlcDrbMetrics* internal_default_instance() {
+    return reinterpret_cast<const RlcDrbMetrics*>(
+               &_RlcDrbMetrics_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    1;
+
+  friend void swap(RlcDrbMetrics& a, RlcDrbMetrics& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(RlcDrbMetrics* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(RlcDrbMetrics* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  RlcDrbMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<RlcDrbMetrics>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const RlcDrbMetrics& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const RlcDrbMetrics& from) {
+    RlcDrbMetrics::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(RlcDrbMetrics* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "RlcDrbMetrics";
+  }
+  protected:
+  explicit RlcDrbMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kTxSdusFieldNumber = 2,
+    kTxSduBytesFieldNumber = 3,
+    kTxPdusFieldNumber = 4,
+    kLcidFieldNumber = 1,
+    kTxSduLatencyUsFieldNumber = 8,
+    kTxPduBytesFieldNumber = 5,
+    kTxDroppedSdusFieldNumber = 6,
+    kTxRetxPdusFieldNumber = 7,
+    kRxSdusFieldNumber = 9,
+    kRxSduBytesFieldNumber = 10,
+    kRxPdusFieldNumber = 11,
+    kRxPduBytesFieldNumber = 12,
+    kRxLostPdusFieldNumber = 13,
+    kRxSduLatencyUsFieldNumber = 14,
+    kDlBufferFieldNumber = 15,
+    kUlBufferFieldNumber = 16,
+  };
+  // uint64 tx_sdus = 2;
+  void clear_tx_sdus();
+  uint64_t tx_sdus() const;
+  void set_tx_sdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_sdus() const;
+  void _internal_set_tx_sdus(uint64_t value);
+  public:
+
+  // uint64 tx_sdu_bytes = 3;
+  void clear_tx_sdu_bytes();
+  uint64_t tx_sdu_bytes() const;
+  void set_tx_sdu_bytes(uint64_t value);
+  private:
+  uint64_t _internal_tx_sdu_bytes() const;
+  void _internal_set_tx_sdu_bytes(uint64_t value);
+  public:
+
+  // uint64 tx_pdus = 4;
+  void clear_tx_pdus();
+  uint64_t tx_pdus() const;
+  void set_tx_pdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_pdus() const;
+  void _internal_set_tx_pdus(uint64_t value);
+  public:
+
+  // uint32 lcid = 1;
+  void clear_lcid();
+  uint32_t lcid() const;
+  void set_lcid(uint32_t value);
+  private:
+  uint32_t _internal_lcid() const;
+  void _internal_set_lcid(uint32_t value);
+  public:
+
+  // uint32 tx_sdu_latency_us = 8;
+  void clear_tx_sdu_latency_us();
+  uint32_t tx_sdu_latency_us() const;
+  void set_tx_sdu_latency_us(uint32_t value);
+  private:
+  uint32_t _internal_tx_sdu_latency_us() const;
+  void _internal_set_tx_sdu_latency_us(uint32_t value);
+  public:
+
+  // uint64 tx_pdu_bytes = 5;
+  void clear_tx_pdu_bytes();
+  uint64_t tx_pdu_bytes() const;
+  void set_tx_pdu_bytes(uint64_t value);
+  private:
+  uint64_t _internal_tx_pdu_bytes() const;
+  void _internal_set_tx_pdu_bytes(uint64_t value);
+  public:
+
+  // uint64 tx_dropped_sdus = 6;
+  void clear_tx_dropped_sdus();
+  uint64_t tx_dropped_sdus() const;
+  void set_tx_dropped_sdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_dropped_sdus() const;
+  void _internal_set_tx_dropped_sdus(uint64_t value);
+  public:
+
+  // uint64 tx_retx_pdus = 7;
+  void clear_tx_retx_pdus();
+  uint64_t tx_retx_pdus() const;
+  void set_tx_retx_pdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_retx_pdus() const;
+  void _internal_set_tx_retx_pdus(uint64_t value);
+  public:
+
+  // uint64 rx_sdus = 9;
+  void clear_rx_sdus();
+  uint64_t rx_sdus() const;
+  void set_rx_sdus(uint64_t value);
+  private:
+  uint64_t _internal_rx_sdus() const;
+  void _internal_set_rx_sdus(uint64_t value);
+  public:
+
+  // uint64 rx_sdu_bytes = 10;
+  void clear_rx_sdu_bytes();
+  uint64_t rx_sdu_bytes() const;
+  void set_rx_sdu_bytes(uint64_t value);
+  private:
+  uint64_t _internal_rx_sdu_bytes() const;
+  void _internal_set_rx_sdu_bytes(uint64_t value);
+  public:
+
+  // uint64 rx_pdus = 11;
+  void clear_rx_pdus();
+  uint64_t rx_pdus() const;
+  void set_rx_pdus(uint64_t value);
+  private:
+  uint64_t _internal_rx_pdus() const;
+  void _internal_set_rx_pdus(uint64_t value);
+  public:
+
+  // uint64 rx_pdu_bytes = 12;
+  void clear_rx_pdu_bytes();
+  uint64_t rx_pdu_bytes() const;
+  void set_rx_pdu_bytes(uint64_t value);
+  private:
+  uint64_t _internal_rx_pdu_bytes() const;
+  void _internal_set_rx_pdu_bytes(uint64_t value);
+  public:
+
+  // uint64 rx_lost_pdus = 13;
+  void clear_rx_lost_pdus();
+  uint64_t rx_lost_pdus() const;
+  void set_rx_lost_pdus(uint64_t value);
+  private:
+  uint64_t _internal_rx_lost_pdus() const;
+  void _internal_set_rx_lost_pdus(uint64_t value);
+  public:
+
+  // uint32 rx_sdu_latency_us = 14;
+  void clear_rx_sdu_latency_us();
+  uint32_t rx_sdu_latency_us() const;
+  void set_rx_sdu_latency_us(uint32_t value);
+  private:
+  uint32_t _internal_rx_sdu_latency_us() const;
+  void _internal_set_rx_sdu_latency_us(uint32_t value);
+  public:
+
+  // uint32 dl_buffer = 15;
+  void clear_dl_buffer();
+  uint32_t dl_buffer() const;
+  void set_dl_buffer(uint32_t value);
+  private:
+  uint32_t _internal_dl_buffer() const;
+  void _internal_set_dl_buffer(uint32_t value);
+  public:
+
+  // uint32 ul_buffer = 16;
+  void clear_ul_buffer();
+  uint32_t ul_buffer() const;
+  void set_ul_buffer(uint32_t value);
+  private:
+  uint32_t _internal_ul_buffer() const;
+  void _internal_set_ul_buffer(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:RlcDrbMetrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint64_t tx_sdus_;
+    uint64_t tx_sdu_bytes_;
+    uint64_t tx_pdus_;
+    uint32_t lcid_;
+    uint32_t tx_sdu_latency_us_;
+    uint64_t tx_pdu_bytes_;
+    uint64_t tx_dropped_sdus_;
+    uint64_t tx_retx_pdus_;
+    uint64_t rx_sdus_;
+    uint64_t rx_sdu_bytes_;
+    uint64_t rx_pdus_;
+    uint64_t rx_pdu_bytes_;
+    uint64_t rx_lost_pdus_;
+    uint32_t rx_sdu_latency_us_;
+    uint32_t dl_buffer_;
+    uint32_t ul_buffer_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -309,7 +642,7 @@ class PdcpDrbMetrics final :
                &_PdcpDrbMetrics_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    1;
+    2;
 
   friend void swap(PdcpDrbMetrics& a, PdcpDrbMetrics& b) {
     a.Swap(&b);
@@ -382,15 +715,56 @@ class PdcpDrbMetrics final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kDrbIdFieldNumber = 1,
     kTxPdusFieldNumber = 2,
     kTxPduBytesFieldNumber = 3,
-    kTxDroppedSdusFieldNumber = 4,
-    kRxPdusFieldNumber = 5,
-    kRxPduBytesFieldNumber = 6,
-    kRxDroppedPdusFieldNumber = 7,
+    kTxSdusFieldNumber = 4,
+    kTxDroppedSdusFieldNumber = 5,
+    kDrbIdFieldNumber = 1,
+    kTxDiscardTimeoutsFieldNumber = 10,
+    kRxPdusFieldNumber = 6,
+    kRxPduBytesFieldNumber = 7,
     kRxDeliveredSdusFieldNumber = 8,
+    kRxDroppedPdusFieldNumber = 9,
+    kTxPduLatencyNsFieldNumber = 11,
+    kRxSduLatencyNsFieldNumber = 12,
+    kLcidFieldNumber = 13,
   };
+  // uint64 tx_pdus = 2;
+  void clear_tx_pdus();
+  uint64_t tx_pdus() const;
+  void set_tx_pdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_pdus() const;
+  void _internal_set_tx_pdus(uint64_t value);
+  public:
+
+  // uint64 tx_pdu_bytes = 3;
+  void clear_tx_pdu_bytes();
+  uint64_t tx_pdu_bytes() const;
+  void set_tx_pdu_bytes(uint64_t value);
+  private:
+  uint64_t _internal_tx_pdu_bytes() const;
+  void _internal_set_tx_pdu_bytes(uint64_t value);
+  public:
+
+  // uint64 tx_sdus = 4;
+  void clear_tx_sdus();
+  uint64_t tx_sdus() const;
+  void set_tx_sdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_sdus() const;
+  void _internal_set_tx_sdus(uint64_t value);
+  public:
+
+  // uint64 tx_dropped_sdus = 5;
+  void clear_tx_dropped_sdus();
+  uint64_t tx_dropped_sdus() const;
+  void set_tx_dropped_sdus(uint64_t value);
+  private:
+  uint64_t _internal_tx_dropped_sdus() const;
+  void _internal_set_tx_dropped_sdus(uint64_t value);
+  public:
+
   // uint32 drb_id = 1;
   void clear_drb_id();
   uint32_t drb_id() const;
@@ -400,67 +774,76 @@ class PdcpDrbMetrics final :
   void _internal_set_drb_id(uint32_t value);
   public:
 
-  // uint32 tx_pdus = 2;
-  void clear_tx_pdus();
-  uint32_t tx_pdus() const;
-  void set_tx_pdus(uint32_t value);
+  // uint32 tx_discard_timeouts = 10;
+  void clear_tx_discard_timeouts();
+  uint32_t tx_discard_timeouts() const;
+  void set_tx_discard_timeouts(uint32_t value);
   private:
-  uint32_t _internal_tx_pdus() const;
-  void _internal_set_tx_pdus(uint32_t value);
+  uint32_t _internal_tx_discard_timeouts() const;
+  void _internal_set_tx_discard_timeouts(uint32_t value);
   public:
 
-  // uint32 tx_pdu_bytes = 3;
-  void clear_tx_pdu_bytes();
-  uint32_t tx_pdu_bytes() const;
-  void set_tx_pdu_bytes(uint32_t value);
-  private:
-  uint32_t _internal_tx_pdu_bytes() const;
-  void _internal_set_tx_pdu_bytes(uint32_t value);
-  public:
-
-  // uint32 tx_dropped_sdus = 4;
-  void clear_tx_dropped_sdus();
-  uint32_t tx_dropped_sdus() const;
-  void set_tx_dropped_sdus(uint32_t value);
-  private:
-  uint32_t _internal_tx_dropped_sdus() const;
-  void _internal_set_tx_dropped_sdus(uint32_t value);
-  public:
-
-  // uint32 rx_pdus = 5;
+  // uint64 rx_pdus = 6;
   void clear_rx_pdus();
-  uint32_t rx_pdus() const;
-  void set_rx_pdus(uint32_t value);
+  uint64_t rx_pdus() const;
+  void set_rx_pdus(uint64_t value);
   private:
-  uint32_t _internal_rx_pdus() const;
-  void _internal_set_rx_pdus(uint32_t value);
+  uint64_t _internal_rx_pdus() const;
+  void _internal_set_rx_pdus(uint64_t value);
   public:
 
-  // uint32 rx_pdu_bytes = 6;
+  // uint64 rx_pdu_bytes = 7;
   void clear_rx_pdu_bytes();
-  uint32_t rx_pdu_bytes() const;
-  void set_rx_pdu_bytes(uint32_t value);
+  uint64_t rx_pdu_bytes() const;
+  void set_rx_pdu_bytes(uint64_t value);
   private:
-  uint32_t _internal_rx_pdu_bytes() const;
-  void _internal_set_rx_pdu_bytes(uint32_t value);
+  uint64_t _internal_rx_pdu_bytes() const;
+  void _internal_set_rx_pdu_bytes(uint64_t value);
   public:
 
-  // uint32 rx_dropped_pdus = 7;
-  void clear_rx_dropped_pdus();
-  uint32_t rx_dropped_pdus() const;
-  void set_rx_dropped_pdus(uint32_t value);
-  private:
-  uint32_t _internal_rx_dropped_pdus() const;
-  void _internal_set_rx_dropped_pdus(uint32_t value);
-  public:
-
-  // uint32 rx_delivered_sdus = 8;
+  // uint64 rx_delivered_sdus = 8;
   void clear_rx_delivered_sdus();
-  uint32_t rx_delivered_sdus() const;
-  void set_rx_delivered_sdus(uint32_t value);
+  uint64_t rx_delivered_sdus() const;
+  void set_rx_delivered_sdus(uint64_t value);
   private:
-  uint32_t _internal_rx_delivered_sdus() const;
-  void _internal_set_rx_delivered_sdus(uint32_t value);
+  uint64_t _internal_rx_delivered_sdus() const;
+  void _internal_set_rx_delivered_sdus(uint64_t value);
+  public:
+
+  // uint64 rx_dropped_pdus = 9;
+  void clear_rx_dropped_pdus();
+  uint64_t rx_dropped_pdus() const;
+  void set_rx_dropped_pdus(uint64_t value);
+  private:
+  uint64_t _internal_rx_dropped_pdus() const;
+  void _internal_set_rx_dropped_pdus(uint64_t value);
+  public:
+
+  // uint32 tx_pdu_latency_ns = 11;
+  void clear_tx_pdu_latency_ns();
+  uint32_t tx_pdu_latency_ns() const;
+  void set_tx_pdu_latency_ns(uint32_t value);
+  private:
+  uint32_t _internal_tx_pdu_latency_ns() const;
+  void _internal_set_tx_pdu_latency_ns(uint32_t value);
+  public:
+
+  // uint32 rx_sdu_latency_ns = 12;
+  void clear_rx_sdu_latency_ns();
+  uint32_t rx_sdu_latency_ns() const;
+  void set_rx_sdu_latency_ns(uint32_t value);
+  private:
+  uint32_t _internal_rx_sdu_latency_ns() const;
+  void _internal_set_rx_sdu_latency_ns(uint32_t value);
+  public:
+
+  // uint32 lcid = 13;
+  void clear_lcid();
+  uint32_t lcid() const;
+  void set_lcid(uint32_t value);
+  private:
+  uint32_t _internal_lcid() const;
+  void _internal_set_lcid(uint32_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:PdcpDrbMetrics)
@@ -471,14 +854,19 @@ class PdcpDrbMetrics final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
+    uint64_t tx_pdus_;
+    uint64_t tx_pdu_bytes_;
+    uint64_t tx_sdus_;
+    uint64_t tx_dropped_sdus_;
     uint32_t drb_id_;
-    uint32_t tx_pdus_;
-    uint32_t tx_pdu_bytes_;
-    uint32_t tx_dropped_sdus_;
-    uint32_t rx_pdus_;
-    uint32_t rx_pdu_bytes_;
-    uint32_t rx_dropped_pdus_;
-    uint32_t rx_delivered_sdus_;
+    uint32_t tx_discard_timeouts_;
+    uint64_t rx_pdus_;
+    uint64_t rx_pdu_bytes_;
+    uint64_t rx_delivered_sdus_;
+    uint64_t rx_dropped_pdus_;
+    uint32_t tx_pdu_latency_ns_;
+    uint32_t rx_sdu_latency_ns_;
+    uint32_t lcid_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -534,7 +922,7 @@ class GtpMetrics final :
                &_GtpMetrics_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    2;
+    3;
 
   friend void swap(GtpMetrics& a, GtpMetrics& b) {
     a.Swap(&b);
@@ -612,40 +1000,40 @@ class GtpMetrics final :
     kUlPktsFieldNumber = 3,
     kUlBytesFieldNumber = 4,
   };
-  // uint32 dl_pkts = 1;
+  // uint64 dl_pkts = 1;
   void clear_dl_pkts();
-  uint32_t dl_pkts() const;
-  void set_dl_pkts(uint32_t value);
+  uint64_t dl_pkts() const;
+  void set_dl_pkts(uint64_t value);
   private:
-  uint32_t _internal_dl_pkts() const;
-  void _internal_set_dl_pkts(uint32_t value);
+  uint64_t _internal_dl_pkts() const;
+  void _internal_set_dl_pkts(uint64_t value);
   public:
 
-  // uint32 dl_bytes = 2;
+  // uint64 dl_bytes = 2;
   void clear_dl_bytes();
-  uint32_t dl_bytes() const;
-  void set_dl_bytes(uint32_t value);
+  uint64_t dl_bytes() const;
+  void set_dl_bytes(uint64_t value);
   private:
-  uint32_t _internal_dl_bytes() const;
-  void _internal_set_dl_bytes(uint32_t value);
+  uint64_t _internal_dl_bytes() const;
+  void _internal_set_dl_bytes(uint64_t value);
   public:
 
-  // uint32 ul_pkts = 3;
+  // uint64 ul_pkts = 3;
   void clear_ul_pkts();
-  uint32_t ul_pkts() const;
-  void set_ul_pkts(uint32_t value);
+  uint64_t ul_pkts() const;
+  void set_ul_pkts(uint64_t value);
   private:
-  uint32_t _internal_ul_pkts() const;
-  void _internal_set_ul_pkts(uint32_t value);
+  uint64_t _internal_ul_pkts() const;
+  void _internal_set_ul_pkts(uint64_t value);
   public:
 
-  // uint32 ul_bytes = 4;
+  // uint64 ul_bytes = 4;
   void clear_ul_bytes();
-  uint32_t ul_bytes() const;
-  void set_ul_bytes(uint32_t value);
+  uint64_t ul_bytes() const;
+  void set_ul_bytes(uint64_t value);
   private:
-  uint32_t _internal_ul_bytes() const;
-  void _internal_set_ul_bytes(uint32_t value);
+  uint64_t _internal_ul_bytes() const;
+  void _internal_set_ul_bytes(uint64_t value);
   public:
 
   // @@protoc_insertion_point(class_scope:GtpMetrics)
@@ -656,10 +1044,301 @@ class GtpMetrics final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    uint32_t dl_pkts_;
-    uint32_t dl_bytes_;
-    uint32_t ul_pkts_;
-    uint32_t ul_bytes_;
+    uint64_t dl_pkts_;
+    uint64_t dl_bytes_;
+    uint64_t ul_pkts_;
+    uint64_t ul_bytes_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
+class MacUeMetrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:MacUeMetrics) */ {
+ public:
+  inline MacUeMetrics() : MacUeMetrics(nullptr) {}
+  ~MacUeMetrics() override;
+  explicit PROTOBUF_CONSTEXPR MacUeMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  MacUeMetrics(const MacUeMetrics& from);
+  MacUeMetrics(MacUeMetrics&& from) noexcept
+    : MacUeMetrics() {
+    *this = ::std::move(from);
+  }
+
+  inline MacUeMetrics& operator=(const MacUeMetrics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline MacUeMetrics& operator=(MacUeMetrics&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const MacUeMetrics& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const MacUeMetrics* internal_default_instance() {
+    return reinterpret_cast<const MacUeMetrics*>(
+               &_MacUeMetrics_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    4;
+
+  friend void swap(MacUeMetrics& a, MacUeMetrics& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(MacUeMetrics* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(MacUeMetrics* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  MacUeMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<MacUeMetrics>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const MacUeMetrics& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const MacUeMetrics& from) {
+    MacUeMetrics::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(MacUeMetrics* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "MacUeMetrics";
+  }
+  protected:
+  explicit MacUeMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kCqiFieldNumber = 1,
+    kSnrFieldNumber = 2,
+    kDlBufferFieldNumber = 3,
+    kUlBufferFieldNumber = 4,
+    kDlTbsFieldNumber = 5,
+    kUlTbsFieldNumber = 6,
+    kDlHarqAckFieldNumber = 7,
+    kDlHarqNackFieldNumber = 8,
+    kUlCrcOkFieldNumber = 9,
+    kUlCrcFailFieldNumber = 10,
+    kDlMcsFieldNumber = 11,
+    kUlMcsFieldNumber = 12,
+    kDlPrbsFieldNumber = 13,
+    kUlPrbsFieldNumber = 14,
+  };
+  // uint32 cqi = 1;
+  void clear_cqi();
+  uint32_t cqi() const;
+  void set_cqi(uint32_t value);
+  private:
+  uint32_t _internal_cqi() const;
+  void _internal_set_cqi(uint32_t value);
+  public:
+
+  // float snr = 2;
+  void clear_snr();
+  float snr() const;
+  void set_snr(float value);
+  private:
+  float _internal_snr() const;
+  void _internal_set_snr(float value);
+  public:
+
+  // uint32 dl_buffer = 3;
+  void clear_dl_buffer();
+  uint32_t dl_buffer() const;
+  void set_dl_buffer(uint32_t value);
+  private:
+  uint32_t _internal_dl_buffer() const;
+  void _internal_set_dl_buffer(uint32_t value);
+  public:
+
+  // uint32 ul_buffer = 4;
+  void clear_ul_buffer();
+  uint32_t ul_buffer() const;
+  void set_ul_buffer(uint32_t value);
+  private:
+  uint32_t _internal_ul_buffer() const;
+  void _internal_set_ul_buffer(uint32_t value);
+  public:
+
+  // uint32 dl_tbs = 5;
+  void clear_dl_tbs();
+  uint32_t dl_tbs() const;
+  void set_dl_tbs(uint32_t value);
+  private:
+  uint32_t _internal_dl_tbs() const;
+  void _internal_set_dl_tbs(uint32_t value);
+  public:
+
+  // uint32 ul_tbs = 6;
+  void clear_ul_tbs();
+  uint32_t ul_tbs() const;
+  void set_ul_tbs(uint32_t value);
+  private:
+  uint32_t _internal_ul_tbs() const;
+  void _internal_set_ul_tbs(uint32_t value);
+  public:
+
+  // uint32 dl_harq_ack = 7;
+  void clear_dl_harq_ack();
+  uint32_t dl_harq_ack() const;
+  void set_dl_harq_ack(uint32_t value);
+  private:
+  uint32_t _internal_dl_harq_ack() const;
+  void _internal_set_dl_harq_ack(uint32_t value);
+  public:
+
+  // uint32 dl_harq_nack = 8;
+  void clear_dl_harq_nack();
+  uint32_t dl_harq_nack() const;
+  void set_dl_harq_nack(uint32_t value);
+  private:
+  uint32_t _internal_dl_harq_nack() const;
+  void _internal_set_dl_harq_nack(uint32_t value);
+  public:
+
+  // uint32 ul_crc_ok = 9;
+  void clear_ul_crc_ok();
+  uint32_t ul_crc_ok() const;
+  void set_ul_crc_ok(uint32_t value);
+  private:
+  uint32_t _internal_ul_crc_ok() const;
+  void _internal_set_ul_crc_ok(uint32_t value);
+  public:
+
+  // uint32 ul_crc_fail = 10;
+  void clear_ul_crc_fail();
+  uint32_t ul_crc_fail() const;
+  void set_ul_crc_fail(uint32_t value);
+  private:
+  uint32_t _internal_ul_crc_fail() const;
+  void _internal_set_ul_crc_fail(uint32_t value);
+  public:
+
+  // uint32 dl_mcs = 11;
+  void clear_dl_mcs();
+  uint32_t dl_mcs() const;
+  void set_dl_mcs(uint32_t value);
+  private:
+  uint32_t _internal_dl_mcs() const;
+  void _internal_set_dl_mcs(uint32_t value);
+  public:
+
+  // uint32 ul_mcs = 12;
+  void clear_ul_mcs();
+  uint32_t ul_mcs() const;
+  void set_ul_mcs(uint32_t value);
+  private:
+  uint32_t _internal_ul_mcs() const;
+  void _internal_set_ul_mcs(uint32_t value);
+  public:
+
+  // uint32 dl_prbs = 13;
+  void clear_dl_prbs();
+  uint32_t dl_prbs() const;
+  void set_dl_prbs(uint32_t value);
+  private:
+  uint32_t _internal_dl_prbs() const;
+  void _internal_set_dl_prbs(uint32_t value);
+  public:
+
+  // uint32 ul_prbs = 14;
+  void clear_ul_prbs();
+  uint32_t ul_prbs() const;
+  void set_ul_prbs(uint32_t value);
+  private:
+  uint32_t _internal_ul_prbs() const;
+  void _internal_set_ul_prbs(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:MacUeMetrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    uint32_t cqi_;
+    float snr_;
+    uint32_t dl_buffer_;
+    uint32_t ul_buffer_;
+    uint32_t dl_tbs_;
+    uint32_t ul_tbs_;
+    uint32_t dl_harq_ack_;
+    uint32_t dl_harq_nack_;
+    uint32_t ul_crc_ok_;
+    uint32_t ul_crc_fail_;
+    uint32_t dl_mcs_;
+    uint32_t ul_mcs_;
+    uint32_t dl_prbs_;
+    uint32_t ul_prbs_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -715,7 +1394,7 @@ class UeMetrics final :
                &_UeMetrics_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    3;
+    5;
 
   friend void swap(UeMetrics& a, UeMetrics& b) {
     a.Swap(&b);
@@ -788,9 +1467,602 @@ class UeMetrics final :
   // accessors -------------------------------------------------------
 
   enum : int {
+    kMacDrbFieldNumber = 3,
+    kRlcDrbFieldNumber = 4,
+    kPdcpDrbFieldNumber = 5,
+    kMacFieldNumber = 2,
+    kGtpFieldNumber = 6,
+    kRntiFieldNumber = 1,
+  };
+  // repeated .MacDrbMetrics mac_drb = 3;
+  int mac_drb_size() const;
+  private:
+  int _internal_mac_drb_size() const;
+  public:
+  void clear_mac_drb();
+  ::MacDrbMetrics* mutable_mac_drb(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::MacDrbMetrics >*
+      mutable_mac_drb();
+  private:
+  const ::MacDrbMetrics& _internal_mac_drb(int index) const;
+  ::MacDrbMetrics* _internal_add_mac_drb();
+  public:
+  const ::MacDrbMetrics& mac_drb(int index) const;
+  ::MacDrbMetrics* add_mac_drb();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::MacDrbMetrics >&
+      mac_drb() const;
+
+  // repeated .RlcDrbMetrics rlc_drb = 4;
+  int rlc_drb_size() const;
+  private:
+  int _internal_rlc_drb_size() const;
+  public:
+  void clear_rlc_drb();
+  ::RlcDrbMetrics* mutable_rlc_drb(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::RlcDrbMetrics >*
+      mutable_rlc_drb();
+  private:
+  const ::RlcDrbMetrics& _internal_rlc_drb(int index) const;
+  ::RlcDrbMetrics* _internal_add_rlc_drb();
+  public:
+  const ::RlcDrbMetrics& rlc_drb(int index) const;
+  ::RlcDrbMetrics* add_rlc_drb();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::RlcDrbMetrics >&
+      rlc_drb() const;
+
+  // repeated .PdcpDrbMetrics pdcp_drb = 5;
+  int pdcp_drb_size() const;
+  private:
+  int _internal_pdcp_drb_size() const;
+  public:
+  void clear_pdcp_drb();
+  ::PdcpDrbMetrics* mutable_pdcp_drb(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >*
+      mutable_pdcp_drb();
+  private:
+  const ::PdcpDrbMetrics& _internal_pdcp_drb(int index) const;
+  ::PdcpDrbMetrics* _internal_add_pdcp_drb();
+  public:
+  const ::PdcpDrbMetrics& pdcp_drb(int index) const;
+  ::PdcpDrbMetrics* add_pdcp_drb();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >&
+      pdcp_drb() const;
+
+  // .MacUeMetrics mac = 2;
+  bool has_mac() const;
+  private:
+  bool _internal_has_mac() const;
+  public:
+  void clear_mac();
+  const ::MacUeMetrics& mac() const;
+  PROTOBUF_NODISCARD ::MacUeMetrics* release_mac();
+  ::MacUeMetrics* mutable_mac();
+  void set_allocated_mac(::MacUeMetrics* mac);
+  private:
+  const ::MacUeMetrics& _internal_mac() const;
+  ::MacUeMetrics* _internal_mutable_mac();
+  public:
+  void unsafe_arena_set_allocated_mac(
+      ::MacUeMetrics* mac);
+  ::MacUeMetrics* unsafe_arena_release_mac();
+
+  // .GtpMetrics gtp = 6;
+  bool has_gtp() const;
+  private:
+  bool _internal_has_gtp() const;
+  public:
+  void clear_gtp();
+  const ::GtpMetrics& gtp() const;
+  PROTOBUF_NODISCARD ::GtpMetrics* release_gtp();
+  ::GtpMetrics* mutable_gtp();
+  void set_allocated_gtp(::GtpMetrics* gtp);
+  private:
+  const ::GtpMetrics& _internal_gtp() const;
+  ::GtpMetrics* _internal_mutable_gtp();
+  public:
+  void unsafe_arena_set_allocated_gtp(
+      ::GtpMetrics* gtp);
+  ::GtpMetrics* unsafe_arena_release_gtp();
+
+  // uint32 rnti = 1;
+  void clear_rnti();
+  uint32_t rnti() const;
+  void set_rnti(uint32_t value);
+  private:
+  uint32_t _internal_rnti() const;
+  void _internal_set_rnti(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:UeMetrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::MacDrbMetrics > mac_drb_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::RlcDrbMetrics > rlc_drb_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics > pdcp_drb_;
+    ::MacUeMetrics* mac_;
+    ::GtpMetrics* gtp_;
+    uint32_t rnti_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
+class TtiMetrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:TtiMetrics) */ {
+ public:
+  inline TtiMetrics() : TtiMetrics(nullptr) {}
+  ~TtiMetrics() override;
+  explicit PROTOBUF_CONSTEXPR TtiMetrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  TtiMetrics(const TtiMetrics& from);
+  TtiMetrics(TtiMetrics&& from) noexcept
+    : TtiMetrics() {
+    *this = ::std::move(from);
+  }
+
+  inline TtiMetrics& operator=(const TtiMetrics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline TtiMetrics& operator=(TtiMetrics&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const TtiMetrics& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const TtiMetrics* internal_default_instance() {
+    return reinterpret_cast<const TtiMetrics*>(
+               &_TtiMetrics_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    6;
+
+  friend void swap(TtiMetrics& a, TtiMetrics& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(TtiMetrics* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(TtiMetrics* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  TtiMetrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<TtiMetrics>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const TtiMetrics& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const TtiMetrics& from) {
+    TtiMetrics::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(TtiMetrics* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "TtiMetrics";
+  }
+  protected:
+  explicit TtiMetrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUesFieldNumber = 3,
+    kTimestampUsFieldNumber = 2,
+    kTtiIndexFieldNumber = 1,
+  };
+  // repeated .UeMetrics ues = 3;
+  int ues_size() const;
+  private:
+  int _internal_ues_size() const;
+  public:
+  void clear_ues();
+  ::UeMetrics* mutable_ues(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >*
+      mutable_ues();
+  private:
+  const ::UeMetrics& _internal_ues(int index) const;
+  ::UeMetrics* _internal_add_ues();
+  public:
+  const ::UeMetrics& ues(int index) const;
+  ::UeMetrics* add_ues();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >&
+      ues() const;
+
+  // uint64 timestamp_us = 2;
+  void clear_timestamp_us();
+  uint64_t timestamp_us() const;
+  void set_timestamp_us(uint64_t value);
+  private:
+  uint64_t _internal_timestamp_us() const;
+  void _internal_set_timestamp_us(uint64_t value);
+  public:
+
+  // uint32 tti_index = 1;
+  void clear_tti_index();
+  uint32_t tti_index() const;
+  void set_tti_index(uint32_t value);
+  private:
+  uint32_t _internal_tti_index() const;
+  void _internal_set_tti_index(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:TtiMetrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics > ues_;
+    uint64_t timestamp_us_;
+    uint32_t tti_index_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
+class Metrics final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Metrics) */ {
+ public:
+  inline Metrics() : Metrics(nullptr) {}
+  ~Metrics() override;
+  explicit PROTOBUF_CONSTEXPR Metrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  Metrics(const Metrics& from);
+  Metrics(Metrics&& from) noexcept
+    : Metrics() {
+    *this = ::std::move(from);
+  }
+
+  inline Metrics& operator=(const Metrics& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline Metrics& operator=(Metrics&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const Metrics& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const Metrics* internal_default_instance() {
+    return reinterpret_cast<const Metrics*>(
+               &_Metrics_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    7;
+
+  friend void swap(Metrics& a, Metrics& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(Metrics* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(Metrics* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  Metrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<Metrics>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const Metrics& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const Metrics& from) {
+    Metrics::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(Metrics* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "Metrics";
+  }
+  protected:
+  explicit Metrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
+    kUeMetricsFieldNumber = 2,
+    kTtiCntFieldNumber = 1,
+  };
+  // repeated .UeMetricsLegacy ue_metrics = 2;
+  int ue_metrics_size() const;
+  private:
+  int _internal_ue_metrics_size() const;
+  public:
+  void clear_ue_metrics();
+  ::UeMetricsLegacy* mutable_ue_metrics(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetricsLegacy >*
+      mutable_ue_metrics();
+  private:
+  const ::UeMetricsLegacy& _internal_ue_metrics(int index) const;
+  ::UeMetricsLegacy* _internal_add_ue_metrics();
+  public:
+  const ::UeMetricsLegacy& ue_metrics(int index) const;
+  ::UeMetricsLegacy* add_ue_metrics();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetricsLegacy >&
+      ue_metrics() const;
+
+  // uint32 tti_cnt = 1;
+  void clear_tti_cnt();
+  uint32_t tti_cnt() const;
+  void set_tti_cnt(uint32_t value);
+  private:
+  uint32_t _internal_tti_cnt() const;
+  void _internal_set_tti_cnt(uint32_t value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:Metrics)
+ private:
+  class _Internal;
+
+  template <typename T> friend class ::PROTOBUF_NAMESPACE_ID::Arena::InternalHelper;
+  typedef void InternalArenaConstructable_;
+  typedef void DestructorSkippable_;
+  struct Impl_ {
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetricsLegacy > ue_metrics_;
+    uint32_t tti_cnt_;
+    mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
+  };
+  union { Impl_ _impl_; };
+  friend struct ::TableStruct_metrics_2eproto;
+};
+// -------------------------------------------------------------------
+
+class UeMetricsLegacy final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:UeMetricsLegacy) */ {
+ public:
+  inline UeMetricsLegacy() : UeMetricsLegacy(nullptr) {}
+  ~UeMetricsLegacy() override;
+  explicit PROTOBUF_CONSTEXPR UeMetricsLegacy(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+
+  UeMetricsLegacy(const UeMetricsLegacy& from);
+  UeMetricsLegacy(UeMetricsLegacy&& from) noexcept
+    : UeMetricsLegacy() {
+    *this = ::std::move(from);
+  }
+
+  inline UeMetricsLegacy& operator=(const UeMetricsLegacy& from) {
+    CopyFrom(from);
+    return *this;
+  }
+  inline UeMetricsLegacy& operator=(UeMetricsLegacy&& from) noexcept {
+    if (this == &from) return *this;
+    if (GetOwningArena() == from.GetOwningArena()
+  #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
+        && GetOwningArena() != nullptr
+  #endif  // !PROTOBUF_FORCE_COPY_IN_MOVE
+    ) {
+      InternalSwap(&from);
+    } else {
+      CopyFrom(from);
+    }
+    return *this;
+  }
+
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* descriptor() {
+    return GetDescriptor();
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Descriptor* GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
+  static const UeMetricsLegacy& default_instance() {
+    return *internal_default_instance();
+  }
+  static inline const UeMetricsLegacy* internal_default_instance() {
+    return reinterpret_cast<const UeMetricsLegacy*>(
+               &_UeMetricsLegacy_default_instance_);
+  }
+  static constexpr int kIndexInFileMessages =
+    8;
+
+  friend void swap(UeMetricsLegacy& a, UeMetricsLegacy& b) {
+    a.Swap(&b);
+  }
+  inline void Swap(UeMetricsLegacy* other) {
+    if (other == this) return;
+  #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() != nullptr &&
+        GetOwningArena() == other->GetOwningArena()) {
+   #else  // PROTOBUF_FORCE_COPY_IN_SWAP
+    if (GetOwningArena() == other->GetOwningArena()) {
+  #endif  // !PROTOBUF_FORCE_COPY_IN_SWAP
+      InternalSwap(other);
+    } else {
+      ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
+    }
+  }
+  void UnsafeArenaSwap(UeMetricsLegacy* other) {
+    if (other == this) return;
+    GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
+    InternalSwap(other);
+  }
+
+  // implements Message ----------------------------------------------
+
+  UeMetricsLegacy* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<UeMetricsLegacy>(arena);
+  }
+  using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
+  void CopyFrom(const UeMetricsLegacy& from);
+  using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
+  void MergeFrom( const UeMetricsLegacy& from) {
+    UeMetricsLegacy::MergeImpl(*this, from);
+  }
+  private:
+  static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
+  public:
+  PROTOBUF_ATTRIBUTE_REINITIALIZES void Clear() final;
+  bool IsInitialized() const final;
+
+  size_t ByteSizeLong() const final;
+  const char* _InternalParse(const char* ptr, ::PROTOBUF_NAMESPACE_ID::internal::ParseContext* ctx) final;
+  uint8_t* _InternalSerialize(
+      uint8_t* target, ::PROTOBUF_NAMESPACE_ID::io::EpsCopyOutputStream* stream) const final;
+  int GetCachedSize() const final { return _impl_._cached_size_.Get(); }
+
+  private:
+  void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
+  void SharedDtor();
+  void SetCachedSize(int size) const final;
+  void InternalSwap(UeMetricsLegacy* other);
+
+  private:
+  friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
+  static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
+    return "UeMetricsLegacy";
+  }
+  protected:
+  explicit UeMetricsLegacy(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+                       bool is_message_owned = false);
+  public:
+
+  static const ClassData _class_data_;
+  const ::PROTOBUF_NAMESPACE_ID::Message::ClassData*GetClassData() const final;
+
+  ::PROTOBUF_NAMESPACE_ID::Metadata GetMetadata() const final;
+
+  // nested types ----------------------------------------------------
+
+  // accessors -------------------------------------------------------
+
+  enum : int {
     kDrbMetricsFieldNumber = 13,
-    kPdcpDrbMetricsFieldNumber = 14,
-    kGtpMetricsFieldNumber = 15,
     kRntiFieldNumber = 1,
     kCqiFieldNumber = 2,
     kSnrFieldNumber = 3,
@@ -804,59 +2076,23 @@ class UeMetrics final :
     kUlOkFieldNumber = 11,
     kUlNokFieldNumber = 12,
   };
-  // repeated .DrbMetrics drb_metrics = 13;
+  // repeated .DrbMetricsLegacy drb_metrics = 13;
   int drb_metrics_size() const;
   private:
   int _internal_drb_metrics_size() const;
   public:
   void clear_drb_metrics();
-  ::DrbMetrics* mutable_drb_metrics(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics >*
+  ::DrbMetricsLegacy* mutable_drb_metrics(int index);
+  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetricsLegacy >*
       mutable_drb_metrics();
   private:
-  const ::DrbMetrics& _internal_drb_metrics(int index) const;
-  ::DrbMetrics* _internal_add_drb_metrics();
+  const ::DrbMetricsLegacy& _internal_drb_metrics(int index) const;
+  ::DrbMetricsLegacy* _internal_add_drb_metrics();
   public:
-  const ::DrbMetrics& drb_metrics(int index) const;
-  ::DrbMetrics* add_drb_metrics();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics >&
+  const ::DrbMetricsLegacy& drb_metrics(int index) const;
+  ::DrbMetricsLegacy* add_drb_metrics();
+  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetricsLegacy >&
       drb_metrics() const;
-
-  // repeated .PdcpDrbMetrics pdcp_drb_metrics = 14;
-  int pdcp_drb_metrics_size() const;
-  private:
-  int _internal_pdcp_drb_metrics_size() const;
-  public:
-  void clear_pdcp_drb_metrics();
-  ::PdcpDrbMetrics* mutable_pdcp_drb_metrics(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >*
-      mutable_pdcp_drb_metrics();
-  private:
-  const ::PdcpDrbMetrics& _internal_pdcp_drb_metrics(int index) const;
-  ::PdcpDrbMetrics* _internal_add_pdcp_drb_metrics();
-  public:
-  const ::PdcpDrbMetrics& pdcp_drb_metrics(int index) const;
-  ::PdcpDrbMetrics* add_pdcp_drb_metrics();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >&
-      pdcp_drb_metrics() const;
-
-  // .GtpMetrics gtp_metrics = 15;
-  bool has_gtp_metrics() const;
-  private:
-  bool _internal_has_gtp_metrics() const;
-  public:
-  void clear_gtp_metrics();
-  const ::GtpMetrics& gtp_metrics() const;
-  PROTOBUF_NODISCARD ::GtpMetrics* release_gtp_metrics();
-  ::GtpMetrics* mutable_gtp_metrics();
-  void set_allocated_gtp_metrics(::GtpMetrics* gtp_metrics);
-  private:
-  const ::GtpMetrics& _internal_gtp_metrics() const;
-  ::GtpMetrics* _internal_mutable_gtp_metrics();
-  public:
-  void unsafe_arena_set_allocated_gtp_metrics(
-      ::GtpMetrics* gtp_metrics);
-  ::GtpMetrics* unsafe_arena_release_gtp_metrics();
 
   // uint32 rnti = 1;
   void clear_rnti();
@@ -966,7 +2202,7 @@ class UeMetrics final :
   void _internal_set_ul_nok(uint32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:UeMetrics)
+  // @@protoc_insertion_point(class_scope:UeMetricsLegacy)
  private:
   class _Internal;
 
@@ -974,9 +2210,7 @@ class UeMetrics final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics > drb_metrics_;
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics > pdcp_drb_metrics_;
-    ::GtpMetrics* gtp_metrics_;
+    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetricsLegacy > drb_metrics_;
     uint32_t rnti_;
     uint32_t cqi_;
     float snr_;
@@ -996,24 +2230,24 @@ class UeMetrics final :
 };
 // -------------------------------------------------------------------
 
-class Metrics final :
-    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:Metrics) */ {
+class DrbMetricsLegacy final :
+    public ::PROTOBUF_NAMESPACE_ID::Message /* @@protoc_insertion_point(class_definition:DrbMetricsLegacy) */ {
  public:
-  inline Metrics() : Metrics(nullptr) {}
-  ~Metrics() override;
-  explicit PROTOBUF_CONSTEXPR Metrics(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
+  inline DrbMetricsLegacy() : DrbMetricsLegacy(nullptr) {}
+  ~DrbMetricsLegacy() override;
+  explicit PROTOBUF_CONSTEXPR DrbMetricsLegacy(::PROTOBUF_NAMESPACE_ID::internal::ConstantInitialized);
 
-  Metrics(const Metrics& from);
-  Metrics(Metrics&& from) noexcept
-    : Metrics() {
+  DrbMetricsLegacy(const DrbMetricsLegacy& from);
+  DrbMetricsLegacy(DrbMetricsLegacy&& from) noexcept
+    : DrbMetricsLegacy() {
     *this = ::std::move(from);
   }
 
-  inline Metrics& operator=(const Metrics& from) {
+  inline DrbMetricsLegacy& operator=(const DrbMetricsLegacy& from) {
     CopyFrom(from);
     return *this;
   }
-  inline Metrics& operator=(Metrics&& from) noexcept {
+  inline DrbMetricsLegacy& operator=(DrbMetricsLegacy&& from) noexcept {
     if (this == &from) return *this;
     if (GetOwningArena() == from.GetOwningArena()
   #ifdef PROTOBUF_FORCE_COPY_IN_MOVE
@@ -1036,20 +2270,20 @@ class Metrics final :
   static const ::PROTOBUF_NAMESPACE_ID::Reflection* GetReflection() {
     return default_instance().GetMetadata().reflection;
   }
-  static const Metrics& default_instance() {
+  static const DrbMetricsLegacy& default_instance() {
     return *internal_default_instance();
   }
-  static inline const Metrics* internal_default_instance() {
-    return reinterpret_cast<const Metrics*>(
-               &_Metrics_default_instance_);
+  static inline const DrbMetricsLegacy* internal_default_instance() {
+    return reinterpret_cast<const DrbMetricsLegacy*>(
+               &_DrbMetricsLegacy_default_instance_);
   }
   static constexpr int kIndexInFileMessages =
-    4;
+    9;
 
-  friend void swap(Metrics& a, Metrics& b) {
+  friend void swap(DrbMetricsLegacy& a, DrbMetricsLegacy& b) {
     a.Swap(&b);
   }
-  inline void Swap(Metrics* other) {
+  inline void Swap(DrbMetricsLegacy* other) {
     if (other == this) return;
   #ifdef PROTOBUF_FORCE_COPY_IN_SWAP
     if (GetOwningArena() != nullptr &&
@@ -1062,7 +2296,7 @@ class Metrics final :
       ::PROTOBUF_NAMESPACE_ID::internal::GenericSwap(this, other);
     }
   }
-  void UnsafeArenaSwap(Metrics* other) {
+  void UnsafeArenaSwap(DrbMetricsLegacy* other) {
     if (other == this) return;
     GOOGLE_DCHECK(GetOwningArena() == other->GetOwningArena());
     InternalSwap(other);
@@ -1070,14 +2304,14 @@ class Metrics final :
 
   // implements Message ----------------------------------------------
 
-  Metrics* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
-    return CreateMaybeMessage<Metrics>(arena);
+  DrbMetricsLegacy* New(::PROTOBUF_NAMESPACE_ID::Arena* arena = nullptr) const final {
+    return CreateMaybeMessage<DrbMetricsLegacy>(arena);
   }
   using ::PROTOBUF_NAMESPACE_ID::Message::CopyFrom;
-  void CopyFrom(const Metrics& from);
+  void CopyFrom(const DrbMetricsLegacy& from);
   using ::PROTOBUF_NAMESPACE_ID::Message::MergeFrom;
-  void MergeFrom( const Metrics& from) {
-    Metrics::MergeImpl(*this, from);
+  void MergeFrom( const DrbMetricsLegacy& from) {
+    DrbMetricsLegacy::MergeImpl(*this, from);
   }
   private:
   static void MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::PROTOBUF_NAMESPACE_ID::Message& from_msg);
@@ -1095,15 +2329,15 @@ class Metrics final :
   void SharedCtor(::PROTOBUF_NAMESPACE_ID::Arena* arena, bool is_message_owned);
   void SharedDtor();
   void SetCachedSize(int size) const final;
-  void InternalSwap(Metrics* other);
+  void InternalSwap(DrbMetricsLegacy* other);
 
   private:
   friend class ::PROTOBUF_NAMESPACE_ID::internal::AnyMetadata;
   static ::PROTOBUF_NAMESPACE_ID::StringPiece FullMessageName() {
-    return "Metrics";
+    return "DrbMetricsLegacy";
   }
   protected:
-  explicit Metrics(::PROTOBUF_NAMESPACE_ID::Arena* arena,
+  explicit DrbMetricsLegacy(::PROTOBUF_NAMESPACE_ID::Arena* arena,
                        bool is_message_owned = false);
   public:
 
@@ -1117,37 +2351,58 @@ class Metrics final :
   // accessors -------------------------------------------------------
 
   enum : int {
-    kUeMetricsFieldNumber = 2,
-    kTtiCntFieldNumber = 1,
+    kLcidFieldNumber = 1,
+    kDlBufferFieldNumber = 2,
+    kUlBufferFieldNumber = 3,
+    kTxBytesFieldNumber = 4,
+    kRxBytesFieldNumber = 5,
   };
-  // repeated .UeMetrics ue_metrics = 2;
-  int ue_metrics_size() const;
+  // uint32 lcid = 1;
+  void clear_lcid();
+  uint32_t lcid() const;
+  void set_lcid(uint32_t value);
   private:
-  int _internal_ue_metrics_size() const;
-  public:
-  void clear_ue_metrics();
-  ::UeMetrics* mutable_ue_metrics(int index);
-  ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >*
-      mutable_ue_metrics();
-  private:
-  const ::UeMetrics& _internal_ue_metrics(int index) const;
-  ::UeMetrics* _internal_add_ue_metrics();
-  public:
-  const ::UeMetrics& ue_metrics(int index) const;
-  ::UeMetrics* add_ue_metrics();
-  const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >&
-      ue_metrics() const;
-
-  // uint32 tti_cnt = 1;
-  void clear_tti_cnt();
-  uint32_t tti_cnt() const;
-  void set_tti_cnt(uint32_t value);
-  private:
-  uint32_t _internal_tti_cnt() const;
-  void _internal_set_tti_cnt(uint32_t value);
+  uint32_t _internal_lcid() const;
+  void _internal_set_lcid(uint32_t value);
   public:
 
-  // @@protoc_insertion_point(class_scope:Metrics)
+  // uint32 dl_buffer = 2;
+  void clear_dl_buffer();
+  uint32_t dl_buffer() const;
+  void set_dl_buffer(uint32_t value);
+  private:
+  uint32_t _internal_dl_buffer() const;
+  void _internal_set_dl_buffer(uint32_t value);
+  public:
+
+  // uint32 ul_buffer = 3;
+  void clear_ul_buffer();
+  uint32_t ul_buffer() const;
+  void set_ul_buffer(uint32_t value);
+  private:
+  uint32_t _internal_ul_buffer() const;
+  void _internal_set_ul_buffer(uint32_t value);
+  public:
+
+  // float tx_bytes = 4;
+  void clear_tx_bytes();
+  float tx_bytes() const;
+  void set_tx_bytes(float value);
+  private:
+  float _internal_tx_bytes() const;
+  void _internal_set_tx_bytes(float value);
+  public:
+
+  // float rx_bytes = 5;
+  void clear_rx_bytes();
+  float rx_bytes() const;
+  void set_rx_bytes(float value);
+  private:
+  float _internal_rx_bytes() const;
+  void _internal_set_rx_bytes(float value);
+  public:
+
+  // @@protoc_insertion_point(class_scope:DrbMetricsLegacy)
  private:
   class _Internal;
 
@@ -1155,8 +2410,11 @@ class Metrics final :
   typedef void InternalArenaConstructable_;
   typedef void DestructorSkippable_;
   struct Impl_ {
-    ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics > ue_metrics_;
-    uint32_t tti_cnt_;
+    uint32_t lcid_;
+    uint32_t dl_buffer_;
+    uint32_t ul_buffer_;
+    float tx_bytes_;
+    float rx_bytes_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -1171,106 +2429,430 @@ class Metrics final :
   #pragma GCC diagnostic push
   #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif  // __GNUC__
-// DrbMetrics
+// MacDrbMetrics
 
 // uint32 lcid = 1;
-inline void DrbMetrics::clear_lcid() {
+inline void MacDrbMetrics::clear_lcid() {
   _impl_.lcid_ = 0u;
 }
-inline uint32_t DrbMetrics::_internal_lcid() const {
+inline uint32_t MacDrbMetrics::_internal_lcid() const {
   return _impl_.lcid_;
 }
-inline uint32_t DrbMetrics::lcid() const {
-  // @@protoc_insertion_point(field_get:DrbMetrics.lcid)
+inline uint32_t MacDrbMetrics::lcid() const {
+  // @@protoc_insertion_point(field_get:MacDrbMetrics.lcid)
   return _internal_lcid();
 }
-inline void DrbMetrics::_internal_set_lcid(uint32_t value) {
+inline void MacDrbMetrics::_internal_set_lcid(uint32_t value) {
   
   _impl_.lcid_ = value;
 }
-inline void DrbMetrics::set_lcid(uint32_t value) {
+inline void MacDrbMetrics::set_lcid(uint32_t value) {
   _internal_set_lcid(value);
-  // @@protoc_insertion_point(field_set:DrbMetrics.lcid)
+  // @@protoc_insertion_point(field_set:MacDrbMetrics.lcid)
 }
 
 // uint32 dl_buffer = 2;
-inline void DrbMetrics::clear_dl_buffer() {
+inline void MacDrbMetrics::clear_dl_buffer() {
   _impl_.dl_buffer_ = 0u;
 }
-inline uint32_t DrbMetrics::_internal_dl_buffer() const {
+inline uint32_t MacDrbMetrics::_internal_dl_buffer() const {
   return _impl_.dl_buffer_;
 }
-inline uint32_t DrbMetrics::dl_buffer() const {
-  // @@protoc_insertion_point(field_get:DrbMetrics.dl_buffer)
+inline uint32_t MacDrbMetrics::dl_buffer() const {
+  // @@protoc_insertion_point(field_get:MacDrbMetrics.dl_buffer)
   return _internal_dl_buffer();
 }
-inline void DrbMetrics::_internal_set_dl_buffer(uint32_t value) {
+inline void MacDrbMetrics::_internal_set_dl_buffer(uint32_t value) {
   
   _impl_.dl_buffer_ = value;
 }
-inline void DrbMetrics::set_dl_buffer(uint32_t value) {
+inline void MacDrbMetrics::set_dl_buffer(uint32_t value) {
   _internal_set_dl_buffer(value);
-  // @@protoc_insertion_point(field_set:DrbMetrics.dl_buffer)
+  // @@protoc_insertion_point(field_set:MacDrbMetrics.dl_buffer)
 }
 
 // uint32 ul_buffer = 3;
-inline void DrbMetrics::clear_ul_buffer() {
+inline void MacDrbMetrics::clear_ul_buffer() {
   _impl_.ul_buffer_ = 0u;
 }
-inline uint32_t DrbMetrics::_internal_ul_buffer() const {
+inline uint32_t MacDrbMetrics::_internal_ul_buffer() const {
   return _impl_.ul_buffer_;
 }
-inline uint32_t DrbMetrics::ul_buffer() const {
-  // @@protoc_insertion_point(field_get:DrbMetrics.ul_buffer)
+inline uint32_t MacDrbMetrics::ul_buffer() const {
+  // @@protoc_insertion_point(field_get:MacDrbMetrics.ul_buffer)
   return _internal_ul_buffer();
 }
-inline void DrbMetrics::_internal_set_ul_buffer(uint32_t value) {
+inline void MacDrbMetrics::_internal_set_ul_buffer(uint32_t value) {
   
   _impl_.ul_buffer_ = value;
 }
-inline void DrbMetrics::set_ul_buffer(uint32_t value) {
+inline void MacDrbMetrics::set_ul_buffer(uint32_t value) {
   _internal_set_ul_buffer(value);
-  // @@protoc_insertion_point(field_set:DrbMetrics.ul_buffer)
+  // @@protoc_insertion_point(field_set:MacDrbMetrics.ul_buffer)
 }
 
-// float tx_bytes = 4;
-inline void DrbMetrics::clear_tx_bytes() {
-  _impl_.tx_bytes_ = 0;
+// uint32 dl_bytes = 4;
+inline void MacDrbMetrics::clear_dl_bytes() {
+  _impl_.dl_bytes_ = 0u;
 }
-inline float DrbMetrics::_internal_tx_bytes() const {
-  return _impl_.tx_bytes_;
+inline uint32_t MacDrbMetrics::_internal_dl_bytes() const {
+  return _impl_.dl_bytes_;
 }
-inline float DrbMetrics::tx_bytes() const {
-  // @@protoc_insertion_point(field_get:DrbMetrics.tx_bytes)
-  return _internal_tx_bytes();
+inline uint32_t MacDrbMetrics::dl_bytes() const {
+  // @@protoc_insertion_point(field_get:MacDrbMetrics.dl_bytes)
+  return _internal_dl_bytes();
 }
-inline void DrbMetrics::_internal_set_tx_bytes(float value) {
+inline void MacDrbMetrics::_internal_set_dl_bytes(uint32_t value) {
   
-  _impl_.tx_bytes_ = value;
+  _impl_.dl_bytes_ = value;
 }
-inline void DrbMetrics::set_tx_bytes(float value) {
-  _internal_set_tx_bytes(value);
-  // @@protoc_insertion_point(field_set:DrbMetrics.tx_bytes)
+inline void MacDrbMetrics::set_dl_bytes(uint32_t value) {
+  _internal_set_dl_bytes(value);
+  // @@protoc_insertion_point(field_set:MacDrbMetrics.dl_bytes)
 }
 
-// float rx_bytes = 5;
-inline void DrbMetrics::clear_rx_bytes() {
-  _impl_.rx_bytes_ = 0;
+// uint32 ul_bytes = 5;
+inline void MacDrbMetrics::clear_ul_bytes() {
+  _impl_.ul_bytes_ = 0u;
 }
-inline float DrbMetrics::_internal_rx_bytes() const {
-  return _impl_.rx_bytes_;
+inline uint32_t MacDrbMetrics::_internal_ul_bytes() const {
+  return _impl_.ul_bytes_;
 }
-inline float DrbMetrics::rx_bytes() const {
-  // @@protoc_insertion_point(field_get:DrbMetrics.rx_bytes)
-  return _internal_rx_bytes();
+inline uint32_t MacDrbMetrics::ul_bytes() const {
+  // @@protoc_insertion_point(field_get:MacDrbMetrics.ul_bytes)
+  return _internal_ul_bytes();
 }
-inline void DrbMetrics::_internal_set_rx_bytes(float value) {
+inline void MacDrbMetrics::_internal_set_ul_bytes(uint32_t value) {
   
-  _impl_.rx_bytes_ = value;
+  _impl_.ul_bytes_ = value;
 }
-inline void DrbMetrics::set_rx_bytes(float value) {
-  _internal_set_rx_bytes(value);
-  // @@protoc_insertion_point(field_set:DrbMetrics.rx_bytes)
+inline void MacDrbMetrics::set_ul_bytes(uint32_t value) {
+  _internal_set_ul_bytes(value);
+  // @@protoc_insertion_point(field_set:MacDrbMetrics.ul_bytes)
+}
+
+// -------------------------------------------------------------------
+
+// RlcDrbMetrics
+
+// uint32 lcid = 1;
+inline void RlcDrbMetrics::clear_lcid() {
+  _impl_.lcid_ = 0u;
+}
+inline uint32_t RlcDrbMetrics::_internal_lcid() const {
+  return _impl_.lcid_;
+}
+inline uint32_t RlcDrbMetrics::lcid() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.lcid)
+  return _internal_lcid();
+}
+inline void RlcDrbMetrics::_internal_set_lcid(uint32_t value) {
+  
+  _impl_.lcid_ = value;
+}
+inline void RlcDrbMetrics::set_lcid(uint32_t value) {
+  _internal_set_lcid(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.lcid)
+}
+
+// uint32 dl_buffer = 15;
+inline void RlcDrbMetrics::clear_dl_buffer() {
+  _impl_.dl_buffer_ = 0u;
+}
+inline uint32_t RlcDrbMetrics::_internal_dl_buffer() const {
+  return _impl_.dl_buffer_;
+}
+inline uint32_t RlcDrbMetrics::dl_buffer() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.dl_buffer)
+  return _internal_dl_buffer();
+}
+inline void RlcDrbMetrics::_internal_set_dl_buffer(uint32_t value) {
+  
+  _impl_.dl_buffer_ = value;
+}
+inline void RlcDrbMetrics::set_dl_buffer(uint32_t value) {
+  _internal_set_dl_buffer(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.dl_buffer)
+}
+
+// uint32 ul_buffer = 16;
+inline void RlcDrbMetrics::clear_ul_buffer() {
+  _impl_.ul_buffer_ = 0u;
+}
+inline uint32_t RlcDrbMetrics::_internal_ul_buffer() const {
+  return _impl_.ul_buffer_;
+}
+inline uint32_t RlcDrbMetrics::ul_buffer() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.ul_buffer)
+  return _internal_ul_buffer();
+}
+inline void RlcDrbMetrics::_internal_set_ul_buffer(uint32_t value) {
+  
+  _impl_.ul_buffer_ = value;
+}
+inline void RlcDrbMetrics::set_ul_buffer(uint32_t value) {
+  _internal_set_ul_buffer(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.ul_buffer)
+}
+
+// uint64 tx_sdus = 2;
+inline void RlcDrbMetrics::clear_tx_sdus() {
+  _impl_.tx_sdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_tx_sdus() const {
+  return _impl_.tx_sdus_;
+}
+inline uint64_t RlcDrbMetrics::tx_sdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_sdus)
+  return _internal_tx_sdus();
+}
+inline void RlcDrbMetrics::_internal_set_tx_sdus(uint64_t value) {
+  
+  _impl_.tx_sdus_ = value;
+}
+inline void RlcDrbMetrics::set_tx_sdus(uint64_t value) {
+  _internal_set_tx_sdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_sdus)
+}
+
+// uint64 tx_sdu_bytes = 3;
+inline void RlcDrbMetrics::clear_tx_sdu_bytes() {
+  _impl_.tx_sdu_bytes_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_tx_sdu_bytes() const {
+  return _impl_.tx_sdu_bytes_;
+}
+inline uint64_t RlcDrbMetrics::tx_sdu_bytes() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_sdu_bytes)
+  return _internal_tx_sdu_bytes();
+}
+inline void RlcDrbMetrics::_internal_set_tx_sdu_bytes(uint64_t value) {
+  
+  _impl_.tx_sdu_bytes_ = value;
+}
+inline void RlcDrbMetrics::set_tx_sdu_bytes(uint64_t value) {
+  _internal_set_tx_sdu_bytes(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_sdu_bytes)
+}
+
+// uint64 tx_pdus = 4;
+inline void RlcDrbMetrics::clear_tx_pdus() {
+  _impl_.tx_pdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_tx_pdus() const {
+  return _impl_.tx_pdus_;
+}
+inline uint64_t RlcDrbMetrics::tx_pdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_pdus)
+  return _internal_tx_pdus();
+}
+inline void RlcDrbMetrics::_internal_set_tx_pdus(uint64_t value) {
+  
+  _impl_.tx_pdus_ = value;
+}
+inline void RlcDrbMetrics::set_tx_pdus(uint64_t value) {
+  _internal_set_tx_pdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_pdus)
+}
+
+// uint64 tx_pdu_bytes = 5;
+inline void RlcDrbMetrics::clear_tx_pdu_bytes() {
+  _impl_.tx_pdu_bytes_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_tx_pdu_bytes() const {
+  return _impl_.tx_pdu_bytes_;
+}
+inline uint64_t RlcDrbMetrics::tx_pdu_bytes() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_pdu_bytes)
+  return _internal_tx_pdu_bytes();
+}
+inline void RlcDrbMetrics::_internal_set_tx_pdu_bytes(uint64_t value) {
+  
+  _impl_.tx_pdu_bytes_ = value;
+}
+inline void RlcDrbMetrics::set_tx_pdu_bytes(uint64_t value) {
+  _internal_set_tx_pdu_bytes(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_pdu_bytes)
+}
+
+// uint64 tx_dropped_sdus = 6;
+inline void RlcDrbMetrics::clear_tx_dropped_sdus() {
+  _impl_.tx_dropped_sdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_tx_dropped_sdus() const {
+  return _impl_.tx_dropped_sdus_;
+}
+inline uint64_t RlcDrbMetrics::tx_dropped_sdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_dropped_sdus)
+  return _internal_tx_dropped_sdus();
+}
+inline void RlcDrbMetrics::_internal_set_tx_dropped_sdus(uint64_t value) {
+  
+  _impl_.tx_dropped_sdus_ = value;
+}
+inline void RlcDrbMetrics::set_tx_dropped_sdus(uint64_t value) {
+  _internal_set_tx_dropped_sdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_dropped_sdus)
+}
+
+// uint64 tx_retx_pdus = 7;
+inline void RlcDrbMetrics::clear_tx_retx_pdus() {
+  _impl_.tx_retx_pdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_tx_retx_pdus() const {
+  return _impl_.tx_retx_pdus_;
+}
+inline uint64_t RlcDrbMetrics::tx_retx_pdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_retx_pdus)
+  return _internal_tx_retx_pdus();
+}
+inline void RlcDrbMetrics::_internal_set_tx_retx_pdus(uint64_t value) {
+  
+  _impl_.tx_retx_pdus_ = value;
+}
+inline void RlcDrbMetrics::set_tx_retx_pdus(uint64_t value) {
+  _internal_set_tx_retx_pdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_retx_pdus)
+}
+
+// uint32 tx_sdu_latency_us = 8;
+inline void RlcDrbMetrics::clear_tx_sdu_latency_us() {
+  _impl_.tx_sdu_latency_us_ = 0u;
+}
+inline uint32_t RlcDrbMetrics::_internal_tx_sdu_latency_us() const {
+  return _impl_.tx_sdu_latency_us_;
+}
+inline uint32_t RlcDrbMetrics::tx_sdu_latency_us() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.tx_sdu_latency_us)
+  return _internal_tx_sdu_latency_us();
+}
+inline void RlcDrbMetrics::_internal_set_tx_sdu_latency_us(uint32_t value) {
+  
+  _impl_.tx_sdu_latency_us_ = value;
+}
+inline void RlcDrbMetrics::set_tx_sdu_latency_us(uint32_t value) {
+  _internal_set_tx_sdu_latency_us(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.tx_sdu_latency_us)
+}
+
+// uint64 rx_sdus = 9;
+inline void RlcDrbMetrics::clear_rx_sdus() {
+  _impl_.rx_sdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_rx_sdus() const {
+  return _impl_.rx_sdus_;
+}
+inline uint64_t RlcDrbMetrics::rx_sdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.rx_sdus)
+  return _internal_rx_sdus();
+}
+inline void RlcDrbMetrics::_internal_set_rx_sdus(uint64_t value) {
+  
+  _impl_.rx_sdus_ = value;
+}
+inline void RlcDrbMetrics::set_rx_sdus(uint64_t value) {
+  _internal_set_rx_sdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.rx_sdus)
+}
+
+// uint64 rx_sdu_bytes = 10;
+inline void RlcDrbMetrics::clear_rx_sdu_bytes() {
+  _impl_.rx_sdu_bytes_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_rx_sdu_bytes() const {
+  return _impl_.rx_sdu_bytes_;
+}
+inline uint64_t RlcDrbMetrics::rx_sdu_bytes() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.rx_sdu_bytes)
+  return _internal_rx_sdu_bytes();
+}
+inline void RlcDrbMetrics::_internal_set_rx_sdu_bytes(uint64_t value) {
+  
+  _impl_.rx_sdu_bytes_ = value;
+}
+inline void RlcDrbMetrics::set_rx_sdu_bytes(uint64_t value) {
+  _internal_set_rx_sdu_bytes(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.rx_sdu_bytes)
+}
+
+// uint64 rx_pdus = 11;
+inline void RlcDrbMetrics::clear_rx_pdus() {
+  _impl_.rx_pdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_rx_pdus() const {
+  return _impl_.rx_pdus_;
+}
+inline uint64_t RlcDrbMetrics::rx_pdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.rx_pdus)
+  return _internal_rx_pdus();
+}
+inline void RlcDrbMetrics::_internal_set_rx_pdus(uint64_t value) {
+  
+  _impl_.rx_pdus_ = value;
+}
+inline void RlcDrbMetrics::set_rx_pdus(uint64_t value) {
+  _internal_set_rx_pdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.rx_pdus)
+}
+
+// uint64 rx_pdu_bytes = 12;
+inline void RlcDrbMetrics::clear_rx_pdu_bytes() {
+  _impl_.rx_pdu_bytes_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_rx_pdu_bytes() const {
+  return _impl_.rx_pdu_bytes_;
+}
+inline uint64_t RlcDrbMetrics::rx_pdu_bytes() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.rx_pdu_bytes)
+  return _internal_rx_pdu_bytes();
+}
+inline void RlcDrbMetrics::_internal_set_rx_pdu_bytes(uint64_t value) {
+  
+  _impl_.rx_pdu_bytes_ = value;
+}
+inline void RlcDrbMetrics::set_rx_pdu_bytes(uint64_t value) {
+  _internal_set_rx_pdu_bytes(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.rx_pdu_bytes)
+}
+
+// uint64 rx_lost_pdus = 13;
+inline void RlcDrbMetrics::clear_rx_lost_pdus() {
+  _impl_.rx_lost_pdus_ = uint64_t{0u};
+}
+inline uint64_t RlcDrbMetrics::_internal_rx_lost_pdus() const {
+  return _impl_.rx_lost_pdus_;
+}
+inline uint64_t RlcDrbMetrics::rx_lost_pdus() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.rx_lost_pdus)
+  return _internal_rx_lost_pdus();
+}
+inline void RlcDrbMetrics::_internal_set_rx_lost_pdus(uint64_t value) {
+  
+  _impl_.rx_lost_pdus_ = value;
+}
+inline void RlcDrbMetrics::set_rx_lost_pdus(uint64_t value) {
+  _internal_set_rx_lost_pdus(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.rx_lost_pdus)
+}
+
+// uint32 rx_sdu_latency_us = 14;
+inline void RlcDrbMetrics::clear_rx_sdu_latency_us() {
+  _impl_.rx_sdu_latency_us_ = 0u;
+}
+inline uint32_t RlcDrbMetrics::_internal_rx_sdu_latency_us() const {
+  return _impl_.rx_sdu_latency_us_;
+}
+inline uint32_t RlcDrbMetrics::rx_sdu_latency_us() const {
+  // @@protoc_insertion_point(field_get:RlcDrbMetrics.rx_sdu_latency_us)
+  return _internal_rx_sdu_latency_us();
+}
+inline void RlcDrbMetrics::_internal_set_rx_sdu_latency_us(uint32_t value) {
+  
+  _impl_.rx_sdu_latency_us_ = value;
+}
+inline void RlcDrbMetrics::set_rx_sdu_latency_us(uint32_t value) {
+  _internal_set_rx_sdu_latency_us(value);
+  // @@protoc_insertion_point(field_set:RlcDrbMetrics.rx_sdu_latency_us)
 }
 
 // -------------------------------------------------------------------
@@ -1297,228 +2879,612 @@ inline void PdcpDrbMetrics::set_drb_id(uint32_t value) {
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.drb_id)
 }
 
-// uint32 tx_pdus = 2;
-inline void PdcpDrbMetrics::clear_tx_pdus() {
-  _impl_.tx_pdus_ = 0u;
+// uint32 lcid = 13;
+inline void PdcpDrbMetrics::clear_lcid() {
+  _impl_.lcid_ = 0u;
 }
-inline uint32_t PdcpDrbMetrics::_internal_tx_pdus() const {
+inline uint32_t PdcpDrbMetrics::_internal_lcid() const {
+  return _impl_.lcid_;
+}
+inline uint32_t PdcpDrbMetrics::lcid() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.lcid)
+  return _internal_lcid();
+}
+inline void PdcpDrbMetrics::_internal_set_lcid(uint32_t value) {
+  
+  _impl_.lcid_ = value;
+}
+inline void PdcpDrbMetrics::set_lcid(uint32_t value) {
+  _internal_set_lcid(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.lcid)
+}
+
+// uint64 tx_pdus = 2;
+inline void PdcpDrbMetrics::clear_tx_pdus() {
+  _impl_.tx_pdus_ = uint64_t{0u};
+}
+inline uint64_t PdcpDrbMetrics::_internal_tx_pdus() const {
   return _impl_.tx_pdus_;
 }
-inline uint32_t PdcpDrbMetrics::tx_pdus() const {
+inline uint64_t PdcpDrbMetrics::tx_pdus() const {
   // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_pdus)
   return _internal_tx_pdus();
 }
-inline void PdcpDrbMetrics::_internal_set_tx_pdus(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_tx_pdus(uint64_t value) {
   
   _impl_.tx_pdus_ = value;
 }
-inline void PdcpDrbMetrics::set_tx_pdus(uint32_t value) {
+inline void PdcpDrbMetrics::set_tx_pdus(uint64_t value) {
   _internal_set_tx_pdus(value);
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_pdus)
 }
 
-// uint32 tx_pdu_bytes = 3;
+// uint64 tx_pdu_bytes = 3;
 inline void PdcpDrbMetrics::clear_tx_pdu_bytes() {
-  _impl_.tx_pdu_bytes_ = 0u;
+  _impl_.tx_pdu_bytes_ = uint64_t{0u};
 }
-inline uint32_t PdcpDrbMetrics::_internal_tx_pdu_bytes() const {
+inline uint64_t PdcpDrbMetrics::_internal_tx_pdu_bytes() const {
   return _impl_.tx_pdu_bytes_;
 }
-inline uint32_t PdcpDrbMetrics::tx_pdu_bytes() const {
+inline uint64_t PdcpDrbMetrics::tx_pdu_bytes() const {
   // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_pdu_bytes)
   return _internal_tx_pdu_bytes();
 }
-inline void PdcpDrbMetrics::_internal_set_tx_pdu_bytes(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_tx_pdu_bytes(uint64_t value) {
   
   _impl_.tx_pdu_bytes_ = value;
 }
-inline void PdcpDrbMetrics::set_tx_pdu_bytes(uint32_t value) {
+inline void PdcpDrbMetrics::set_tx_pdu_bytes(uint64_t value) {
   _internal_set_tx_pdu_bytes(value);
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_pdu_bytes)
 }
 
-// uint32 tx_dropped_sdus = 4;
-inline void PdcpDrbMetrics::clear_tx_dropped_sdus() {
-  _impl_.tx_dropped_sdus_ = 0u;
+// uint64 tx_sdus = 4;
+inline void PdcpDrbMetrics::clear_tx_sdus() {
+  _impl_.tx_sdus_ = uint64_t{0u};
 }
-inline uint32_t PdcpDrbMetrics::_internal_tx_dropped_sdus() const {
+inline uint64_t PdcpDrbMetrics::_internal_tx_sdus() const {
+  return _impl_.tx_sdus_;
+}
+inline uint64_t PdcpDrbMetrics::tx_sdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_sdus)
+  return _internal_tx_sdus();
+}
+inline void PdcpDrbMetrics::_internal_set_tx_sdus(uint64_t value) {
+  
+  _impl_.tx_sdus_ = value;
+}
+inline void PdcpDrbMetrics::set_tx_sdus(uint64_t value) {
+  _internal_set_tx_sdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_sdus)
+}
+
+// uint64 tx_dropped_sdus = 5;
+inline void PdcpDrbMetrics::clear_tx_dropped_sdus() {
+  _impl_.tx_dropped_sdus_ = uint64_t{0u};
+}
+inline uint64_t PdcpDrbMetrics::_internal_tx_dropped_sdus() const {
   return _impl_.tx_dropped_sdus_;
 }
-inline uint32_t PdcpDrbMetrics::tx_dropped_sdus() const {
+inline uint64_t PdcpDrbMetrics::tx_dropped_sdus() const {
   // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_dropped_sdus)
   return _internal_tx_dropped_sdus();
 }
-inline void PdcpDrbMetrics::_internal_set_tx_dropped_sdus(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_tx_dropped_sdus(uint64_t value) {
   
   _impl_.tx_dropped_sdus_ = value;
 }
-inline void PdcpDrbMetrics::set_tx_dropped_sdus(uint32_t value) {
+inline void PdcpDrbMetrics::set_tx_dropped_sdus(uint64_t value) {
   _internal_set_tx_dropped_sdus(value);
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_dropped_sdus)
 }
 
-// uint32 rx_pdus = 5;
-inline void PdcpDrbMetrics::clear_rx_pdus() {
-  _impl_.rx_pdus_ = 0u;
+// uint32 tx_discard_timeouts = 10;
+inline void PdcpDrbMetrics::clear_tx_discard_timeouts() {
+  _impl_.tx_discard_timeouts_ = 0u;
 }
-inline uint32_t PdcpDrbMetrics::_internal_rx_pdus() const {
+inline uint32_t PdcpDrbMetrics::_internal_tx_discard_timeouts() const {
+  return _impl_.tx_discard_timeouts_;
+}
+inline uint32_t PdcpDrbMetrics::tx_discard_timeouts() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_discard_timeouts)
+  return _internal_tx_discard_timeouts();
+}
+inline void PdcpDrbMetrics::_internal_set_tx_discard_timeouts(uint32_t value) {
+  
+  _impl_.tx_discard_timeouts_ = value;
+}
+inline void PdcpDrbMetrics::set_tx_discard_timeouts(uint32_t value) {
+  _internal_set_tx_discard_timeouts(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_discard_timeouts)
+}
+
+// uint32 tx_pdu_latency_ns = 11;
+inline void PdcpDrbMetrics::clear_tx_pdu_latency_ns() {
+  _impl_.tx_pdu_latency_ns_ = 0u;
+}
+inline uint32_t PdcpDrbMetrics::_internal_tx_pdu_latency_ns() const {
+  return _impl_.tx_pdu_latency_ns_;
+}
+inline uint32_t PdcpDrbMetrics::tx_pdu_latency_ns() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.tx_pdu_latency_ns)
+  return _internal_tx_pdu_latency_ns();
+}
+inline void PdcpDrbMetrics::_internal_set_tx_pdu_latency_ns(uint32_t value) {
+  
+  _impl_.tx_pdu_latency_ns_ = value;
+}
+inline void PdcpDrbMetrics::set_tx_pdu_latency_ns(uint32_t value) {
+  _internal_set_tx_pdu_latency_ns(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.tx_pdu_latency_ns)
+}
+
+// uint64 rx_pdus = 6;
+inline void PdcpDrbMetrics::clear_rx_pdus() {
+  _impl_.rx_pdus_ = uint64_t{0u};
+}
+inline uint64_t PdcpDrbMetrics::_internal_rx_pdus() const {
   return _impl_.rx_pdus_;
 }
-inline uint32_t PdcpDrbMetrics::rx_pdus() const {
+inline uint64_t PdcpDrbMetrics::rx_pdus() const {
   // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_pdus)
   return _internal_rx_pdus();
 }
-inline void PdcpDrbMetrics::_internal_set_rx_pdus(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_rx_pdus(uint64_t value) {
   
   _impl_.rx_pdus_ = value;
 }
-inline void PdcpDrbMetrics::set_rx_pdus(uint32_t value) {
+inline void PdcpDrbMetrics::set_rx_pdus(uint64_t value) {
   _internal_set_rx_pdus(value);
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_pdus)
 }
 
-// uint32 rx_pdu_bytes = 6;
+// uint64 rx_pdu_bytes = 7;
 inline void PdcpDrbMetrics::clear_rx_pdu_bytes() {
-  _impl_.rx_pdu_bytes_ = 0u;
+  _impl_.rx_pdu_bytes_ = uint64_t{0u};
 }
-inline uint32_t PdcpDrbMetrics::_internal_rx_pdu_bytes() const {
+inline uint64_t PdcpDrbMetrics::_internal_rx_pdu_bytes() const {
   return _impl_.rx_pdu_bytes_;
 }
-inline uint32_t PdcpDrbMetrics::rx_pdu_bytes() const {
+inline uint64_t PdcpDrbMetrics::rx_pdu_bytes() const {
   // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_pdu_bytes)
   return _internal_rx_pdu_bytes();
 }
-inline void PdcpDrbMetrics::_internal_set_rx_pdu_bytes(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_rx_pdu_bytes(uint64_t value) {
   
   _impl_.rx_pdu_bytes_ = value;
 }
-inline void PdcpDrbMetrics::set_rx_pdu_bytes(uint32_t value) {
+inline void PdcpDrbMetrics::set_rx_pdu_bytes(uint64_t value) {
   _internal_set_rx_pdu_bytes(value);
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_pdu_bytes)
 }
 
-// uint32 rx_dropped_pdus = 7;
-inline void PdcpDrbMetrics::clear_rx_dropped_pdus() {
-  _impl_.rx_dropped_pdus_ = 0u;
+// uint64 rx_delivered_sdus = 8;
+inline void PdcpDrbMetrics::clear_rx_delivered_sdus() {
+  _impl_.rx_delivered_sdus_ = uint64_t{0u};
 }
-inline uint32_t PdcpDrbMetrics::_internal_rx_dropped_pdus() const {
+inline uint64_t PdcpDrbMetrics::_internal_rx_delivered_sdus() const {
+  return _impl_.rx_delivered_sdus_;
+}
+inline uint64_t PdcpDrbMetrics::rx_delivered_sdus() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_delivered_sdus)
+  return _internal_rx_delivered_sdus();
+}
+inline void PdcpDrbMetrics::_internal_set_rx_delivered_sdus(uint64_t value) {
+  
+  _impl_.rx_delivered_sdus_ = value;
+}
+inline void PdcpDrbMetrics::set_rx_delivered_sdus(uint64_t value) {
+  _internal_set_rx_delivered_sdus(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_delivered_sdus)
+}
+
+// uint64 rx_dropped_pdus = 9;
+inline void PdcpDrbMetrics::clear_rx_dropped_pdus() {
+  _impl_.rx_dropped_pdus_ = uint64_t{0u};
+}
+inline uint64_t PdcpDrbMetrics::_internal_rx_dropped_pdus() const {
   return _impl_.rx_dropped_pdus_;
 }
-inline uint32_t PdcpDrbMetrics::rx_dropped_pdus() const {
+inline uint64_t PdcpDrbMetrics::rx_dropped_pdus() const {
   // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_dropped_pdus)
   return _internal_rx_dropped_pdus();
 }
-inline void PdcpDrbMetrics::_internal_set_rx_dropped_pdus(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_rx_dropped_pdus(uint64_t value) {
   
   _impl_.rx_dropped_pdus_ = value;
 }
-inline void PdcpDrbMetrics::set_rx_dropped_pdus(uint32_t value) {
+inline void PdcpDrbMetrics::set_rx_dropped_pdus(uint64_t value) {
   _internal_set_rx_dropped_pdus(value);
   // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_dropped_pdus)
 }
 
-// uint32 rx_delivered_sdus = 8;
-inline void PdcpDrbMetrics::clear_rx_delivered_sdus() {
-  _impl_.rx_delivered_sdus_ = 0u;
+// uint32 rx_sdu_latency_ns = 12;
+inline void PdcpDrbMetrics::clear_rx_sdu_latency_ns() {
+  _impl_.rx_sdu_latency_ns_ = 0u;
 }
-inline uint32_t PdcpDrbMetrics::_internal_rx_delivered_sdus() const {
-  return _impl_.rx_delivered_sdus_;
+inline uint32_t PdcpDrbMetrics::_internal_rx_sdu_latency_ns() const {
+  return _impl_.rx_sdu_latency_ns_;
 }
-inline uint32_t PdcpDrbMetrics::rx_delivered_sdus() const {
-  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_delivered_sdus)
-  return _internal_rx_delivered_sdus();
+inline uint32_t PdcpDrbMetrics::rx_sdu_latency_ns() const {
+  // @@protoc_insertion_point(field_get:PdcpDrbMetrics.rx_sdu_latency_ns)
+  return _internal_rx_sdu_latency_ns();
 }
-inline void PdcpDrbMetrics::_internal_set_rx_delivered_sdus(uint32_t value) {
+inline void PdcpDrbMetrics::_internal_set_rx_sdu_latency_ns(uint32_t value) {
   
-  _impl_.rx_delivered_sdus_ = value;
+  _impl_.rx_sdu_latency_ns_ = value;
 }
-inline void PdcpDrbMetrics::set_rx_delivered_sdus(uint32_t value) {
-  _internal_set_rx_delivered_sdus(value);
-  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_delivered_sdus)
+inline void PdcpDrbMetrics::set_rx_sdu_latency_ns(uint32_t value) {
+  _internal_set_rx_sdu_latency_ns(value);
+  // @@protoc_insertion_point(field_set:PdcpDrbMetrics.rx_sdu_latency_ns)
 }
 
 // -------------------------------------------------------------------
 
 // GtpMetrics
 
-// uint32 dl_pkts = 1;
+// uint64 dl_pkts = 1;
 inline void GtpMetrics::clear_dl_pkts() {
-  _impl_.dl_pkts_ = 0u;
+  _impl_.dl_pkts_ = uint64_t{0u};
 }
-inline uint32_t GtpMetrics::_internal_dl_pkts() const {
+inline uint64_t GtpMetrics::_internal_dl_pkts() const {
   return _impl_.dl_pkts_;
 }
-inline uint32_t GtpMetrics::dl_pkts() const {
+inline uint64_t GtpMetrics::dl_pkts() const {
   // @@protoc_insertion_point(field_get:GtpMetrics.dl_pkts)
   return _internal_dl_pkts();
 }
-inline void GtpMetrics::_internal_set_dl_pkts(uint32_t value) {
+inline void GtpMetrics::_internal_set_dl_pkts(uint64_t value) {
   
   _impl_.dl_pkts_ = value;
 }
-inline void GtpMetrics::set_dl_pkts(uint32_t value) {
+inline void GtpMetrics::set_dl_pkts(uint64_t value) {
   _internal_set_dl_pkts(value);
   // @@protoc_insertion_point(field_set:GtpMetrics.dl_pkts)
 }
 
-// uint32 dl_bytes = 2;
+// uint64 dl_bytes = 2;
 inline void GtpMetrics::clear_dl_bytes() {
-  _impl_.dl_bytes_ = 0u;
+  _impl_.dl_bytes_ = uint64_t{0u};
 }
-inline uint32_t GtpMetrics::_internal_dl_bytes() const {
+inline uint64_t GtpMetrics::_internal_dl_bytes() const {
   return _impl_.dl_bytes_;
 }
-inline uint32_t GtpMetrics::dl_bytes() const {
+inline uint64_t GtpMetrics::dl_bytes() const {
   // @@protoc_insertion_point(field_get:GtpMetrics.dl_bytes)
   return _internal_dl_bytes();
 }
-inline void GtpMetrics::_internal_set_dl_bytes(uint32_t value) {
+inline void GtpMetrics::_internal_set_dl_bytes(uint64_t value) {
   
   _impl_.dl_bytes_ = value;
 }
-inline void GtpMetrics::set_dl_bytes(uint32_t value) {
+inline void GtpMetrics::set_dl_bytes(uint64_t value) {
   _internal_set_dl_bytes(value);
   // @@protoc_insertion_point(field_set:GtpMetrics.dl_bytes)
 }
 
-// uint32 ul_pkts = 3;
+// uint64 ul_pkts = 3;
 inline void GtpMetrics::clear_ul_pkts() {
-  _impl_.ul_pkts_ = 0u;
+  _impl_.ul_pkts_ = uint64_t{0u};
 }
-inline uint32_t GtpMetrics::_internal_ul_pkts() const {
+inline uint64_t GtpMetrics::_internal_ul_pkts() const {
   return _impl_.ul_pkts_;
 }
-inline uint32_t GtpMetrics::ul_pkts() const {
+inline uint64_t GtpMetrics::ul_pkts() const {
   // @@protoc_insertion_point(field_get:GtpMetrics.ul_pkts)
   return _internal_ul_pkts();
 }
-inline void GtpMetrics::_internal_set_ul_pkts(uint32_t value) {
+inline void GtpMetrics::_internal_set_ul_pkts(uint64_t value) {
   
   _impl_.ul_pkts_ = value;
 }
-inline void GtpMetrics::set_ul_pkts(uint32_t value) {
+inline void GtpMetrics::set_ul_pkts(uint64_t value) {
   _internal_set_ul_pkts(value);
   // @@protoc_insertion_point(field_set:GtpMetrics.ul_pkts)
 }
 
-// uint32 ul_bytes = 4;
+// uint64 ul_bytes = 4;
 inline void GtpMetrics::clear_ul_bytes() {
-  _impl_.ul_bytes_ = 0u;
+  _impl_.ul_bytes_ = uint64_t{0u};
 }
-inline uint32_t GtpMetrics::_internal_ul_bytes() const {
+inline uint64_t GtpMetrics::_internal_ul_bytes() const {
   return _impl_.ul_bytes_;
 }
-inline uint32_t GtpMetrics::ul_bytes() const {
+inline uint64_t GtpMetrics::ul_bytes() const {
   // @@protoc_insertion_point(field_get:GtpMetrics.ul_bytes)
   return _internal_ul_bytes();
 }
-inline void GtpMetrics::_internal_set_ul_bytes(uint32_t value) {
+inline void GtpMetrics::_internal_set_ul_bytes(uint64_t value) {
   
   _impl_.ul_bytes_ = value;
 }
-inline void GtpMetrics::set_ul_bytes(uint32_t value) {
+inline void GtpMetrics::set_ul_bytes(uint64_t value) {
   _internal_set_ul_bytes(value);
   // @@protoc_insertion_point(field_set:GtpMetrics.ul_bytes)
+}
+
+// -------------------------------------------------------------------
+
+// MacUeMetrics
+
+// uint32 cqi = 1;
+inline void MacUeMetrics::clear_cqi() {
+  _impl_.cqi_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_cqi() const {
+  return _impl_.cqi_;
+}
+inline uint32_t MacUeMetrics::cqi() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.cqi)
+  return _internal_cqi();
+}
+inline void MacUeMetrics::_internal_set_cqi(uint32_t value) {
+  
+  _impl_.cqi_ = value;
+}
+inline void MacUeMetrics::set_cqi(uint32_t value) {
+  _internal_set_cqi(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.cqi)
+}
+
+// float snr = 2;
+inline void MacUeMetrics::clear_snr() {
+  _impl_.snr_ = 0;
+}
+inline float MacUeMetrics::_internal_snr() const {
+  return _impl_.snr_;
+}
+inline float MacUeMetrics::snr() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.snr)
+  return _internal_snr();
+}
+inline void MacUeMetrics::_internal_set_snr(float value) {
+  
+  _impl_.snr_ = value;
+}
+inline void MacUeMetrics::set_snr(float value) {
+  _internal_set_snr(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.snr)
+}
+
+// uint32 dl_buffer = 3;
+inline void MacUeMetrics::clear_dl_buffer() {
+  _impl_.dl_buffer_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_buffer() const {
+  return _impl_.dl_buffer_;
+}
+inline uint32_t MacUeMetrics::dl_buffer() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_buffer)
+  return _internal_dl_buffer();
+}
+inline void MacUeMetrics::_internal_set_dl_buffer(uint32_t value) {
+  
+  _impl_.dl_buffer_ = value;
+}
+inline void MacUeMetrics::set_dl_buffer(uint32_t value) {
+  _internal_set_dl_buffer(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_buffer)
+}
+
+// uint32 ul_buffer = 4;
+inline void MacUeMetrics::clear_ul_buffer() {
+  _impl_.ul_buffer_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_buffer() const {
+  return _impl_.ul_buffer_;
+}
+inline uint32_t MacUeMetrics::ul_buffer() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_buffer)
+  return _internal_ul_buffer();
+}
+inline void MacUeMetrics::_internal_set_ul_buffer(uint32_t value) {
+  
+  _impl_.ul_buffer_ = value;
+}
+inline void MacUeMetrics::set_ul_buffer(uint32_t value) {
+  _internal_set_ul_buffer(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_buffer)
+}
+
+// uint32 dl_tbs = 5;
+inline void MacUeMetrics::clear_dl_tbs() {
+  _impl_.dl_tbs_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_tbs() const {
+  return _impl_.dl_tbs_;
+}
+inline uint32_t MacUeMetrics::dl_tbs() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_tbs)
+  return _internal_dl_tbs();
+}
+inline void MacUeMetrics::_internal_set_dl_tbs(uint32_t value) {
+  
+  _impl_.dl_tbs_ = value;
+}
+inline void MacUeMetrics::set_dl_tbs(uint32_t value) {
+  _internal_set_dl_tbs(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_tbs)
+}
+
+// uint32 ul_tbs = 6;
+inline void MacUeMetrics::clear_ul_tbs() {
+  _impl_.ul_tbs_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_tbs() const {
+  return _impl_.ul_tbs_;
+}
+inline uint32_t MacUeMetrics::ul_tbs() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_tbs)
+  return _internal_ul_tbs();
+}
+inline void MacUeMetrics::_internal_set_ul_tbs(uint32_t value) {
+  
+  _impl_.ul_tbs_ = value;
+}
+inline void MacUeMetrics::set_ul_tbs(uint32_t value) {
+  _internal_set_ul_tbs(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_tbs)
+}
+
+// uint32 dl_mcs = 11;
+inline void MacUeMetrics::clear_dl_mcs() {
+  _impl_.dl_mcs_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_mcs() const {
+  return _impl_.dl_mcs_;
+}
+inline uint32_t MacUeMetrics::dl_mcs() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_mcs)
+  return _internal_dl_mcs();
+}
+inline void MacUeMetrics::_internal_set_dl_mcs(uint32_t value) {
+  
+  _impl_.dl_mcs_ = value;
+}
+inline void MacUeMetrics::set_dl_mcs(uint32_t value) {
+  _internal_set_dl_mcs(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_mcs)
+}
+
+// uint32 ul_mcs = 12;
+inline void MacUeMetrics::clear_ul_mcs() {
+  _impl_.ul_mcs_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_mcs() const {
+  return _impl_.ul_mcs_;
+}
+inline uint32_t MacUeMetrics::ul_mcs() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_mcs)
+  return _internal_ul_mcs();
+}
+inline void MacUeMetrics::_internal_set_ul_mcs(uint32_t value) {
+  
+  _impl_.ul_mcs_ = value;
+}
+inline void MacUeMetrics::set_ul_mcs(uint32_t value) {
+  _internal_set_ul_mcs(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_mcs)
+}
+
+// uint32 dl_prbs = 13;
+inline void MacUeMetrics::clear_dl_prbs() {
+  _impl_.dl_prbs_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_prbs() const {
+  return _impl_.dl_prbs_;
+}
+inline uint32_t MacUeMetrics::dl_prbs() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_prbs)
+  return _internal_dl_prbs();
+}
+inline void MacUeMetrics::_internal_set_dl_prbs(uint32_t value) {
+  
+  _impl_.dl_prbs_ = value;
+}
+inline void MacUeMetrics::set_dl_prbs(uint32_t value) {
+  _internal_set_dl_prbs(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_prbs)
+}
+
+// uint32 ul_prbs = 14;
+inline void MacUeMetrics::clear_ul_prbs() {
+  _impl_.ul_prbs_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_prbs() const {
+  return _impl_.ul_prbs_;
+}
+inline uint32_t MacUeMetrics::ul_prbs() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_prbs)
+  return _internal_ul_prbs();
+}
+inline void MacUeMetrics::_internal_set_ul_prbs(uint32_t value) {
+  
+  _impl_.ul_prbs_ = value;
+}
+inline void MacUeMetrics::set_ul_prbs(uint32_t value) {
+  _internal_set_ul_prbs(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_prbs)
+}
+
+// uint32 dl_harq_ack = 7;
+inline void MacUeMetrics::clear_dl_harq_ack() {
+  _impl_.dl_harq_ack_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_harq_ack() const {
+  return _impl_.dl_harq_ack_;
+}
+inline uint32_t MacUeMetrics::dl_harq_ack() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_harq_ack)
+  return _internal_dl_harq_ack();
+}
+inline void MacUeMetrics::_internal_set_dl_harq_ack(uint32_t value) {
+  
+  _impl_.dl_harq_ack_ = value;
+}
+inline void MacUeMetrics::set_dl_harq_ack(uint32_t value) {
+  _internal_set_dl_harq_ack(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_harq_ack)
+}
+
+// uint32 dl_harq_nack = 8;
+inline void MacUeMetrics::clear_dl_harq_nack() {
+  _impl_.dl_harq_nack_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_harq_nack() const {
+  return _impl_.dl_harq_nack_;
+}
+inline uint32_t MacUeMetrics::dl_harq_nack() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_harq_nack)
+  return _internal_dl_harq_nack();
+}
+inline void MacUeMetrics::_internal_set_dl_harq_nack(uint32_t value) {
+  
+  _impl_.dl_harq_nack_ = value;
+}
+inline void MacUeMetrics::set_dl_harq_nack(uint32_t value) {
+  _internal_set_dl_harq_nack(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_harq_nack)
+}
+
+// uint32 ul_crc_ok = 9;
+inline void MacUeMetrics::clear_ul_crc_ok() {
+  _impl_.ul_crc_ok_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_crc_ok() const {
+  return _impl_.ul_crc_ok_;
+}
+inline uint32_t MacUeMetrics::ul_crc_ok() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_crc_ok)
+  return _internal_ul_crc_ok();
+}
+inline void MacUeMetrics::_internal_set_ul_crc_ok(uint32_t value) {
+  
+  _impl_.ul_crc_ok_ = value;
+}
+inline void MacUeMetrics::set_ul_crc_ok(uint32_t value) {
+  _internal_set_ul_crc_ok(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_crc_ok)
+}
+
+// uint32 ul_crc_fail = 10;
+inline void MacUeMetrics::clear_ul_crc_fail() {
+  _impl_.ul_crc_fail_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_crc_fail() const {
+  return _impl_.ul_crc_fail_;
+}
+inline uint32_t MacUeMetrics::ul_crc_fail() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_crc_fail)
+  return _internal_ul_crc_fail();
+}
+inline void MacUeMetrics::_internal_set_ul_crc_fail(uint32_t value) {
+  
+  _impl_.ul_crc_fail_ = value;
+}
+inline void MacUeMetrics::set_ul_crc_fail(uint32_t value) {
+  _internal_set_ul_crc_fail(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_crc_fail)
 }
 
 // -------------------------------------------------------------------
@@ -1545,345 +3511,45 @@ inline void UeMetrics::set_rnti(uint32_t value) {
   // @@protoc_insertion_point(field_set:UeMetrics.rnti)
 }
 
-// uint32 cqi = 2;
-inline void UeMetrics::clear_cqi() {
-  _impl_.cqi_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_cqi() const {
-  return _impl_.cqi_;
-}
-inline uint32_t UeMetrics::cqi() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.cqi)
-  return _internal_cqi();
-}
-inline void UeMetrics::_internal_set_cqi(uint32_t value) {
-  
-  _impl_.cqi_ = value;
-}
-inline void UeMetrics::set_cqi(uint32_t value) {
-  _internal_set_cqi(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.cqi)
-}
-
-// float snr = 3;
-inline void UeMetrics::clear_snr() {
-  _impl_.snr_ = 0;
-}
-inline float UeMetrics::_internal_snr() const {
-  return _impl_.snr_;
-}
-inline float UeMetrics::snr() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.snr)
-  return _internal_snr();
-}
-inline void UeMetrics::_internal_set_snr(float value) {
-  
-  _impl_.snr_ = value;
-}
-inline void UeMetrics::set_snr(float value) {
-  _internal_set_snr(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.snr)
-}
-
-// float tx_bytes = 4;
-inline void UeMetrics::clear_tx_bytes() {
-  _impl_.tx_bytes_ = 0;
-}
-inline float UeMetrics::_internal_tx_bytes() const {
-  return _impl_.tx_bytes_;
-}
-inline float UeMetrics::tx_bytes() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.tx_bytes)
-  return _internal_tx_bytes();
-}
-inline void UeMetrics::_internal_set_tx_bytes(float value) {
-  
-  _impl_.tx_bytes_ = value;
-}
-inline void UeMetrics::set_tx_bytes(float value) {
-  _internal_set_tx_bytes(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.tx_bytes)
-}
-
-// float rx_bytes = 5;
-inline void UeMetrics::clear_rx_bytes() {
-  _impl_.rx_bytes_ = 0;
-}
-inline float UeMetrics::_internal_rx_bytes() const {
-  return _impl_.rx_bytes_;
-}
-inline float UeMetrics::rx_bytes() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.rx_bytes)
-  return _internal_rx_bytes();
-}
-inline void UeMetrics::_internal_set_rx_bytes(float value) {
-  
-  _impl_.rx_bytes_ = value;
-}
-inline void UeMetrics::set_rx_bytes(float value) {
-  _internal_set_rx_bytes(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.rx_bytes)
-}
-
-// uint32 dl_buffer = 6;
-inline void UeMetrics::clear_dl_buffer() {
-  _impl_.dl_buffer_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_dl_buffer() const {
-  return _impl_.dl_buffer_;
-}
-inline uint32_t UeMetrics::dl_buffer() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.dl_buffer)
-  return _internal_dl_buffer();
-}
-inline void UeMetrics::_internal_set_dl_buffer(uint32_t value) {
-  
-  _impl_.dl_buffer_ = value;
-}
-inline void UeMetrics::set_dl_buffer(uint32_t value) {
-  _internal_set_dl_buffer(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.dl_buffer)
-}
-
-// uint32 ul_buffer = 7;
-inline void UeMetrics::clear_ul_buffer() {
-  _impl_.ul_buffer_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_ul_buffer() const {
-  return _impl_.ul_buffer_;
-}
-inline uint32_t UeMetrics::ul_buffer() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.ul_buffer)
-  return _internal_ul_buffer();
-}
-inline void UeMetrics::_internal_set_ul_buffer(uint32_t value) {
-  
-  _impl_.ul_buffer_ = value;
-}
-inline void UeMetrics::set_ul_buffer(uint32_t value) {
-  _internal_set_ul_buffer(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.ul_buffer)
-}
-
-// float dl_tbs = 8;
-inline void UeMetrics::clear_dl_tbs() {
-  _impl_.dl_tbs_ = 0;
-}
-inline float UeMetrics::_internal_dl_tbs() const {
-  return _impl_.dl_tbs_;
-}
-inline float UeMetrics::dl_tbs() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.dl_tbs)
-  return _internal_dl_tbs();
-}
-inline void UeMetrics::_internal_set_dl_tbs(float value) {
-  
-  _impl_.dl_tbs_ = value;
-}
-inline void UeMetrics::set_dl_tbs(float value) {
-  _internal_set_dl_tbs(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.dl_tbs)
-}
-
-// uint32 dl_ok = 9;
-inline void UeMetrics::clear_dl_ok() {
-  _impl_.dl_ok_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_dl_ok() const {
-  return _impl_.dl_ok_;
-}
-inline uint32_t UeMetrics::dl_ok() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.dl_ok)
-  return _internal_dl_ok();
-}
-inline void UeMetrics::_internal_set_dl_ok(uint32_t value) {
-  
-  _impl_.dl_ok_ = value;
-}
-inline void UeMetrics::set_dl_ok(uint32_t value) {
-  _internal_set_dl_ok(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.dl_ok)
-}
-
-// uint32 dl_nok = 10;
-inline void UeMetrics::clear_dl_nok() {
-  _impl_.dl_nok_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_dl_nok() const {
-  return _impl_.dl_nok_;
-}
-inline uint32_t UeMetrics::dl_nok() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.dl_nok)
-  return _internal_dl_nok();
-}
-inline void UeMetrics::_internal_set_dl_nok(uint32_t value) {
-  
-  _impl_.dl_nok_ = value;
-}
-inline void UeMetrics::set_dl_nok(uint32_t value) {
-  _internal_set_dl_nok(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.dl_nok)
-}
-
-// uint32 ul_ok = 11;
-inline void UeMetrics::clear_ul_ok() {
-  _impl_.ul_ok_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_ul_ok() const {
-  return _impl_.ul_ok_;
-}
-inline uint32_t UeMetrics::ul_ok() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.ul_ok)
-  return _internal_ul_ok();
-}
-inline void UeMetrics::_internal_set_ul_ok(uint32_t value) {
-  
-  _impl_.ul_ok_ = value;
-}
-inline void UeMetrics::set_ul_ok(uint32_t value) {
-  _internal_set_ul_ok(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.ul_ok)
-}
-
-// uint32 ul_nok = 12;
-inline void UeMetrics::clear_ul_nok() {
-  _impl_.ul_nok_ = 0u;
-}
-inline uint32_t UeMetrics::_internal_ul_nok() const {
-  return _impl_.ul_nok_;
-}
-inline uint32_t UeMetrics::ul_nok() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.ul_nok)
-  return _internal_ul_nok();
-}
-inline void UeMetrics::_internal_set_ul_nok(uint32_t value) {
-  
-  _impl_.ul_nok_ = value;
-}
-inline void UeMetrics::set_ul_nok(uint32_t value) {
-  _internal_set_ul_nok(value);
-  // @@protoc_insertion_point(field_set:UeMetrics.ul_nok)
-}
-
-// repeated .DrbMetrics drb_metrics = 13;
-inline int UeMetrics::_internal_drb_metrics_size() const {
-  return _impl_.drb_metrics_.size();
-}
-inline int UeMetrics::drb_metrics_size() const {
-  return _internal_drb_metrics_size();
-}
-inline void UeMetrics::clear_drb_metrics() {
-  _impl_.drb_metrics_.Clear();
-}
-inline ::DrbMetrics* UeMetrics::mutable_drb_metrics(int index) {
-  // @@protoc_insertion_point(field_mutable:UeMetrics.drb_metrics)
-  return _impl_.drb_metrics_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics >*
-UeMetrics::mutable_drb_metrics() {
-  // @@protoc_insertion_point(field_mutable_list:UeMetrics.drb_metrics)
-  return &_impl_.drb_metrics_;
-}
-inline const ::DrbMetrics& UeMetrics::_internal_drb_metrics(int index) const {
-  return _impl_.drb_metrics_.Get(index);
-}
-inline const ::DrbMetrics& UeMetrics::drb_metrics(int index) const {
-  // @@protoc_insertion_point(field_get:UeMetrics.drb_metrics)
-  return _internal_drb_metrics(index);
-}
-inline ::DrbMetrics* UeMetrics::_internal_add_drb_metrics() {
-  return _impl_.drb_metrics_.Add();
-}
-inline ::DrbMetrics* UeMetrics::add_drb_metrics() {
-  ::DrbMetrics* _add = _internal_add_drb_metrics();
-  // @@protoc_insertion_point(field_add:UeMetrics.drb_metrics)
-  return _add;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetrics >&
-UeMetrics::drb_metrics() const {
-  // @@protoc_insertion_point(field_list:UeMetrics.drb_metrics)
-  return _impl_.drb_metrics_;
-}
-
-// repeated .PdcpDrbMetrics pdcp_drb_metrics = 14;
-inline int UeMetrics::_internal_pdcp_drb_metrics_size() const {
-  return _impl_.pdcp_drb_metrics_.size();
-}
-inline int UeMetrics::pdcp_drb_metrics_size() const {
-  return _internal_pdcp_drb_metrics_size();
-}
-inline void UeMetrics::clear_pdcp_drb_metrics() {
-  _impl_.pdcp_drb_metrics_.Clear();
-}
-inline ::PdcpDrbMetrics* UeMetrics::mutable_pdcp_drb_metrics(int index) {
-  // @@protoc_insertion_point(field_mutable:UeMetrics.pdcp_drb_metrics)
-  return _impl_.pdcp_drb_metrics_.Mutable(index);
-}
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >*
-UeMetrics::mutable_pdcp_drb_metrics() {
-  // @@protoc_insertion_point(field_mutable_list:UeMetrics.pdcp_drb_metrics)
-  return &_impl_.pdcp_drb_metrics_;
-}
-inline const ::PdcpDrbMetrics& UeMetrics::_internal_pdcp_drb_metrics(int index) const {
-  return _impl_.pdcp_drb_metrics_.Get(index);
-}
-inline const ::PdcpDrbMetrics& UeMetrics::pdcp_drb_metrics(int index) const {
-  // @@protoc_insertion_point(field_get:UeMetrics.pdcp_drb_metrics)
-  return _internal_pdcp_drb_metrics(index);
-}
-inline ::PdcpDrbMetrics* UeMetrics::_internal_add_pdcp_drb_metrics() {
-  return _impl_.pdcp_drb_metrics_.Add();
-}
-inline ::PdcpDrbMetrics* UeMetrics::add_pdcp_drb_metrics() {
-  ::PdcpDrbMetrics* _add = _internal_add_pdcp_drb_metrics();
-  // @@protoc_insertion_point(field_add:UeMetrics.pdcp_drb_metrics)
-  return _add;
-}
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >&
-UeMetrics::pdcp_drb_metrics() const {
-  // @@protoc_insertion_point(field_list:UeMetrics.pdcp_drb_metrics)
-  return _impl_.pdcp_drb_metrics_;
-}
-
-// .GtpMetrics gtp_metrics = 15;
-inline bool UeMetrics::_internal_has_gtp_metrics() const {
-  return this != internal_default_instance() && _impl_.gtp_metrics_ != nullptr;
-}
-inline bool UeMetrics::has_gtp_metrics() const {
-  return _internal_has_gtp_metrics();
-}
-inline void UeMetrics::clear_gtp_metrics() {
-  if (GetArenaForAllocation() == nullptr && _impl_.gtp_metrics_ != nullptr) {
-    delete _impl_.gtp_metrics_;
+// .MacUeMetrics mac = 2;
+inline bool UeMetrics::_internal_has_mac() const {
+  return this != internal_default_instance() && _impl_.mac_ != nullptr;
+}
+inline bool UeMetrics::has_mac() const {
+  return _internal_has_mac();
+}
+inline void UeMetrics::clear_mac() {
+  if (GetArenaForAllocation() == nullptr && _impl_.mac_ != nullptr) {
+    delete _impl_.mac_;
   }
-  _impl_.gtp_metrics_ = nullptr;
+  _impl_.mac_ = nullptr;
 }
-inline const ::GtpMetrics& UeMetrics::_internal_gtp_metrics() const {
-  const ::GtpMetrics* p = _impl_.gtp_metrics_;
-  return p != nullptr ? *p : reinterpret_cast<const ::GtpMetrics&>(
-      ::_GtpMetrics_default_instance_);
+inline const ::MacUeMetrics& UeMetrics::_internal_mac() const {
+  const ::MacUeMetrics* p = _impl_.mac_;
+  return p != nullptr ? *p : reinterpret_cast<const ::MacUeMetrics&>(
+      ::_MacUeMetrics_default_instance_);
 }
-inline const ::GtpMetrics& UeMetrics::gtp_metrics() const {
-  // @@protoc_insertion_point(field_get:UeMetrics.gtp_metrics)
-  return _internal_gtp_metrics();
+inline const ::MacUeMetrics& UeMetrics::mac() const {
+  // @@protoc_insertion_point(field_get:UeMetrics.mac)
+  return _internal_mac();
 }
-inline void UeMetrics::unsafe_arena_set_allocated_gtp_metrics(
-    ::GtpMetrics* gtp_metrics) {
+inline void UeMetrics::unsafe_arena_set_allocated_mac(
+    ::MacUeMetrics* mac) {
   if (GetArenaForAllocation() == nullptr) {
-    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.gtp_metrics_);
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.mac_);
   }
-  _impl_.gtp_metrics_ = gtp_metrics;
-  if (gtp_metrics) {
+  _impl_.mac_ = mac;
+  if (mac) {
     
   } else {
     
   }
-  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:UeMetrics.gtp_metrics)
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:UeMetrics.mac)
 }
-inline ::GtpMetrics* UeMetrics::release_gtp_metrics() {
+inline ::MacUeMetrics* UeMetrics::release_mac() {
   
-  ::GtpMetrics* temp = _impl_.gtp_metrics_;
-  _impl_.gtp_metrics_ = nullptr;
+  ::MacUeMetrics* temp = _impl_.mac_;
+  _impl_.mac_ = nullptr;
 #ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
   auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
   temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
@@ -1895,44 +3561,338 @@ inline ::GtpMetrics* UeMetrics::release_gtp_metrics() {
 #endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
   return temp;
 }
-inline ::GtpMetrics* UeMetrics::unsafe_arena_release_gtp_metrics() {
-  // @@protoc_insertion_point(field_release:UeMetrics.gtp_metrics)
+inline ::MacUeMetrics* UeMetrics::unsafe_arena_release_mac() {
+  // @@protoc_insertion_point(field_release:UeMetrics.mac)
   
-  ::GtpMetrics* temp = _impl_.gtp_metrics_;
-  _impl_.gtp_metrics_ = nullptr;
+  ::MacUeMetrics* temp = _impl_.mac_;
+  _impl_.mac_ = nullptr;
   return temp;
 }
-inline ::GtpMetrics* UeMetrics::_internal_mutable_gtp_metrics() {
+inline ::MacUeMetrics* UeMetrics::_internal_mutable_mac() {
   
-  if (_impl_.gtp_metrics_ == nullptr) {
-    auto* p = CreateMaybeMessage<::GtpMetrics>(GetArenaForAllocation());
-    _impl_.gtp_metrics_ = p;
+  if (_impl_.mac_ == nullptr) {
+    auto* p = CreateMaybeMessage<::MacUeMetrics>(GetArenaForAllocation());
+    _impl_.mac_ = p;
   }
-  return _impl_.gtp_metrics_;
+  return _impl_.mac_;
 }
-inline ::GtpMetrics* UeMetrics::mutable_gtp_metrics() {
-  ::GtpMetrics* _msg = _internal_mutable_gtp_metrics();
-  // @@protoc_insertion_point(field_mutable:UeMetrics.gtp_metrics)
+inline ::MacUeMetrics* UeMetrics::mutable_mac() {
+  ::MacUeMetrics* _msg = _internal_mutable_mac();
+  // @@protoc_insertion_point(field_mutable:UeMetrics.mac)
   return _msg;
 }
-inline void UeMetrics::set_allocated_gtp_metrics(::GtpMetrics* gtp_metrics) {
+inline void UeMetrics::set_allocated_mac(::MacUeMetrics* mac) {
   ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
   if (message_arena == nullptr) {
-    delete _impl_.gtp_metrics_;
+    delete _impl_.mac_;
   }
-  if (gtp_metrics) {
+  if (mac) {
     ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
-        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(gtp_metrics);
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(mac);
     if (message_arena != submessage_arena) {
-      gtp_metrics = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
-          message_arena, gtp_metrics, submessage_arena);
+      mac = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, mac, submessage_arena);
     }
     
   } else {
     
   }
-  _impl_.gtp_metrics_ = gtp_metrics;
-  // @@protoc_insertion_point(field_set_allocated:UeMetrics.gtp_metrics)
+  _impl_.mac_ = mac;
+  // @@protoc_insertion_point(field_set_allocated:UeMetrics.mac)
+}
+
+// repeated .MacDrbMetrics mac_drb = 3;
+inline int UeMetrics::_internal_mac_drb_size() const {
+  return _impl_.mac_drb_.size();
+}
+inline int UeMetrics::mac_drb_size() const {
+  return _internal_mac_drb_size();
+}
+inline void UeMetrics::clear_mac_drb() {
+  _impl_.mac_drb_.Clear();
+}
+inline ::MacDrbMetrics* UeMetrics::mutable_mac_drb(int index) {
+  // @@protoc_insertion_point(field_mutable:UeMetrics.mac_drb)
+  return _impl_.mac_drb_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::MacDrbMetrics >*
+UeMetrics::mutable_mac_drb() {
+  // @@protoc_insertion_point(field_mutable_list:UeMetrics.mac_drb)
+  return &_impl_.mac_drb_;
+}
+inline const ::MacDrbMetrics& UeMetrics::_internal_mac_drb(int index) const {
+  return _impl_.mac_drb_.Get(index);
+}
+inline const ::MacDrbMetrics& UeMetrics::mac_drb(int index) const {
+  // @@protoc_insertion_point(field_get:UeMetrics.mac_drb)
+  return _internal_mac_drb(index);
+}
+inline ::MacDrbMetrics* UeMetrics::_internal_add_mac_drb() {
+  return _impl_.mac_drb_.Add();
+}
+inline ::MacDrbMetrics* UeMetrics::add_mac_drb() {
+  ::MacDrbMetrics* _add = _internal_add_mac_drb();
+  // @@protoc_insertion_point(field_add:UeMetrics.mac_drb)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::MacDrbMetrics >&
+UeMetrics::mac_drb() const {
+  // @@protoc_insertion_point(field_list:UeMetrics.mac_drb)
+  return _impl_.mac_drb_;
+}
+
+// repeated .RlcDrbMetrics rlc_drb = 4;
+inline int UeMetrics::_internal_rlc_drb_size() const {
+  return _impl_.rlc_drb_.size();
+}
+inline int UeMetrics::rlc_drb_size() const {
+  return _internal_rlc_drb_size();
+}
+inline void UeMetrics::clear_rlc_drb() {
+  _impl_.rlc_drb_.Clear();
+}
+inline ::RlcDrbMetrics* UeMetrics::mutable_rlc_drb(int index) {
+  // @@protoc_insertion_point(field_mutable:UeMetrics.rlc_drb)
+  return _impl_.rlc_drb_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::RlcDrbMetrics >*
+UeMetrics::mutable_rlc_drb() {
+  // @@protoc_insertion_point(field_mutable_list:UeMetrics.rlc_drb)
+  return &_impl_.rlc_drb_;
+}
+inline const ::RlcDrbMetrics& UeMetrics::_internal_rlc_drb(int index) const {
+  return _impl_.rlc_drb_.Get(index);
+}
+inline const ::RlcDrbMetrics& UeMetrics::rlc_drb(int index) const {
+  // @@protoc_insertion_point(field_get:UeMetrics.rlc_drb)
+  return _internal_rlc_drb(index);
+}
+inline ::RlcDrbMetrics* UeMetrics::_internal_add_rlc_drb() {
+  return _impl_.rlc_drb_.Add();
+}
+inline ::RlcDrbMetrics* UeMetrics::add_rlc_drb() {
+  ::RlcDrbMetrics* _add = _internal_add_rlc_drb();
+  // @@protoc_insertion_point(field_add:UeMetrics.rlc_drb)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::RlcDrbMetrics >&
+UeMetrics::rlc_drb() const {
+  // @@protoc_insertion_point(field_list:UeMetrics.rlc_drb)
+  return _impl_.rlc_drb_;
+}
+
+// repeated .PdcpDrbMetrics pdcp_drb = 5;
+inline int UeMetrics::_internal_pdcp_drb_size() const {
+  return _impl_.pdcp_drb_.size();
+}
+inline int UeMetrics::pdcp_drb_size() const {
+  return _internal_pdcp_drb_size();
+}
+inline void UeMetrics::clear_pdcp_drb() {
+  _impl_.pdcp_drb_.Clear();
+}
+inline ::PdcpDrbMetrics* UeMetrics::mutable_pdcp_drb(int index) {
+  // @@protoc_insertion_point(field_mutable:UeMetrics.pdcp_drb)
+  return _impl_.pdcp_drb_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >*
+UeMetrics::mutable_pdcp_drb() {
+  // @@protoc_insertion_point(field_mutable_list:UeMetrics.pdcp_drb)
+  return &_impl_.pdcp_drb_;
+}
+inline const ::PdcpDrbMetrics& UeMetrics::_internal_pdcp_drb(int index) const {
+  return _impl_.pdcp_drb_.Get(index);
+}
+inline const ::PdcpDrbMetrics& UeMetrics::pdcp_drb(int index) const {
+  // @@protoc_insertion_point(field_get:UeMetrics.pdcp_drb)
+  return _internal_pdcp_drb(index);
+}
+inline ::PdcpDrbMetrics* UeMetrics::_internal_add_pdcp_drb() {
+  return _impl_.pdcp_drb_.Add();
+}
+inline ::PdcpDrbMetrics* UeMetrics::add_pdcp_drb() {
+  ::PdcpDrbMetrics* _add = _internal_add_pdcp_drb();
+  // @@protoc_insertion_point(field_add:UeMetrics.pdcp_drb)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::PdcpDrbMetrics >&
+UeMetrics::pdcp_drb() const {
+  // @@protoc_insertion_point(field_list:UeMetrics.pdcp_drb)
+  return _impl_.pdcp_drb_;
+}
+
+// .GtpMetrics gtp = 6;
+inline bool UeMetrics::_internal_has_gtp() const {
+  return this != internal_default_instance() && _impl_.gtp_ != nullptr;
+}
+inline bool UeMetrics::has_gtp() const {
+  return _internal_has_gtp();
+}
+inline void UeMetrics::clear_gtp() {
+  if (GetArenaForAllocation() == nullptr && _impl_.gtp_ != nullptr) {
+    delete _impl_.gtp_;
+  }
+  _impl_.gtp_ = nullptr;
+}
+inline const ::GtpMetrics& UeMetrics::_internal_gtp() const {
+  const ::GtpMetrics* p = _impl_.gtp_;
+  return p != nullptr ? *p : reinterpret_cast<const ::GtpMetrics&>(
+      ::_GtpMetrics_default_instance_);
+}
+inline const ::GtpMetrics& UeMetrics::gtp() const {
+  // @@protoc_insertion_point(field_get:UeMetrics.gtp)
+  return _internal_gtp();
+}
+inline void UeMetrics::unsafe_arena_set_allocated_gtp(
+    ::GtpMetrics* gtp) {
+  if (GetArenaForAllocation() == nullptr) {
+    delete reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(_impl_.gtp_);
+  }
+  _impl_.gtp_ = gtp;
+  if (gtp) {
+    
+  } else {
+    
+  }
+  // @@protoc_insertion_point(field_unsafe_arena_set_allocated:UeMetrics.gtp)
+}
+inline ::GtpMetrics* UeMetrics::release_gtp() {
+  
+  ::GtpMetrics* temp = _impl_.gtp_;
+  _impl_.gtp_ = nullptr;
+#ifdef PROTOBUF_FORCE_COPY_IN_RELEASE
+  auto* old =  reinterpret_cast<::PROTOBUF_NAMESPACE_ID::MessageLite*>(temp);
+  temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  if (GetArenaForAllocation() == nullptr) { delete old; }
+#else  // PROTOBUF_FORCE_COPY_IN_RELEASE
+  if (GetArenaForAllocation() != nullptr) {
+    temp = ::PROTOBUF_NAMESPACE_ID::internal::DuplicateIfNonNull(temp);
+  }
+#endif  // !PROTOBUF_FORCE_COPY_IN_RELEASE
+  return temp;
+}
+inline ::GtpMetrics* UeMetrics::unsafe_arena_release_gtp() {
+  // @@protoc_insertion_point(field_release:UeMetrics.gtp)
+  
+  ::GtpMetrics* temp = _impl_.gtp_;
+  _impl_.gtp_ = nullptr;
+  return temp;
+}
+inline ::GtpMetrics* UeMetrics::_internal_mutable_gtp() {
+  
+  if (_impl_.gtp_ == nullptr) {
+    auto* p = CreateMaybeMessage<::GtpMetrics>(GetArenaForAllocation());
+    _impl_.gtp_ = p;
+  }
+  return _impl_.gtp_;
+}
+inline ::GtpMetrics* UeMetrics::mutable_gtp() {
+  ::GtpMetrics* _msg = _internal_mutable_gtp();
+  // @@protoc_insertion_point(field_mutable:UeMetrics.gtp)
+  return _msg;
+}
+inline void UeMetrics::set_allocated_gtp(::GtpMetrics* gtp) {
+  ::PROTOBUF_NAMESPACE_ID::Arena* message_arena = GetArenaForAllocation();
+  if (message_arena == nullptr) {
+    delete _impl_.gtp_;
+  }
+  if (gtp) {
+    ::PROTOBUF_NAMESPACE_ID::Arena* submessage_arena =
+        ::PROTOBUF_NAMESPACE_ID::Arena::InternalGetOwningArena(gtp);
+    if (message_arena != submessage_arena) {
+      gtp = ::PROTOBUF_NAMESPACE_ID::internal::GetOwnedMessage(
+          message_arena, gtp, submessage_arena);
+    }
+    
+  } else {
+    
+  }
+  _impl_.gtp_ = gtp;
+  // @@protoc_insertion_point(field_set_allocated:UeMetrics.gtp)
+}
+
+// -------------------------------------------------------------------
+
+// TtiMetrics
+
+// uint32 tti_index = 1;
+inline void TtiMetrics::clear_tti_index() {
+  _impl_.tti_index_ = 0u;
+}
+inline uint32_t TtiMetrics::_internal_tti_index() const {
+  return _impl_.tti_index_;
+}
+inline uint32_t TtiMetrics::tti_index() const {
+  // @@protoc_insertion_point(field_get:TtiMetrics.tti_index)
+  return _internal_tti_index();
+}
+inline void TtiMetrics::_internal_set_tti_index(uint32_t value) {
+  
+  _impl_.tti_index_ = value;
+}
+inline void TtiMetrics::set_tti_index(uint32_t value) {
+  _internal_set_tti_index(value);
+  // @@protoc_insertion_point(field_set:TtiMetrics.tti_index)
+}
+
+// uint64 timestamp_us = 2;
+inline void TtiMetrics::clear_timestamp_us() {
+  _impl_.timestamp_us_ = uint64_t{0u};
+}
+inline uint64_t TtiMetrics::_internal_timestamp_us() const {
+  return _impl_.timestamp_us_;
+}
+inline uint64_t TtiMetrics::timestamp_us() const {
+  // @@protoc_insertion_point(field_get:TtiMetrics.timestamp_us)
+  return _internal_timestamp_us();
+}
+inline void TtiMetrics::_internal_set_timestamp_us(uint64_t value) {
+  
+  _impl_.timestamp_us_ = value;
+}
+inline void TtiMetrics::set_timestamp_us(uint64_t value) {
+  _internal_set_timestamp_us(value);
+  // @@protoc_insertion_point(field_set:TtiMetrics.timestamp_us)
+}
+
+// repeated .UeMetrics ues = 3;
+inline int TtiMetrics::_internal_ues_size() const {
+  return _impl_.ues_.size();
+}
+inline int TtiMetrics::ues_size() const {
+  return _internal_ues_size();
+}
+inline void TtiMetrics::clear_ues() {
+  _impl_.ues_.Clear();
+}
+inline ::UeMetrics* TtiMetrics::mutable_ues(int index) {
+  // @@protoc_insertion_point(field_mutable:TtiMetrics.ues)
+  return _impl_.ues_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >*
+TtiMetrics::mutable_ues() {
+  // @@protoc_insertion_point(field_mutable_list:TtiMetrics.ues)
+  return &_impl_.ues_;
+}
+inline const ::UeMetrics& TtiMetrics::_internal_ues(int index) const {
+  return _impl_.ues_.Get(index);
+}
+inline const ::UeMetrics& TtiMetrics::ues(int index) const {
+  // @@protoc_insertion_point(field_get:TtiMetrics.ues)
+  return _internal_ues(index);
+}
+inline ::UeMetrics* TtiMetrics::_internal_add_ues() {
+  return _impl_.ues_.Add();
+}
+inline ::UeMetrics* TtiMetrics::add_ues() {
+  ::UeMetrics* _add = _internal_add_ues();
+  // @@protoc_insertion_point(field_add:TtiMetrics.ues)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >&
+TtiMetrics::ues() const {
+  // @@protoc_insertion_point(field_list:TtiMetrics.ues)
+  return _impl_.ues_;
 }
 
 // -------------------------------------------------------------------
@@ -1959,7 +3919,7 @@ inline void Metrics::set_tti_cnt(uint32_t value) {
   // @@protoc_insertion_point(field_set:Metrics.tti_cnt)
 }
 
-// repeated .UeMetrics ue_metrics = 2;
+// repeated .UeMetricsLegacy ue_metrics = 2;
 inline int Metrics::_internal_ue_metrics_size() const {
   return _impl_.ue_metrics_.size();
 }
@@ -1969,39 +3929,437 @@ inline int Metrics::ue_metrics_size() const {
 inline void Metrics::clear_ue_metrics() {
   _impl_.ue_metrics_.Clear();
 }
-inline ::UeMetrics* Metrics::mutable_ue_metrics(int index) {
+inline ::UeMetricsLegacy* Metrics::mutable_ue_metrics(int index) {
   // @@protoc_insertion_point(field_mutable:Metrics.ue_metrics)
   return _impl_.ue_metrics_.Mutable(index);
 }
-inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >*
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetricsLegacy >*
 Metrics::mutable_ue_metrics() {
   // @@protoc_insertion_point(field_mutable_list:Metrics.ue_metrics)
   return &_impl_.ue_metrics_;
 }
-inline const ::UeMetrics& Metrics::_internal_ue_metrics(int index) const {
+inline const ::UeMetricsLegacy& Metrics::_internal_ue_metrics(int index) const {
   return _impl_.ue_metrics_.Get(index);
 }
-inline const ::UeMetrics& Metrics::ue_metrics(int index) const {
+inline const ::UeMetricsLegacy& Metrics::ue_metrics(int index) const {
   // @@protoc_insertion_point(field_get:Metrics.ue_metrics)
   return _internal_ue_metrics(index);
 }
-inline ::UeMetrics* Metrics::_internal_add_ue_metrics() {
+inline ::UeMetricsLegacy* Metrics::_internal_add_ue_metrics() {
   return _impl_.ue_metrics_.Add();
 }
-inline ::UeMetrics* Metrics::add_ue_metrics() {
-  ::UeMetrics* _add = _internal_add_ue_metrics();
+inline ::UeMetricsLegacy* Metrics::add_ue_metrics() {
+  ::UeMetricsLegacy* _add = _internal_add_ue_metrics();
   // @@protoc_insertion_point(field_add:Metrics.ue_metrics)
   return _add;
 }
-inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetrics >&
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::UeMetricsLegacy >&
 Metrics::ue_metrics() const {
   // @@protoc_insertion_point(field_list:Metrics.ue_metrics)
   return _impl_.ue_metrics_;
 }
 
+// -------------------------------------------------------------------
+
+// UeMetricsLegacy
+
+// uint32 rnti = 1;
+inline void UeMetricsLegacy::clear_rnti() {
+  _impl_.rnti_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_rnti() const {
+  return _impl_.rnti_;
+}
+inline uint32_t UeMetricsLegacy::rnti() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.rnti)
+  return _internal_rnti();
+}
+inline void UeMetricsLegacy::_internal_set_rnti(uint32_t value) {
+  
+  _impl_.rnti_ = value;
+}
+inline void UeMetricsLegacy::set_rnti(uint32_t value) {
+  _internal_set_rnti(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.rnti)
+}
+
+// uint32 cqi = 2;
+inline void UeMetricsLegacy::clear_cqi() {
+  _impl_.cqi_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_cqi() const {
+  return _impl_.cqi_;
+}
+inline uint32_t UeMetricsLegacy::cqi() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.cqi)
+  return _internal_cqi();
+}
+inline void UeMetricsLegacy::_internal_set_cqi(uint32_t value) {
+  
+  _impl_.cqi_ = value;
+}
+inline void UeMetricsLegacy::set_cqi(uint32_t value) {
+  _internal_set_cqi(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.cqi)
+}
+
+// float snr = 3;
+inline void UeMetricsLegacy::clear_snr() {
+  _impl_.snr_ = 0;
+}
+inline float UeMetricsLegacy::_internal_snr() const {
+  return _impl_.snr_;
+}
+inline float UeMetricsLegacy::snr() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.snr)
+  return _internal_snr();
+}
+inline void UeMetricsLegacy::_internal_set_snr(float value) {
+  
+  _impl_.snr_ = value;
+}
+inline void UeMetricsLegacy::set_snr(float value) {
+  _internal_set_snr(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.snr)
+}
+
+// float tx_bytes = 4;
+inline void UeMetricsLegacy::clear_tx_bytes() {
+  _impl_.tx_bytes_ = 0;
+}
+inline float UeMetricsLegacy::_internal_tx_bytes() const {
+  return _impl_.tx_bytes_;
+}
+inline float UeMetricsLegacy::tx_bytes() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.tx_bytes)
+  return _internal_tx_bytes();
+}
+inline void UeMetricsLegacy::_internal_set_tx_bytes(float value) {
+  
+  _impl_.tx_bytes_ = value;
+}
+inline void UeMetricsLegacy::set_tx_bytes(float value) {
+  _internal_set_tx_bytes(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.tx_bytes)
+}
+
+// float rx_bytes = 5;
+inline void UeMetricsLegacy::clear_rx_bytes() {
+  _impl_.rx_bytes_ = 0;
+}
+inline float UeMetricsLegacy::_internal_rx_bytes() const {
+  return _impl_.rx_bytes_;
+}
+inline float UeMetricsLegacy::rx_bytes() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.rx_bytes)
+  return _internal_rx_bytes();
+}
+inline void UeMetricsLegacy::_internal_set_rx_bytes(float value) {
+  
+  _impl_.rx_bytes_ = value;
+}
+inline void UeMetricsLegacy::set_rx_bytes(float value) {
+  _internal_set_rx_bytes(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.rx_bytes)
+}
+
+// uint32 dl_buffer = 6;
+inline void UeMetricsLegacy::clear_dl_buffer() {
+  _impl_.dl_buffer_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_dl_buffer() const {
+  return _impl_.dl_buffer_;
+}
+inline uint32_t UeMetricsLegacy::dl_buffer() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.dl_buffer)
+  return _internal_dl_buffer();
+}
+inline void UeMetricsLegacy::_internal_set_dl_buffer(uint32_t value) {
+  
+  _impl_.dl_buffer_ = value;
+}
+inline void UeMetricsLegacy::set_dl_buffer(uint32_t value) {
+  _internal_set_dl_buffer(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.dl_buffer)
+}
+
+// uint32 ul_buffer = 7;
+inline void UeMetricsLegacy::clear_ul_buffer() {
+  _impl_.ul_buffer_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_ul_buffer() const {
+  return _impl_.ul_buffer_;
+}
+inline uint32_t UeMetricsLegacy::ul_buffer() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.ul_buffer)
+  return _internal_ul_buffer();
+}
+inline void UeMetricsLegacy::_internal_set_ul_buffer(uint32_t value) {
+  
+  _impl_.ul_buffer_ = value;
+}
+inline void UeMetricsLegacy::set_ul_buffer(uint32_t value) {
+  _internal_set_ul_buffer(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.ul_buffer)
+}
+
+// float dl_tbs = 8;
+inline void UeMetricsLegacy::clear_dl_tbs() {
+  _impl_.dl_tbs_ = 0;
+}
+inline float UeMetricsLegacy::_internal_dl_tbs() const {
+  return _impl_.dl_tbs_;
+}
+inline float UeMetricsLegacy::dl_tbs() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.dl_tbs)
+  return _internal_dl_tbs();
+}
+inline void UeMetricsLegacy::_internal_set_dl_tbs(float value) {
+  
+  _impl_.dl_tbs_ = value;
+}
+inline void UeMetricsLegacy::set_dl_tbs(float value) {
+  _internal_set_dl_tbs(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.dl_tbs)
+}
+
+// uint32 dl_ok = 9;
+inline void UeMetricsLegacy::clear_dl_ok() {
+  _impl_.dl_ok_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_dl_ok() const {
+  return _impl_.dl_ok_;
+}
+inline uint32_t UeMetricsLegacy::dl_ok() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.dl_ok)
+  return _internal_dl_ok();
+}
+inline void UeMetricsLegacy::_internal_set_dl_ok(uint32_t value) {
+  
+  _impl_.dl_ok_ = value;
+}
+inline void UeMetricsLegacy::set_dl_ok(uint32_t value) {
+  _internal_set_dl_ok(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.dl_ok)
+}
+
+// uint32 dl_nok = 10;
+inline void UeMetricsLegacy::clear_dl_nok() {
+  _impl_.dl_nok_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_dl_nok() const {
+  return _impl_.dl_nok_;
+}
+inline uint32_t UeMetricsLegacy::dl_nok() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.dl_nok)
+  return _internal_dl_nok();
+}
+inline void UeMetricsLegacy::_internal_set_dl_nok(uint32_t value) {
+  
+  _impl_.dl_nok_ = value;
+}
+inline void UeMetricsLegacy::set_dl_nok(uint32_t value) {
+  _internal_set_dl_nok(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.dl_nok)
+}
+
+// uint32 ul_ok = 11;
+inline void UeMetricsLegacy::clear_ul_ok() {
+  _impl_.ul_ok_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_ul_ok() const {
+  return _impl_.ul_ok_;
+}
+inline uint32_t UeMetricsLegacy::ul_ok() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.ul_ok)
+  return _internal_ul_ok();
+}
+inline void UeMetricsLegacy::_internal_set_ul_ok(uint32_t value) {
+  
+  _impl_.ul_ok_ = value;
+}
+inline void UeMetricsLegacy::set_ul_ok(uint32_t value) {
+  _internal_set_ul_ok(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.ul_ok)
+}
+
+// uint32 ul_nok = 12;
+inline void UeMetricsLegacy::clear_ul_nok() {
+  _impl_.ul_nok_ = 0u;
+}
+inline uint32_t UeMetricsLegacy::_internal_ul_nok() const {
+  return _impl_.ul_nok_;
+}
+inline uint32_t UeMetricsLegacy::ul_nok() const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.ul_nok)
+  return _internal_ul_nok();
+}
+inline void UeMetricsLegacy::_internal_set_ul_nok(uint32_t value) {
+  
+  _impl_.ul_nok_ = value;
+}
+inline void UeMetricsLegacy::set_ul_nok(uint32_t value) {
+  _internal_set_ul_nok(value);
+  // @@protoc_insertion_point(field_set:UeMetricsLegacy.ul_nok)
+}
+
+// repeated .DrbMetricsLegacy drb_metrics = 13;
+inline int UeMetricsLegacy::_internal_drb_metrics_size() const {
+  return _impl_.drb_metrics_.size();
+}
+inline int UeMetricsLegacy::drb_metrics_size() const {
+  return _internal_drb_metrics_size();
+}
+inline void UeMetricsLegacy::clear_drb_metrics() {
+  _impl_.drb_metrics_.Clear();
+}
+inline ::DrbMetricsLegacy* UeMetricsLegacy::mutable_drb_metrics(int index) {
+  // @@protoc_insertion_point(field_mutable:UeMetricsLegacy.drb_metrics)
+  return _impl_.drb_metrics_.Mutable(index);
+}
+inline ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetricsLegacy >*
+UeMetricsLegacy::mutable_drb_metrics() {
+  // @@protoc_insertion_point(field_mutable_list:UeMetricsLegacy.drb_metrics)
+  return &_impl_.drb_metrics_;
+}
+inline const ::DrbMetricsLegacy& UeMetricsLegacy::_internal_drb_metrics(int index) const {
+  return _impl_.drb_metrics_.Get(index);
+}
+inline const ::DrbMetricsLegacy& UeMetricsLegacy::drb_metrics(int index) const {
+  // @@protoc_insertion_point(field_get:UeMetricsLegacy.drb_metrics)
+  return _internal_drb_metrics(index);
+}
+inline ::DrbMetricsLegacy* UeMetricsLegacy::_internal_add_drb_metrics() {
+  return _impl_.drb_metrics_.Add();
+}
+inline ::DrbMetricsLegacy* UeMetricsLegacy::add_drb_metrics() {
+  ::DrbMetricsLegacy* _add = _internal_add_drb_metrics();
+  // @@protoc_insertion_point(field_add:UeMetricsLegacy.drb_metrics)
+  return _add;
+}
+inline const ::PROTOBUF_NAMESPACE_ID::RepeatedPtrField< ::DrbMetricsLegacy >&
+UeMetricsLegacy::drb_metrics() const {
+  // @@protoc_insertion_point(field_list:UeMetricsLegacy.drb_metrics)
+  return _impl_.drb_metrics_;
+}
+
+// -------------------------------------------------------------------
+
+// DrbMetricsLegacy
+
+// uint32 lcid = 1;
+inline void DrbMetricsLegacy::clear_lcid() {
+  _impl_.lcid_ = 0u;
+}
+inline uint32_t DrbMetricsLegacy::_internal_lcid() const {
+  return _impl_.lcid_;
+}
+inline uint32_t DrbMetricsLegacy::lcid() const {
+  // @@protoc_insertion_point(field_get:DrbMetricsLegacy.lcid)
+  return _internal_lcid();
+}
+inline void DrbMetricsLegacy::_internal_set_lcid(uint32_t value) {
+  
+  _impl_.lcid_ = value;
+}
+inline void DrbMetricsLegacy::set_lcid(uint32_t value) {
+  _internal_set_lcid(value);
+  // @@protoc_insertion_point(field_set:DrbMetricsLegacy.lcid)
+}
+
+// uint32 dl_buffer = 2;
+inline void DrbMetricsLegacy::clear_dl_buffer() {
+  _impl_.dl_buffer_ = 0u;
+}
+inline uint32_t DrbMetricsLegacy::_internal_dl_buffer() const {
+  return _impl_.dl_buffer_;
+}
+inline uint32_t DrbMetricsLegacy::dl_buffer() const {
+  // @@protoc_insertion_point(field_get:DrbMetricsLegacy.dl_buffer)
+  return _internal_dl_buffer();
+}
+inline void DrbMetricsLegacy::_internal_set_dl_buffer(uint32_t value) {
+  
+  _impl_.dl_buffer_ = value;
+}
+inline void DrbMetricsLegacy::set_dl_buffer(uint32_t value) {
+  _internal_set_dl_buffer(value);
+  // @@protoc_insertion_point(field_set:DrbMetricsLegacy.dl_buffer)
+}
+
+// uint32 ul_buffer = 3;
+inline void DrbMetricsLegacy::clear_ul_buffer() {
+  _impl_.ul_buffer_ = 0u;
+}
+inline uint32_t DrbMetricsLegacy::_internal_ul_buffer() const {
+  return _impl_.ul_buffer_;
+}
+inline uint32_t DrbMetricsLegacy::ul_buffer() const {
+  // @@protoc_insertion_point(field_get:DrbMetricsLegacy.ul_buffer)
+  return _internal_ul_buffer();
+}
+inline void DrbMetricsLegacy::_internal_set_ul_buffer(uint32_t value) {
+  
+  _impl_.ul_buffer_ = value;
+}
+inline void DrbMetricsLegacy::set_ul_buffer(uint32_t value) {
+  _internal_set_ul_buffer(value);
+  // @@protoc_insertion_point(field_set:DrbMetricsLegacy.ul_buffer)
+}
+
+// float tx_bytes = 4;
+inline void DrbMetricsLegacy::clear_tx_bytes() {
+  _impl_.tx_bytes_ = 0;
+}
+inline float DrbMetricsLegacy::_internal_tx_bytes() const {
+  return _impl_.tx_bytes_;
+}
+inline float DrbMetricsLegacy::tx_bytes() const {
+  // @@protoc_insertion_point(field_get:DrbMetricsLegacy.tx_bytes)
+  return _internal_tx_bytes();
+}
+inline void DrbMetricsLegacy::_internal_set_tx_bytes(float value) {
+  
+  _impl_.tx_bytes_ = value;
+}
+inline void DrbMetricsLegacy::set_tx_bytes(float value) {
+  _internal_set_tx_bytes(value);
+  // @@protoc_insertion_point(field_set:DrbMetricsLegacy.tx_bytes)
+}
+
+// float rx_bytes = 5;
+inline void DrbMetricsLegacy::clear_rx_bytes() {
+  _impl_.rx_bytes_ = 0;
+}
+inline float DrbMetricsLegacy::_internal_rx_bytes() const {
+  return _impl_.rx_bytes_;
+}
+inline float DrbMetricsLegacy::rx_bytes() const {
+  // @@protoc_insertion_point(field_get:DrbMetricsLegacy.rx_bytes)
+  return _internal_rx_bytes();
+}
+inline void DrbMetricsLegacy::_internal_set_rx_bytes(float value) {
+  
+  _impl_.rx_bytes_ = value;
+}
+inline void DrbMetricsLegacy::set_rx_bytes(float value) {
+  _internal_set_rx_bytes(value);
+  // @@protoc_insertion_point(field_set:DrbMetricsLegacy.rx_bytes)
+}
+
 #ifdef __GNUC__
   #pragma GCC diagnostic pop
 #endif  // __GNUC__
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
+// -------------------------------------------------------------------
+
 // -------------------------------------------------------------------
 
 // -------------------------------------------------------------------

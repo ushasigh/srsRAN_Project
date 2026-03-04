@@ -31,4 +31,4 @@ set(SOURCES
 )
 
 add_library(srsran_rlc STATIC ${SOURCES})
-target_link_libraries(srsran_rlc srsran_instrumentation srsran_support srsran_pcap)
+target_link_libraries(srsran_rlc srsran_instrumentation srsran_support srsran_pcap edgeric)

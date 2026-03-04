@@ -1,84 +1,85 @@
 #include "edgeric.h"
 #include <set>
 #include <algorithm>
+#include <chrono>
 
-// Definition of static member variables
+//==============================================================================
+// Static Member Definitions
+//==============================================================================
+
+// TTI counter
 uint32_t edgeric::tti_cnt = 0;
+
+// Control indices
 uint32_t edgeric::er_ran_index_weights = 0;
 uint32_t edgeric::er_ran_index_mcs = 0;
-
-std::map<uint16_t, float> edgeric::ue_cqis = {};
-std::map<uint16_t, float> edgeric::ue_snrs = {};
-std::map<uint16_t, float> edgeric::rx_bytes = {};
-std::map<uint16_t, float> edgeric::tx_bytes = {};
-std::map<uint16_t, uint32_t> edgeric::ue_ul_buffers = {};
-std::map<uint16_t, uint32_t> edgeric::ue_dl_buffers = {};
-std::map<uint16_t, float> edgeric::dl_tbs_ues = {};
-// HARQ ACK/NACK counters
-std::map<uint16_t, uint32_t> edgeric::dl_ok_cnt = {};
-std::map<uint16_t, uint32_t> edgeric::dl_nok_cnt = {};
-std::map<uint16_t, uint32_t> edgeric::ul_ok_cnt = {};
-std::map<uint16_t, uint32_t> edgeric::ul_nok_cnt = {};
-
-// Per-DRB metrics
-std::map<ue_drb_key, uint32_t> edgeric::drb_dl_buffers = {};
-std::map<ue_drb_key, uint32_t> edgeric::drb_ul_buffers = {};
-std::map<ue_drb_key, float> edgeric::drb_tx_bytes = {};
-std::map<ue_drb_key, float> edgeric::drb_rx_bytes = {};
-
-// UE Index to RNTI mapping
-std::map<uint32_t, uint16_t> edgeric::ue_index_to_rnti = {};
-
-// E1AP-based CU-UP to RNTI correlation
-std::map<uint32_t, uint16_t> edgeric::e1ap_id_to_rnti = {};
-std::map<uint32_t, uint32_t> edgeric::cu_up_ue_to_e1ap_id = {};
-
-// PDCP metrics per UE per DRB (keyed by CU-UP ue_index, not RNTI)
-std::map<edgeric::cu_up_drb_key, edgeric::pdcp_drb_metrics> edgeric::pdcp_metrics = {};
-
-// GTP-U metrics per UE (N3 interface)
-std::map<uint32_t, edgeric::gtp_ue_metrics> edgeric::gtp_metrics = {};
-
-// std::map<uint16_t, float> edgeric::weights_recved = {};
-std::map<uint16_t, float> edgeric::weights_recved = {};
-//     {17921, 0.55f},  // Example: RNTI 1001 with a weight of 0.75
-//     {17922, 0.45f}   // Example: RNTI 1002 with a weight of 0.85
-// };
-
-// std::map<uint16_t, uint8_t> edgeric::mcs_recved = {};
-std::map<uint16_t, uint8_t> edgeric::mcs_recved = {};
-//     {17921, 12},  // Example: RNTI 1001 with an MCS value of 12
-//     {17922, 15}   // Example: RNTI 1002 with an MCS value of 18
-// };
-
-// Dynamic QoS overrides per UE per DRB (key = {rnti, lcid})
-std::map<ue_drb_key, dynamic_qos_params> edgeric::qos_overrides = {};
 uint32_t edgeric::er_ran_index_qos = 0;
 
-bool edgeric::enable_logging = true; // Initialize logging flag to false
+// Logging flag
+bool edgeric::enable_logging = false;
 bool edgeric::initialized = false;
 
-zmq::context_t context;
-zmq::socket_t publisher(context, ZMQ_PUB);
-zmq::socket_t subscriber_weights(context, ZMQ_SUB);
-zmq::socket_t subscriber_mcs(context, ZMQ_SUB);
-zmq::socket_t subscriber_qos(context, ZMQ_SUB);
+// Control maps
+std::map<uint16_t, float> edgeric::weights_recved = {};
+std::map<uint16_t, uint8_t> edgeric::mcs_recved = {};
+std::map<ue_drb_key, dynamic_qos_params> edgeric::qos_overrides = {};
+
+// MAC metrics
+std::map<uint16_t, mac_ue_metrics> edgeric::mac_ue = {};
+std::map<ue_drb_key, mac_drb_metrics> edgeric::mac_drb = {};
+
+// RLC metrics
+std::map<ue_drb_key, rlc_drb_metrics> edgeric::rlc_drb = {};
+std::mutex edgeric::rlc_mutex;
+
+// PDCP metrics
+std::map<edgeric::cu_up_drb_key, pdcp_drb_metrics> edgeric::pdcp_drb = {};
+std::mutex edgeric::pdcp_mutex;
+
+// GTP metrics
+std::map<uint32_t, gtp_ue_metrics> edgeric::gtp_ue = {};
+std::mutex edgeric::gtp_mutex;
+
+// UE ID correlation maps
+std::map<uint32_t, uint16_t> edgeric::ue_index_to_rnti = {};
+std::map<uint32_t, uint16_t> edgeric::e1ap_id_to_rnti = {};
+std::map<uint32_t, uint32_t> edgeric::cu_up_ue_to_e1ap_id = {};
+std::map<uint32_t, uint16_t> edgeric::du_ue_to_rnti = {};
+std::mutex edgeric::du_ue_mutex;
+
+//==============================================================================
+// ZMQ Sockets (file-scope)
+//==============================================================================
+
+static zmq::context_t context(1);
+static zmq::socket_t publisher(context, ZMQ_PUB);
+static zmq::socket_t subscriber_weights(context, ZMQ_SUB);
+static zmq::socket_t subscriber_mcs(context, ZMQ_SUB);
+static zmq::socket_t subscriber_qos(context, ZMQ_SUB);
+
+//==============================================================================
+// Initialization
+//==============================================================================
 
 void edgeric::init() {
-    publisher.bind("ipc:///tmp/metrics");
-    //publisher.bind("tcp://172.10.10.1:5050");
-
-    subscriber_weights.connect("ipc:///tmp/control_weights_actions");
-    //subscriber_weights.connect("tcp://172.10.10.2:5051");
+    if (initialized) return;
+    
+    // Publisher for metrics (conflate mode - only keep latest)
+    publisher.set(zmq::sockopt::sndhwm, 1);    // Minimal queue
+    publisher.set(zmq::sockopt::conflate, 1);  // Only keep latest message
+    publisher.bind("ipc:///tmp/metrics_data");
+    
+    // Subscriber for weights
+    subscriber_weights.connect("ipc:///tmp/control_weights");
     subscriber_weights.set(zmq::sockopt::subscribe, "");
     subscriber_weights.set(zmq::sockopt::conflate, 1);
 
-    subscriber_mcs.connect("ipc:///tmp/control_mcs_actions");
-    //subscriber_mcs.connect("tcp://172.10.10.2:5050");
+    // Subscriber for MCS
+    subscriber_mcs.connect("ipc:///tmp/control_mcs");
     subscriber_mcs.set(zmq::sockopt::subscribe, "");
     subscriber_mcs.set(zmq::sockopt::conflate, 1);
 
-    // QoS control subscriber
+    // Subscriber for QoS
     subscriber_qos.connect("ipc:///tmp/control_qos_actions");
     subscriber_qos.set(zmq::sockopt::subscribe, "");
     subscriber_qos.set(zmq::sockopt::conflate, 1);
@@ -92,160 +93,128 @@ void edgeric::ensure_initialized() {
     }
 }
 
-void edgeric::send_to_er() {
-    ensure_initialized();  // Ensure that the ZMQ sockets are initialized
+//==============================================================================
+// MAC Metrics (scheduler thread - no locking)
+//==============================================================================
 
-    // Create a Metrics protobuf message
-    Metrics metrics_msg;
-    metrics_msg.set_tti_cnt(tti_cnt);
-
-    // Populate the Metrics message with UeMetrics for each UE
-    for (const auto& ue_cqi_pair : ue_cqis) {
-        uint16_t rnti = ue_cqi_pair.first;
-
-        UeMetrics* ue_metrics = metrics_msg.add_ue_metrics();
-        ue_metrics->set_rnti(rnti);
-
-        // Set CQI (from ue_cqis)
-        ue_metrics->set_cqi(static_cast<uint32_t>(ue_cqi_pair.second));
-
-        // Set SNR, default to 0 if not available
-        auto snr_it = ue_snrs.find(rnti);
-        ue_metrics->set_snr((snr_it != ue_snrs.end()) ? snr_it->second : 0.0f);
-
-        // Set Tx Bytes, default to 0 if not available
-        auto tx_bytes_it = tx_bytes.find(rnti);
-        ue_metrics->set_tx_bytes((tx_bytes_it != tx_bytes.end()) ? tx_bytes_it->second : 0.0f);
-
-        // Set Rx Bytes, default to 0 if not available
-        auto rx_bytes_it = rx_bytes.find(rnti);
-        ue_metrics->set_rx_bytes((rx_bytes_it != rx_bytes.end()) ? rx_bytes_it->second : 0.0f);
-
-        // Set DL Buffer, default to 0 if not available
-        auto dl_buffer_it = ue_dl_buffers.find(rnti);
-        ue_metrics->set_dl_buffer((dl_buffer_it != ue_dl_buffers.end()) ? dl_buffer_it->second : 0);
-
-        // Set UL Buffer, default to 0 if not available
-        auto ul_buffer_it = ue_ul_buffers.find(rnti);
-        ue_metrics->set_ul_buffer((ul_buffer_it != ue_ul_buffers.end()) ? ul_buffer_it->second : 0);
-
-        // Set DL TBS, default to 0 if not available
-        auto dl_tbs_it = dl_tbs_ues.find(rnti);
-        ue_metrics->set_dl_tbs((dl_tbs_it != dl_tbs_ues.end()) ? dl_tbs_it->second : 0);
-
-        // Set HARQ ACK/NACK counters
-        auto dl_ok_it = dl_ok_cnt.find(rnti);
-        ue_metrics->set_dl_ok((dl_ok_it != dl_ok_cnt.end()) ? dl_ok_it->second : 0);
-
-        auto dl_nok_it = dl_nok_cnt.find(rnti);
-        ue_metrics->set_dl_nok((dl_nok_it != dl_nok_cnt.end()) ? dl_nok_it->second : 0);
-
-        auto ul_ok_it = ul_ok_cnt.find(rnti);
-        ue_metrics->set_ul_ok((ul_ok_it != ul_ok_cnt.end()) ? ul_ok_it->second : 0);
-
-        auto ul_nok_it = ul_nok_cnt.find(rnti);
-        ue_metrics->set_ul_nok((ul_nok_it != ul_nok_cnt.end()) ? ul_nok_it->second : 0);
-        
-        // Add per-DRB metrics for this UE
-        std::vector<uint8_t> lcids = get_drb_lcids(rnti);
-        for (uint8_t lcid : lcids) {
-            ue_drb_key key = {rnti, lcid};
-            DrbMetrics* drb = ue_metrics->add_drb_metrics();
-            drb->set_lcid(lcid);
-            
-            auto dl_buf_it = drb_dl_buffers.find(key);
-            drb->set_dl_buffer((dl_buf_it != drb_dl_buffers.end()) ? dl_buf_it->second : 0);
-            
-            auto ul_buf_it = drb_ul_buffers.find(key);
-            drb->set_ul_buffer((ul_buf_it != drb_ul_buffers.end()) ? ul_buf_it->second : 0);
-            
-            auto tx_it = drb_tx_bytes.find(key);
-            drb->set_tx_bytes((tx_it != drb_tx_bytes.end()) ? tx_it->second : 0.0f);
-            
-            auto rx_it = drb_rx_bytes.find(key);
-            drb->set_rx_bytes((rx_it != drb_rx_bytes.end()) ? rx_it->second : 0.0f);
-        }
-        
-        // Note: PDCP and GTP metrics are keyed by CU-UP ue_index, not RNTI
-        // They are logged separately in printmyvariables() but not added to protobuf
-        // as we cannot correlate CU-UP ue_index with DU RNTI in split architecture
-    }
-
-    // Serialize the Metrics message to a string
-    std::string serialized_msg;
-    if (!metrics_msg.SerializeToString(&serialized_msg)) {
-        std::cerr << "Failed to serialize Metrics message." << std::endl;
-        return;
-    }
-
-    // Send the serialized message via ZMQ
-    zmq::message_t zmq_msg(serialized_msg.size());
-    memcpy(zmq_msg.data(), serialized_msg.data(), serialized_msg.size());
-
-    publisher.send(zmq_msg, zmq::send_flags::dontwait);
-
-    // Clear the maps after sending
-    ue_cqis.clear();
-    ue_snrs.clear();
-    tx_bytes.clear();
-    rx_bytes.clear();
-    dl_tbs_ues.clear();
-    // Clear HARQ counters each TTI
-    dl_ok_cnt.clear();
-    dl_nok_cnt.clear();
-    ul_ok_cnt.clear();
-    ul_nok_cnt.clear();
-    // Clear per-DRB MAC/RLC metrics each TTI (from DU scheduler)
-    drb_dl_buffers.clear();
-    drb_ul_buffers.clear();
-    drb_tx_bytes.clear();
-    drb_rx_bytes.clear();
-    // NOTE: Do NOT clear pdcp_metrics and gtp_metrics here!
-    // They are reported asynchronously from CU-UP and not synced with scheduler TTI.
-    // They will accumulate and be displayed each TTI until overwritten by next report.
-    // ue_dl_buffers.clear();
-    // ue_ul_buffers.clear();
+void edgeric::set_mac_ue(uint16_t rnti, uint32_t cqi, float snr,
+                         uint32_t dl_buffer, uint32_t ul_buffer,
+                         uint32_t dl_tbs, uint32_t ul_tbs) {
+    auto& m = mac_ue[rnti];
+    m.cqi = cqi;
+    m.snr = snr;
+    m.dl_buffer = dl_buffer;
+    m.ul_buffer = ul_buffer;
+    m.dl_tbs = dl_tbs;
+    m.ul_tbs = ul_tbs;
 }
 
-// Get all DRB LCIDs for a given RNTI
-std::vector<uint8_t> edgeric::get_drb_lcids(uint16_t rnti) {
-    std::vector<uint8_t> lcids;
-    std::set<uint8_t> lcid_set;  // Use set to avoid duplicates
-    
-    // Collect LCIDs from all per-DRB maps
-    for (const auto& pair : drb_dl_buffers) {
-        if (pair.first.first == rnti) {
-            lcid_set.insert(pair.first.second);
-        }
-    }
-    for (const auto& pair : drb_ul_buffers) {
-        if (pair.first.first == rnti) {
-            lcid_set.insert(pair.first.second);
-        }
-    }
-    for (const auto& pair : drb_tx_bytes) {
-        if (pair.first.first == rnti) {
-            lcid_set.insert(pair.first.second);
-        }
-    }
-    for (const auto& pair : drb_rx_bytes) {
-        if (pair.first.first == rnti) {
-            lcid_set.insert(pair.first.second);
-        }
-    }
-    
-    lcids.assign(lcid_set.begin(), lcid_set.end());
-    return lcids;
+void edgeric::set_mac_drb(uint16_t rnti, uint8_t lcid,
+                          uint32_t dl_buffer, uint32_t ul_buffer,
+                          uint32_t dl_bytes, uint32_t ul_bytes) {
+    auto& m = mac_drb[{rnti, lcid}];
+    m.dl_buffer = dl_buffer;
+    m.ul_buffer = ul_buffer;
+    m.dl_bytes = dl_bytes;
+    m.ul_bytes = ul_bytes;
 }
 
-// UE Index to RNTI mapping functions
+void edgeric::add_mac_drb_dl_bytes(uint16_t rnti, uint8_t lcid, uint32_t bytes) {
+    mac_drb[{rnti, lcid}].dl_bytes += bytes;
+}
+
+void edgeric::add_mac_drb_ul_bytes(uint16_t rnti, uint8_t lcid, uint32_t bytes) {
+    mac_drb[{rnti, lcid}].ul_bytes += bytes;
+}
+
+void edgeric::set_tx_bytes(uint16_t rnti, float tbs) {
+    mac_ue[rnti].dl_tbs += static_cast<uint32_t>(tbs);
+}
+
+void edgeric::set_rx_bytes(uint16_t rnti, float tbs) {
+    mac_ue[rnti].ul_tbs += static_cast<uint32_t>(tbs);
+}
+
+void edgeric::set_dl_tbs(uint16_t rnti, uint32_t tbs) {
+    mac_ue[rnti].dl_tbs += tbs;  // ACCUMULATE instead of overwrite!
+}
+
+void edgeric::set_ul_tbs(uint16_t rnti, uint32_t tbs) {
+    mac_ue[rnti].ul_tbs += tbs;  // Accumulate
+}
+
+void edgeric::set_dl_mcs(uint16_t rnti, uint32_t mcs) {
+    // Use max - multiple allocations may use different MCS
+    if (mcs > mac_ue[rnti].dl_mcs) mac_ue[rnti].dl_mcs = mcs;
+}
+
+void edgeric::set_ul_mcs(uint16_t rnti, uint32_t mcs) {
+    if (mcs > mac_ue[rnti].ul_mcs) mac_ue[rnti].ul_mcs = mcs;
+}
+
+void edgeric::set_dl_prbs(uint16_t rnti, uint32_t prbs) {
+    mac_ue[rnti].dl_prbs += prbs;  // Accumulate
+}
+
+void edgeric::set_ul_prbs(uint16_t rnti, uint32_t prbs) {
+    mac_ue[rnti].ul_prbs += prbs;  // Accumulate
+}
+
+//==============================================================================
+// RLC Metrics (RLC thread - needs locking)
+//==============================================================================
+
+void edgeric::report_rlc_metrics(uint32_t du_ue_index, uint8_t lcid,
+                                 const rlc_drb_metrics& metrics) {
+    std::lock_guard<std::mutex> lock(rlc_mutex);
+    
+    // Look up RNTI from DU UE index
+    auto it = du_ue_to_rnti.find(du_ue_index);
+    if (it == du_ue_to_rnti.end()) return;
+    
+    uint16_t rnti = it->second;
+    rlc_drb[{rnti, lcid}] = metrics;
+}
+
+void edgeric::register_du_ue(uint32_t du_ue_index, uint16_t rnti) {
+    std::lock_guard<std::mutex> lock(du_ue_mutex);
+    du_ue_to_rnti[du_ue_index] = rnti;
+}
+
+//==============================================================================
+// PDCP Metrics (CU-UP thread - needs locking)
+//==============================================================================
+
+void edgeric::report_pdcp_metrics(uint32_t cu_up_ue_index, uint8_t drb_id,
+                                  const pdcp_drb_metrics& metrics) {
+    std::lock_guard<std::mutex> lock(pdcp_mutex);
+    pdcp_drb[{cu_up_ue_index, drb_id}] = metrics;
+}
+
+//==============================================================================
+// GTP Metrics (CU-UP thread - needs locking)
+//==============================================================================
+
+void edgeric::report_gtp_dl_pkt(uint32_t cu_up_ue_index, uint32_t pdu_len) {
+    std::lock_guard<std::mutex> lock(gtp_mutex);
+    auto& m = gtp_ue[cu_up_ue_index];
+    m.dl_pkts++;
+    m.dl_bytes += pdu_len;
+}
+
+void edgeric::report_gtp_ul_pkt(uint32_t cu_up_ue_index, uint32_t pdu_len) {
+    std::lock_guard<std::mutex> lock(gtp_mutex);
+    auto& m = gtp_ue[cu_up_ue_index];
+    m.ul_pkts++;
+    m.ul_bytes += pdu_len;
+}
+
+//==============================================================================
+// UE ID Correlation
+//==============================================================================
+
 void edgeric::register_ue(uint32_t ue_index, uint16_t rnti) {
     ue_index_to_rnti[ue_index] = rnti;
-    std::ofstream logfile("log.txt", std::ios_base::app);
-    if (logfile.is_open()) {
-        logfile << "EdgeRIC: Registered UE index " << ue_index << " -> RNTI " << rnti << std::endl;
-        logfile.close();
-    }
 }
 
 void edgeric::unregister_ue(uint32_t ue_index) {
@@ -257,567 +226,343 @@ uint16_t edgeric::get_rnti_from_ue_index(uint32_t ue_index) {
     return (it != ue_index_to_rnti.end()) ? it->second : 0;
 }
 
-uint32_t edgeric::get_ue_index_from_rnti(uint16_t rnti) {
-    for (const auto& pair : ue_index_to_rnti) {
-        if (pair.second == rnti) {
-            return pair.first;
-        }
-    }
-    return UINT32_MAX;
+void edgeric::register_e1ap_rnti(uint32_t e1ap_id, uint16_t rnti) {
+    e1ap_id_to_rnti[e1ap_id] = rnti;
 }
 
-// E1AP-based CU-UP to RNTI correlation
-void edgeric::register_e1ap_rnti(uint32_t gnb_cu_cp_ue_e1ap_id, uint16_t rnti) {
-    e1ap_id_to_rnti[gnb_cu_cp_ue_e1ap_id] = rnti;
-}
-
-void edgeric::register_cu_up_ue_e1ap(uint32_t cu_up_ue_index, uint32_t gnb_cu_cp_ue_e1ap_id) {
-    cu_up_ue_to_e1ap_id[cu_up_ue_index] = gnb_cu_cp_ue_e1ap_id;
+void edgeric::register_cu_up_ue_e1ap(uint32_t cu_up_ue_index, uint32_t e1ap_id) {
+    cu_up_ue_to_e1ap_id[cu_up_ue_index] = e1ap_id;
 }
 
 uint16_t edgeric::get_rnti_from_cu_up_ue_index(uint32_t cu_up_ue_index) {
-    // Step 1: Get the E1AP ID from CU-UP UE index
-    auto e1ap_it = cu_up_ue_to_e1ap_id.find(cu_up_ue_index);
-    if (e1ap_it == cu_up_ue_to_e1ap_id.end()) {
-        return 0;  // CU-UP UE not registered
-    }
-    
-    uint32_t e1ap_id = e1ap_it->second;
-    
-    // Step 2: Get the RNTI from E1AP ID
-    auto rnti_it = e1ap_id_to_rnti.find(e1ap_id);
-    if (rnti_it == e1ap_id_to_rnti.end()) {
-        return 0;  // E1AP ID not mapped to RNTI yet
-    }
-    
-    return rnti_it->second;
-}
-
-// PDCP metrics reporting
-void edgeric::report_pdcp_metrics(uint32_t ue_index, uint8_t drb_id,
-                                   uint32_t tx_pdus, uint32_t tx_pdu_bytes, uint32_t tx_dropped_sdus,
-                                   uint32_t rx_pdus, uint32_t rx_pdu_bytes, uint32_t rx_dropped_pdus,
-                                   uint32_t rx_delivered_sdus) {
-    // Store by CU-UP ue_index directly (not RNTI, as CU-UP has different indices)
-    cu_up_drb_key key = {ue_index, drb_id};
-    pdcp_drb_metrics& m = pdcp_metrics[key];
-    m.tx_pdus = tx_pdus;
-    m.tx_pdu_bytes = tx_pdu_bytes;
-    m.tx_dropped_sdus = tx_dropped_sdus;
-    m.rx_pdus = rx_pdus;
-    m.rx_pdu_bytes = rx_pdu_bytes;
-    m.rx_dropped_pdus = rx_dropped_pdus;
-    m.rx_delivered_sdus = rx_delivered_sdus;
-}
-
-std::vector<uint8_t> edgeric::get_pdcp_drb_ids(uint16_t rnti) {
-    // This function is deprecated - PDCP metrics are now keyed by ue_index
-    // Return empty for now
-    return {};
-}
-
-std::vector<uint8_t> edgeric::get_pdcp_drb_ids_by_ue_index(uint32_t ue_index) {
-    std::vector<uint8_t> drb_ids;
-    std::set<uint8_t> drb_id_set;
-    
-    for (const auto& pair : pdcp_metrics) {
-        if (pair.first.first == ue_index) {
-            drb_id_set.insert(pair.first.second);
+    // Try E1AP correlation first
+    auto it1 = cu_up_ue_to_e1ap_id.find(cu_up_ue_index);
+    if (it1 != cu_up_ue_to_e1ap_id.end()) {
+        auto it2 = e1ap_id_to_rnti.find(it1->second);
+        if (it2 != e1ap_id_to_rnti.end()) {
+            return it2->second;
         }
     }
     
-    drb_ids.assign(drb_id_set.begin(), drb_id_set.end());
-    return drb_ids;
+    // Fallback 1: Try ue_index_to_rnti (CU-CP)
+    if (!ue_index_to_rnti.empty()) {
+        std::vector<std::pair<uint32_t, uint16_t>> sorted_ues(
+            ue_index_to_rnti.begin(), ue_index_to_rnti.end());
+        std::sort(sorted_ues.begin(), sorted_ues.end());
+        
+        if (cu_up_ue_index < sorted_ues.size()) {
+            return sorted_ues[cu_up_ue_index].second;
+        }
+    }
+    
+    // Fallback 2: Try mac_ue (scheduler - indexed by RNTI directly)
+    if (!mac_ue.empty()) {
+        std::vector<uint16_t> sorted_rntis;
+        for (const auto& [rnti, _] : mac_ue) {
+            sorted_rntis.push_back(rnti);
+        }
+        std::sort(sorted_rntis.begin(), sorted_rntis.end());
+        
+        if (cu_up_ue_index < sorted_rntis.size()) {
+            return sorted_rntis[cu_up_ue_index];
+        }
+    }
+    
+    return 0;
 }
 
-// GTP-U metrics reporting
-void edgeric::report_gtp_dl_pkt(uint32_t ue_index, uint32_t pdu_len) {
-    gtp_ue_metrics& m = gtp_metrics[ue_index];
-    m.dl_pkts++;
-    m.dl_bytes += pdu_len;
+//==============================================================================
+// Per-TTI Metrics Export (main function)
+//==============================================================================
+
+void edgeric::send_tti_metrics() {
+    ensure_initialized();
+    
+    // Build TtiMetrics protobuf message
+    TtiMetrics tti_msg;
+    tti_msg.set_tti_index(getTtiIndex());
+    
+    // Timestamp in microseconds
+    auto now = std::chrono::system_clock::now();
+    auto us = std::chrono::duration_cast<std::chrono::microseconds>(
+        now.time_since_epoch()).count();
+    tti_msg.set_timestamp_us(static_cast<uint64_t>(us));
+    
+    // Collect unique RNTIs from MAC metrics
+    std::set<uint16_t> active_rntis;
+    for (const auto& [rnti, _] : mac_ue) {
+        active_rntis.insert(rnti);
+    }
+    
+    // Build per-UE metrics
+    for (uint16_t rnti : active_rntis) {
+        UeMetrics* ue_msg = tti_msg.add_ues();
+        ue_msg->set_rnti(rnti);
+        
+        // MAC aggregate metrics
+        auto mac_it = mac_ue.find(rnti);
+        if (mac_it != mac_ue.end()) {
+            MacUeMetrics* mac_msg = ue_msg->mutable_mac();
+            mac_msg->set_cqi(mac_it->second.cqi);
+            mac_msg->set_snr(mac_it->second.snr);
+            mac_msg->set_dl_buffer(mac_it->second.dl_buffer);
+            mac_msg->set_ul_buffer(mac_it->second.ul_buffer);
+            mac_msg->set_dl_tbs(mac_it->second.dl_tbs);
+            mac_msg->set_ul_tbs(mac_it->second.ul_tbs);
+            mac_msg->set_dl_mcs(mac_it->second.dl_mcs);
+            mac_msg->set_ul_mcs(mac_it->second.ul_mcs);
+            mac_msg->set_dl_prbs(mac_it->second.dl_prbs);
+            mac_msg->set_ul_prbs(mac_it->second.ul_prbs);
+            mac_msg->set_dl_harq_ack(mac_it->second.dl_harq_ack);
+            mac_msg->set_dl_harq_nack(mac_it->second.dl_harq_nack);
+            mac_msg->set_ul_crc_ok(mac_it->second.ul_crc_ok);
+            mac_msg->set_ul_crc_fail(mac_it->second.ul_crc_fail);
+        }
+        
+        // MAC per-DRB metrics
+        for (const auto& [key, drb] : mac_drb) {
+            if (key.first != rnti) continue;
+            
+            MacDrbMetrics* drb_msg = ue_msg->add_mac_drb();
+            drb_msg->set_lcid(key.second);
+            drb_msg->set_dl_buffer(drb.dl_buffer);
+            drb_msg->set_ul_buffer(drb.ul_buffer);
+            drb_msg->set_dl_bytes(drb.dl_bytes);
+            drb_msg->set_ul_bytes(drb.ul_bytes);
+        }
+        
+        // RLC per-DRB metrics (with lock)
+        {
+            std::lock_guard<std::mutex> lock(rlc_mutex);
+            for (const auto& [key, rlc] : rlc_drb) {
+                if (key.first != rnti) continue;
+                
+                RlcDrbMetrics* rlc_msg = ue_msg->add_rlc_drb();
+                rlc_msg->set_lcid(key.second);
+                // Buffer status
+                rlc_msg->set_dl_buffer(rlc.dl_buffer);
+                rlc_msg->set_ul_buffer(rlc.ul_buffer);
+                // TX (DL) metrics
+                rlc_msg->set_tx_sdus(rlc.tx_sdus);
+                rlc_msg->set_tx_sdu_bytes(rlc.tx_sdu_bytes);
+                rlc_msg->set_tx_pdus(rlc.tx_pdus);
+                rlc_msg->set_tx_pdu_bytes(rlc.tx_pdu_bytes);
+                rlc_msg->set_tx_dropped_sdus(rlc.tx_dropped_sdus);
+                rlc_msg->set_tx_retx_pdus(rlc.tx_retx_pdus);
+                rlc_msg->set_tx_sdu_latency_us(rlc.tx_sdu_latency_us);
+                // RX (UL) metrics
+                rlc_msg->set_rx_sdus(rlc.rx_sdus);
+                rlc_msg->set_rx_sdu_bytes(rlc.rx_sdu_bytes);
+                rlc_msg->set_rx_pdus(rlc.rx_pdus);
+                rlc_msg->set_rx_pdu_bytes(rlc.rx_pdu_bytes);
+                rlc_msg->set_rx_lost_pdus(rlc.rx_lost_pdus);
+                rlc_msg->set_rx_sdu_latency_us(rlc.rx_sdu_latency_us);
+            }
+        }
+        
+        // PDCP per-DRB metrics (with lock, need to correlate CU-UP UE index)
+        {
+            std::lock_guard<std::mutex> lock(pdcp_mutex);
+            for (const auto& [key, pdcp] : pdcp_drb) {
+                uint16_t pdcp_rnti = get_rnti_from_cu_up_ue_index(key.first);
+                if (pdcp_rnti != rnti) continue;
+                
+                PdcpDrbMetrics* pdcp_msg = ue_msg->add_pdcp_drb();
+                pdcp_msg->set_drb_id(key.second);
+                pdcp_msg->set_lcid(key.second + 3);  // LCID = DRB_ID + 3
+                // TX (DL) metrics
+                pdcp_msg->set_tx_pdus(pdcp.tx_pdus);
+                pdcp_msg->set_tx_pdu_bytes(pdcp.tx_pdu_bytes);
+                pdcp_msg->set_tx_sdus(pdcp.tx_sdus);
+                pdcp_msg->set_tx_dropped_sdus(pdcp.tx_dropped_sdus);
+                pdcp_msg->set_tx_discard_timeouts(pdcp.tx_discard_timeouts);
+                pdcp_msg->set_tx_pdu_latency_ns(pdcp.tx_pdu_latency_ns);
+                // RX (UL) metrics
+                pdcp_msg->set_rx_pdus(pdcp.rx_pdus);
+                pdcp_msg->set_rx_pdu_bytes(pdcp.rx_pdu_bytes);
+                pdcp_msg->set_rx_delivered_sdus(pdcp.rx_delivered_sdus);
+                pdcp_msg->set_rx_dropped_pdus(pdcp.rx_dropped_pdus);
+                pdcp_msg->set_rx_sdu_latency_ns(pdcp.rx_sdu_latency_ns);
+            }
+        }
+        
+        // GTP metrics per UE (with lock)
+        {
+            std::lock_guard<std::mutex> lock(gtp_mutex);
+            for (const auto& [cu_up_idx, gtp] : gtp_ue) {
+                uint16_t gtp_rnti = get_rnti_from_cu_up_ue_index(cu_up_idx);
+                if (gtp_rnti != rnti) continue;
+                
+                GtpMetrics* gtp_msg = ue_msg->mutable_gtp();
+                gtp_msg->set_dl_pkts(gtp.dl_pkts);
+                gtp_msg->set_dl_bytes(gtp.dl_bytes);
+                gtp_msg->set_ul_pkts(gtp.ul_pkts);
+                gtp_msg->set_ul_bytes(gtp.ul_bytes);
+                break;  // One GTP entry per UE
+            }
+        }
+    }
+    
+    // Serialize and send via ZMQ
+    std::string serialized;
+    tti_msg.SerializeToString(&serialized);
+    
+    zmq::message_t msg(serialized.data(), serialized.size());
+    publisher.send(msg, zmq::send_flags::dontwait);
+    
+    // Reset per-TTI MAC counters (HARQ, scheduling info)
+    for (auto& [rnti, m] : mac_ue) {
+        m.dl_harq_ack = 0;
+        m.dl_harq_nack = 0;
+        m.ul_crc_ok = 0;
+        m.ul_crc_fail = 0;
+        m.dl_tbs = 0;
+        m.ul_tbs = 0;
+        m.dl_mcs = 0;
+        m.ul_mcs = 0;
+        m.dl_prbs = 0;
+        m.ul_prbs = 0;
+    }
+    for (auto& [key, m] : mac_drb) {
+        m.dl_bytes = 0;
+        m.ul_bytes = 0;
+    }
 }
 
-void edgeric::report_gtp_ul_pkt(uint32_t ue_index, uint32_t pdu_len) {
-    gtp_ue_metrics& m = gtp_metrics[ue_index];
-    m.ul_pkts++;
-    m.ul_bytes += pdu_len;
+//==============================================================================
+// Legacy API: send_to_er (calls new send_tti_metrics)
+//==============================================================================
+
+void edgeric::send_to_er() {
+    send_tti_metrics();
 }
 
-std::optional<edgeric::gtp_ue_metrics> edgeric::get_gtp_metrics(uint16_t rnti) {
-    // Need to find ue_index from rnti
-    uint32_t ue_index = get_ue_index_from_rnti(rnti);
-    if (ue_index == UINT32_MAX) {
-        return std::nullopt;
-    }
-    auto it = gtp_metrics.find(ue_index);
-    if (it != gtp_metrics.end()) {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-// Get weights function
-std::optional<float> edgeric::get_weights(uint16_t rnti) {
-    if (weights_recved.empty()) {
-        return std::nullopt;  // Return no value if the map is empty
-    }
-
-    auto it = weights_recved.find(rnti);
-    if (it != weights_recved.end()) {
-        return it->second;  // Return the weight if the RNTI is found
-    } else {
-        return std::nullopt;  // Return no value if the RNTI is not found
-    }
-}
-
-std::optional<uint8_t> edgeric::get_mcs(uint16_t rnti) {
-    if (mcs_recved.empty()) {
-        return std::nullopt;  // Return no value if the map is empty
-    }
-
-    auto it = mcs_recved.find(rnti);
-    if (it != mcs_recved.end()) {
-        return it->second;  // Return the weight if the RNTI is found
-    } else {
-        return std::nullopt;  // Return no value if the RNTI is not found
-    }
-}
+//==============================================================================
+// Legacy API: printmyvariables
+//==============================================================================
 
 void edgeric::printmyvariables() {
-    if (enable_logging) { // Check if logging is enabled
-        std::ofstream logfile("log.txt", std::ios_base::app); // Open log file in append mode
-        if (logfile.is_open()) {
-            logfile << "========== TTI: " << tti_cnt << " ==========" << std::endl;
-
-            for (const auto& cqi_pair : ue_cqis) {
-                auto rnti = cqi_pair.first;
-
-                // Fetch UE-level metrics
-                float weight = (weights_recved.count(rnti) > 0) ? weights_recved.at(rnti) : 0;
-                int mcs = (mcs_recved.count(rnti) > 0) ? static_cast<int>(mcs_recved.at(rnti)) : 0;
-                int cqi = static_cast<int>(cqi_pair.second);
-                int snr = (ue_snrs.count(rnti) > 0) ? static_cast<int>(ue_snrs.at(rnti)) : 0;
-                int rx_byte = (rx_bytes.count(rnti) > 0) ? static_cast<int>(rx_bytes.at(rnti)) : 0;
-                int tx_byte = (tx_bytes.count(rnti) > 0) ? static_cast<int>(tx_bytes.at(rnti)) : 0;
-                int ul_buffer = (ue_ul_buffers.count(rnti) > 0) ? static_cast<int>(ue_ul_buffers.at(rnti)) : 0;
-                int dl_buffer = (ue_dl_buffers.count(rnti) > 0) ? static_cast<int>(ue_dl_buffers.at(rnti)) : 0;
-                float dl_tbs = (dl_tbs_ues.count(rnti) > 0) ? static_cast<int>(dl_tbs_ues.at(rnti)) : 0;
-                // HARQ counters
-                uint32_t dl_ok = (dl_ok_cnt.count(rnti) > 0) ? dl_ok_cnt.at(rnti) : 0;
-                uint32_t dl_nok = (dl_nok_cnt.count(rnti) > 0) ? dl_nok_cnt.at(rnti) : 0;
-                uint32_t ul_ok = (ul_ok_cnt.count(rnti) > 0) ? ul_ok_cnt.at(rnti) : 0;
-                uint32_t ul_nok = (ul_nok_cnt.count(rnti) > 0) ? ul_nok_cnt.at(rnti) : 0;
-
-                // Print UE header with PHY/aggregate metrics
-                logfile << "  RNTI: " << rnti << std::endl;
-                logfile << "    PHY: CQI=" << cqi << " SNR=" << snr 
-                        << " MCS=" << mcs << " Weights=" << weight << std::endl;
-                logfile << "    HARQ: DL_OK=" << dl_ok << " DL_NOK=" << dl_nok 
-                        << " UL_OK=" << ul_ok << " UL_NOK=" << ul_nok << std::endl;
-                logfile << "    Aggregate: TX=" << tx_byte << " RX=" << rx_byte 
-                        << " DL_BUF=" << dl_buffer << " UL_BUF=" << ul_buffer 
-                        << " TBS=" << static_cast<int>(dl_tbs) << std::endl;
-                
-                // Collect all DRBs for this UE from MAC/RLC layer
-                std::set<uint8_t> all_drbs;
-                std::vector<uint8_t> lcids = get_drb_lcids(rnti);
-                
-                // MAC uses LCID (4+ for DRBs), convert to DRB ID
-                // LCID = DRB_ID + 3 typically (LCID 4 = DRB 1, LCID 5 = DRB 2, etc.)
-                for (uint8_t lcid : lcids) {
-                    if (lcid >= 4) {  // Skip SRBs (LCID 0-3)
-                        all_drbs.insert(lcid - 3);  // Convert LCID to DRB ID
-                    } else {
-                        all_drbs.insert(lcid);  // For LCG-based UL (0-7), keep as-is
-                    }
-                }
-                
-                // Log per-DRB MAC/RLC metrics (PDCP/GTP logged separately below by CU-UP UE index)
-                for (uint8_t drb_id : all_drbs) {
-                    logfile << "    DRB " << static_cast<int>(drb_id) << ":" << std::endl;
-                    
-                    // MAC/RLC metrics (using LCID = DRB_ID + 3 for DRBs, or direct for LCG)
-                    uint8_t lcid = (drb_id >= 1 && drb_id <= 29) ? (drb_id + 3) : drb_id;
-                    ue_drb_key mac_key = {rnti, lcid};
-                    uint32_t drb_dl_buf = (drb_dl_buffers.count(mac_key) > 0) ? drb_dl_buffers.at(mac_key) : 0;
-                    uint32_t drb_ul_buf = (drb_ul_buffers.count({rnti, drb_id}) > 0) ? drb_ul_buffers.at({rnti, drb_id}) : 0;
-                    float drb_tx = (drb_tx_bytes.count(mac_key) > 0) ? drb_tx_bytes.at(mac_key) : 0.0f;
-                    float drb_rx = (drb_rx_bytes.count(mac_key) > 0) ? drb_rx_bytes.at(mac_key) : 0.0f;
-                    
-                    logfile << "      MAC/RLC: TX=" << static_cast<int>(drb_tx) 
-                            << " RX=" << static_cast<int>(drb_rx)
-                            << " DL_BUF=" << drb_dl_buf 
-                            << " UL_BUF=" << drb_ul_buf << std::endl;
-                }
-                
+    if (!enable_logging) return;
+    
+    std::ofstream logfile("log.txt", std::ios_base::app);
+    if (!logfile.is_open()) return;
+    
+    logfile << "\n========== TTI " << getTtiIndex() << " (raw=" << tti_cnt << ") ==========\n";
+    
+    // Print per-UE metrics
+    for (const auto& [rnti, m] : mac_ue) {
+        logfile << "UE RNTI=" << rnti 
+                << " CQI=" << m.cqi << " SNR=" << m.snr
+                << " DL_BUF=" << m.dl_buffer << " UL_BUF=" << m.ul_buffer
+                << " DL_TBS=" << m.dl_tbs << " UL_TBS=" << m.ul_tbs
+                << " DL_ACK=" << m.dl_harq_ack << " DL_NACK=" << m.dl_harq_nack
+                << " UL_OK=" << m.ul_crc_ok << " UL_FAIL=" << m.ul_crc_fail
+                << "\n";
+        
+        // MAC DRBs (LCID >= 4 are DRBs; 0-3 are SRBs)
+        for (const auto& [key, drb] : mac_drb) {
+            if (key.first != rnti) continue;
+            if (key.second < 4) continue;  // Skip SRBs
+            logfile << "  MAC DRB LCID=" << (int)key.second
+                    << " dl_buf=" << drb.dl_buffer << " ul_buf=" << drb.ul_buffer
+                    << " dl_bytes=" << drb.dl_bytes << " ul_bytes=" << drb.ul_bytes
+                    << "\n";
+        }
+        
+        // RLC DRBs
+        {
+            std::lock_guard<std::mutex> lock(rlc_mutex);
+            for (const auto& [key, rlc] : rlc_drb) {
+                if (key.first != rnti) continue;
+                logfile << "  RLC DRB LCID=" << (int)key.second
+                        << " tx_sdus=" << rlc.tx_sdus << " tx_bytes=" << rlc.tx_sdu_bytes
+                        << " tx_lat=" << rlc.tx_sdu_latency_us << "us"
+                        << " rx_sdus=" << rlc.rx_sdus << " rx_bytes=" << rlc.rx_sdu_bytes
+                        << "\n";
             }
-            
-            // Output CU-UP metrics separately (PDCP/GTP keyed by CU-UP UE index)
-            // These use different UE indices than DU/scheduler, so output separately
-            // Debug: always show section header with counts
-            logfile << "  --- CU-UP Metrics (PDCP=" << pdcp_metrics.size() 
-                    << " GTP=" << gtp_metrics.size() << ") ---" << std::endl;
-            
-            // Collect all CU-UP UE indices with metrics
-            std::set<uint32_t> cu_up_ue_indices;
-            for (const auto& p : pdcp_metrics) {
-                cu_up_ue_indices.insert(p.first.first);  // key = (ue_index, drb_id)
+        }
+        
+        // PDCP DRBs (correlate via CU-UP index)
+        {
+            std::lock_guard<std::mutex> lock(pdcp_mutex);
+            for (const auto& [key, pdcp] : pdcp_drb) {
+                uint16_t pdcp_rnti = get_rnti_from_cu_up_ue_index(key.first);
+                if (pdcp_rnti != rnti) continue;
+                logfile << "  PDCP DRB=" << (int)key.second << " (LCID=" << (int)(key.second + 3) << ")"
+                        << " tx_pdus=" << pdcp.tx_pdus << " tx_bytes=" << pdcp.tx_pdu_bytes
+                        << " tx_drop=" << pdcp.tx_dropped_sdus << " tx_discard=" << pdcp.tx_discard_timeouts
+                        << " tx_lat=" << (pdcp.tx_pdu_latency_ns / 1000) << "us"
+                        << " rx_pdus=" << pdcp.rx_pdus << " rx_bytes=" << pdcp.rx_pdu_bytes
+                        << " rx_drop=" << pdcp.rx_dropped_pdus
+                        << " rx_lat=" << (pdcp.rx_sdu_latency_ns / 1000) << "us"
+                        << "\n";
             }
-            for (const auto& g : gtp_metrics) {
-                cu_up_ue_indices.insert(g.first);  // key is ue_index
+        }
+        
+        // GTP
+        {
+            std::lock_guard<std::mutex> lock(gtp_mutex);
+            for (const auto& [cu_up_idx, gtp] : gtp_ue) {
+                uint16_t gtp_rnti = get_rnti_from_cu_up_ue_index(cu_up_idx);
+                if (gtp_rnti != rnti) continue;
+                logfile << "  GTP dl_pkts=" << gtp.dl_pkts << " dl_bytes=" << gtp.dl_bytes
+                        << " ul_pkts=" << gtp.ul_pkts << " ul_bytes=" << gtp.ul_bytes
+                        << "\n";
             }
-            
-            for (uint32_t ue_idx : cu_up_ue_indices) {
-                uint16_t rnti = get_rnti_from_cu_up_ue_index(ue_idx);
-                logfile << "  CU-UP UE_IDX=" << ue_idx;
-                if (rnti != 0) {
-                    logfile << " (RNTI=" << rnti << ")";
-                }
-                logfile << std::endl;
-                
-                // PDCP metrics for this UE (iterate over all DRBs)
-                std::vector<uint8_t> drb_ids = get_pdcp_drb_ids_by_ue_index(ue_idx);
-                for (uint8_t drb_id : drb_ids) {
-                    cu_up_drb_key key = {ue_idx, drb_id};
-                    auto pm_it = pdcp_metrics.find(key);
-                    if (pm_it != pdcp_metrics.end()) {
-                        const pdcp_drb_metrics& m = pm_it->second;
-                        logfile << "    PDCP DRB" << static_cast<int>(drb_id)
-                                << ": TX_PDUs=" << m.tx_pdus
-                                << " TX_Bytes=" << m.tx_pdu_bytes
-                                << " TX_Drop=" << m.tx_dropped_sdus
-                                << " RX_PDUs=" << m.rx_pdus
-                                << " RX_Bytes=" << m.rx_pdu_bytes
-                                << " RX_Drop=" << m.rx_dropped_pdus
-                                << " RX_SDUs=" << m.rx_delivered_sdus << std::endl;
-                    }
-                }
-                
-                // GTP metrics for this UE
-                auto gtp_it = gtp_metrics.find(ue_idx);
-                if (gtp_it != gtp_metrics.end()) {
-                    const gtp_ue_metrics& gm = gtp_it->second;
-                    logfile << "    GTP-U: DL_Pkts=" << gm.dl_pkts
-                            << " DL_Bytes=" << gm.dl_bytes
-                            << " UL_Pkts=" << gm.ul_pkts
-                            << " UL_Bytes=" << gm.ul_bytes << std::endl;
-                }
-            }
-
-            logfile.close();
-        } else {
-            std::cerr << "Unable to open log file" << std::endl;
         }
     }
+    
+    logfile.close();
 }
 
+//==============================================================================
+// Control Reception
+//==============================================================================
 
-
-
-// void edgeric::get_weights_from_er()
-// {
-//     ensure_initialized();  // Ensure that the ZMQ sockets are initialized
-
-//     // Check for message on the weights subscriber
-//     zmq::message_t recv_message_er;
-//     zmq::recv_result_t size = subscriber_weights.recv(recv_message_er, zmq::recv_flags::dontwait);
-
-//     if (size) {
-//         SchedulingWeights weights_msg;
-//         if (weights_msg.ParseFromArray(recv_message_er.data(), recv_message_er.size())) {
-//             er_ran_index_weights = weights_msg.ran_index();
-//             for (int i = 0; i < weights_msg.weights_size(); i += 2) {
-//                 uint16_t rnti = static_cast<uint16_t>(weights_msg.weights(i));
-//                 float weight = weights_msg.weights(i + 1);
-//                 weights_recved[rnti] = weight;
-//             }
-//         } else {
-//             std::cerr << "Failed to parse SchedulingWeights message." << std::endl;
-//         }
-//     } else {
-//         weights_recved.clear();  // Clear weights as no valid data was received
-//         // weights_recved = {
-//         //         {17921, 0.5f},  // Example: RNTI 1001 with a weight of 0.75
-//         //         {17922, 0.5f}   // Example: RNTI 1002 with a weight of 0.85
-//         //     };
-        
-//     }
-
-//     // // Immediately check for message on the MCS subscriber
-//     // zmq::message_t recv_message_er2;
-//     // zmq::recv_result_t size2 = subscriber_mcs.recv(recv_message_er2, zmq::recv_flags::dontwait);
-
-//     // if (size2) {
-//     //     mcs_control mcs_msg;
-//     //     if (mcs_msg.ParseFromArray(recv_message_er2.data(), recv_message_er2.size())) {
-//     //         er_ran_index_mcs = mcs_msg.ran_index();
-//     //         for (int i = 0; i < mcs_msg.mcs_size(); i += 2) {
-//     //             uint16_t rnti = static_cast<uint16_t>(mcs_msg.mcs(i));
-//     //             uint8_t mcs = mcs_msg.mcs(i + 1);
-//     //             mcs_recved[rnti] = mcs;
-//     //         }
-//     //     } else {
-//     //         std::cerr << "Failed to parse mcs_control message." << std::endl;
-//     //     }
-//     // } else {
-//     //     // mcs_recved.clear();  // Clear weights as no valid data was received
-//     //     mcs_recved = {
-//     //             {17921, 18},  // Example: RNTI 1001 with a weight of 0.75
-//     //             {17922, 10}   // Example: RNTI 1002 with a weight of 0.85
-//     //         };
-        
-//     // }
-// }
-void edgeric::get_weights_from_er()
-{
-    ensure_initialized();  // Ensure that the ZMQ sockets are initialized
-
-    // Check for message on the weights subscriber
-    zmq::message_t recv_message_er;
-    zmq::recv_result_t size = subscriber_weights.recv(recv_message_er, zmq::recv_flags::dontwait);
+void edgeric::get_weights_from_er() {
+    ensure_initialized();
+    
+    zmq::message_t recv_message;
+    zmq::recv_result_t size = subscriber_weights.recv(recv_message, zmq::recv_flags::dontwait);
 
     if (size) {
         SchedulingWeights weights_msg;
-        if (weights_msg.ParseFromArray(recv_message_er.data(), recv_message_er.size())) {
+        if (weights_msg.ParseFromArray(recv_message.data(), recv_message.size())) {
             er_ran_index_weights = weights_msg.ran_index();
-            
-            float total_weight = 0.0f;
-
-            // First, store the weights and calculate the total weight
-            for (int i = 0; i < weights_msg.weights_size(); i += 2) {
-                uint16_t rnti = static_cast<uint16_t>(weights_msg.weights(i));
-                float weight = weights_msg.weights(i + 1);
-                weights_recved[rnti] = weight;
-                total_weight += weight;
-            }
-
-            // Normalize the weights so that the sum is 1
-            if (total_weight > 0.0f) {
-                for (auto& pair : weights_recved) {
-                    pair.second /= total_weight;
+            weights_recved.clear();
+            // Weights are indexed by order, map to active RNTIs
+            int idx = 0;
+            for (const auto& [rnti, _] : mac_ue) {
+                if (idx < weights_msg.weights_size()) {
+                    weights_recved[rnti] = weights_msg.weights(idx);
+                    idx++;
                 }
-            } else {
-                std::cerr << "Total weight is zero, cannot normalize." << std::endl;
             }
-
-        } else {
-            std::cerr << "Failed to parse SchedulingWeights message." << std::endl;
         }
-    } else {
-        weights_recved.clear();  // Clear weights as no valid data was received
-        // weights_recved = {
-        //         {17921, 0.5f},  // Example: RNTI 1001 with a weight of 0.75
-        //         {17922, 0.5f}   // Example: RNTI 1002 with a weight of 0.85
-        //     };
     }
 }
 
-// void edgeric::get_weights_from_er()
-// {
-//     ensure_initialized();  // Ensure that the ZMQ sockets are initialized
-//     zmq::message_t recv_message_er;
-//     zmq::recv_result_t size = subscriber_weights.recv(recv_message_er, zmq::recv_flags::dontwait);
-
-//     if (size) {
-//         // Deserialize the received message into a SchedulingWeights protobuf object
-//         SchedulingWeights weights_msg;
-//         if (weights_msg.ParseFromArray(recv_message_er.data(), recv_message_er.size())) {
-
-//             // Successfully parsed the protobuf message
-//             er_ran_index_weights = weights_msg.ran_index();
-
-//             // Update the weights_recved map with the received values
-//                 for (int i = 0; i < weights_msg.weights_size(); i += 2) {
-//                     uint16_t rnti = static_cast<uint16_t>(weights_msg.weights(i));
-//                     float weight = weights_msg.weights(i + 1);
-//                     weights_recved[rnti] = weight;
-//                 }
-
-//         } else {
-//             std::cerr << "Failed to parse SchedulingWeights message." << std::endl;
-//         }
-//     } else {
-//         // weights_recved.clear();  // Clear weights as no valid data was received
-//         weights_recved = {
-//                 {17921, 0.75f},  // Example: RNTI 1001 with a weight of 0.75
-//                 {17922, 0.25f}   // Example: RNTI 1002 with a weight of 0.85
-//             };
-        
-//     }
-
-
-
-//     zmq::message_t recv_message_er2;
-//     zmq::recv_result_t size2 = subscriber_mcs.recv(recv_message_er2, zmq::recv_flags::dontwait);
-
-//     if (size2) {
-//         // Deserialize the received message into a SchedulingWeights protobuf object
-//         mcs_control mcs_msg;
-//         if (mcs_msg.ParseFromArray(recv_message_er2.data(), recv_message_er2.size())) {
-
-//             // Successfully parsed the protobuf message
-//             er_ran_index_mcs = mcs_msg.ran_index();
-
-//             // Update the weights_recved map with the received values
-//                 for (int i = 0; i < mcs_msg.mcs_size(); i += 2) {
-//                     uint16_t rnti = static_cast<uint16_t>(mcs_msg.mcs(i));
-//                     uint8_t mcs = mcs_msg.mcs(i + 1);
-//                     mcs_recved[rnti] = mcs;
-//                 }
-
-//         } else {
-//             std::cerr << "Failed to parse SchedulingWeights message." << std::endl;
-//         }
-//     } else {
-//         // mcs_recved.clear();  // Clear weights as no valid data was received
-//         mcs_recved = {
-//                 {17921, 18},  // Example: RNTI 1001 with a weight of 0.75
-//                 {17922, 10}   // Example: RNTI 1002 with a weight of 0.85
-//             };
-        
-//     }
-// }
-
-void edgeric::get_mcs_from_er()
-{
-    ensure_initialized();  // Ensure that the ZMQ sockets are initialized
-    zmq::message_t recv_message_er;
-    zmq::recv_result_t size = subscriber_mcs.recv(recv_message_er, zmq::recv_flags::dontwait);
+void edgeric::get_mcs_from_er() {
+    ensure_initialized();
+    
+    zmq::message_t recv_message;
+    zmq::recv_result_t size = subscriber_mcs.recv(recv_message, zmq::recv_flags::dontwait);
 
     if (size) {
-        // Deserialize the received message into a SchedulingWeights protobuf object
         mcs_control mcs_msg;
-        if (mcs_msg.ParseFromArray(recv_message_er.data(), recv_message_er.size())) {
-
-            // Successfully parsed the protobuf message
+        if (mcs_msg.ParseFromArray(recv_message.data(), recv_message.size())) {
             er_ran_index_mcs = mcs_msg.ran_index();
-
-            // Update the weights_recved map with the received values
-                for (int i = 0; i < mcs_msg.mcs_size(); i += 2) {
-                    uint16_t rnti = static_cast<uint16_t>(mcs_msg.mcs(i));
-                    uint8_t mcs = mcs_msg.mcs(i + 1);
-                    mcs_recved[rnti] = mcs;
+            mcs_recved.clear();
+            // MCS values are indexed by order, map to active RNTIs
+            int idx = 0;
+            for (const auto& [rnti, _] : mac_ue) {
+                if (idx < mcs_msg.mcs_size()) {
+                    mcs_recved[rnti] = static_cast<uint8_t>(mcs_msg.mcs(idx));
+                    idx++;
                 }
-
-        } else {
-            std::cerr << "Failed to parse SchedulingWeights message." << std::endl;
-        }
-    } else {
-        mcs_recved.clear();  // Clear weights as no valid data was received
-        // mcs_recved = {
-        //         {17921, 18},  // Example: RNTI 1001 with a weight of 0.75
-        //         {17922, 10}   // Example: RNTI 1002 with a weight of 0.85
-        //     };
-        
-    }
-}
-
-//////////////////////////////////////////////////////////////////////////////
-// Dynamic QoS Control Implementation (Per-UE, Per-DRB)
-//////////////////////////////////////////////////////////////////////////////
-
-void edgeric::set_dynamic_qos(uint16_t rnti, uint8_t lcid, const dynamic_qos_params& params) {
-    ue_drb_key key = {rnti, lcid};
-    qos_overrides[key] = params;
-}
-
-void edgeric::clear_dynamic_qos(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    qos_overrides.erase(key);
-}
-
-void edgeric::clear_all_dynamic_qos(uint16_t rnti) {
-    // Remove all DRBs for this UE
-    for (auto it = qos_overrides.begin(); it != qos_overrides.end(); ) {
-        if (it->first.first == rnti) {
-            it = qos_overrides.erase(it);
-        } else {
-            ++it;
+            }
         }
     }
-}
-
-std::optional<dynamic_qos_params> edgeric::get_dynamic_qos(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    auto it = qos_overrides.find(key);
-    if (it != qos_overrides.end()) {
-        return it->second;
-    }
-    return std::nullopt;
-}
-
-void edgeric::set_qos_priority(uint16_t rnti, uint8_t lcid, uint8_t priority) {
-    ue_drb_key key = {rnti, lcid};
-    auto& params = qos_overrides[key];
-    params.qos_priority = priority;
-    params.override_qos_priority = true;
-}
-
-void edgeric::set_arp_priority(uint16_t rnti, uint8_t lcid, uint8_t arp) {
-    ue_drb_key key = {rnti, lcid};
-    auto& params = qos_overrides[key];
-    params.arp_priority = arp;
-    params.override_arp_priority = true;
-}
-
-void edgeric::set_pdb(uint16_t rnti, uint8_t lcid, uint32_t pdb_ms) {
-    ue_drb_key key = {rnti, lcid};
-    auto& params = qos_overrides[key];
-    params.pdb_ms = pdb_ms;
-    params.override_pdb = true;
-}
-
-void edgeric::set_gbr(uint16_t rnti, uint8_t lcid, uint64_t gbr_dl, uint64_t gbr_ul) {
-    ue_drb_key key = {rnti, lcid};
-    auto& params = qos_overrides[key];
-    params.gbr_dl = gbr_dl;
-    params.gbr_ul = gbr_ul;
-    params.override_gbr = true;
-}
-
-std::optional<uint8_t> edgeric::get_qos_priority(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    auto it = qos_overrides.find(key);
-    if (it != qos_overrides.end() && it->second.override_qos_priority) {
-        return it->second.qos_priority;
-    }
-    return std::nullopt;
-}
-
-std::optional<uint8_t> edgeric::get_arp_priority(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    auto it = qos_overrides.find(key);
-    if (it != qos_overrides.end() && it->second.override_arp_priority) {
-        return it->second.arp_priority;
-    }
-    return std::nullopt;
-}
-
-std::optional<uint32_t> edgeric::get_pdb(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    auto it = qos_overrides.find(key);
-    if (it != qos_overrides.end() && it->second.override_pdb) {
-        return it->second.pdb_ms;
-    }
-    return std::nullopt;
-}
-
-std::optional<uint64_t> edgeric::get_gbr_dl(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    auto it = qos_overrides.find(key);
-    if (it != qos_overrides.end() && it->second.override_gbr) {
-        return it->second.gbr_dl;
-    }
-    return std::nullopt;
-}
-
-std::optional<uint64_t> edgeric::get_gbr_ul(uint16_t rnti, uint8_t lcid) {
-    ue_drb_key key = {rnti, lcid};
-    auto it = qos_overrides.find(key);
-    if (it != qos_overrides.end() && it->second.override_gbr) {
-        return it->second.gbr_ul;
-    }
-    return std::nullopt;
 }
 
 void edgeric::get_qos_from_er() {
@@ -827,33 +572,31 @@ void edgeric::get_qos_from_er() {
     zmq::recv_result_t size = subscriber_qos.recv(recv_message, zmq::recv_flags::dontwait);
     
     if (size) {
-        // Parse the QoS control protobuf message
         QosControl qos_msg;
         if (qos_msg.ParseFromArray(recv_message.data(), recv_message.size())) {
             er_ran_index_qos = qos_msg.ran_index();
             
-            // Log received QoS control message
-            if (enable_logging) {
-                std::ofstream logfile("log.txt", std::ios_base::app);
-                if (logfile.is_open()) {
-                    logfile << "QoS Control Received (ran_index=" << er_ran_index_qos 
-                            << ", TTI=" << tti_cnt << ")" << std::endl;
-                    logfile.close();
-                }
-            }
+            std::cerr << "[EdgeRIC] QoS Control Received: ran_index=" << er_ran_index_qos
+                      << ", TTI=" << tti_cnt << ", num_drbs=" << qos_msg.drb_qos_size() << std::endl;
             
-            // Process each DRB QoS override
             for (int i = 0; i < qos_msg.drb_qos_size(); ++i) {
                 const DrbQosParams& drb = qos_msg.drb_qos(i);
                 uint16_t rnti = static_cast<uint16_t>(drb.rnti());
                 uint8_t lcid = static_cast<uint8_t>(drb.lcid());
                 ue_drb_key key = {rnti, lcid};
                 
+                std::cerr << "[EdgeRIC]   RNTI=" << rnti << " LCID=" << (int)lcid;
+                if (drb.has_qos_priority()) std::cerr << " qos_prio=" << drb.qos_priority();
+                if (drb.has_arp_priority()) std::cerr << " arp_prio=" << drb.arp_priority();
+                if (drb.has_pdb_ms()) std::cerr << " pdb=" << drb.pdb_ms();
+                if (drb.has_gbr_dl()) std::cerr << " gbr_dl=" << drb.gbr_dl();
+                if (drb.has_gbr_ul()) std::cerr << " gbr_ul=" << drb.gbr_ul();
+                if (drb.clear_override()) std::cerr << " CLEAR";
+                std::cerr << std::endl;
+                
                 if (drb.clear_override()) {
-                    // Clear the override for this DRB
                     qos_overrides.erase(key);
-                } else {
-                    // Apply the overrides
+        } else {
                     auto& params = qos_overrides[key];
                     
                     if (drb.has_qos_priority()) {
@@ -869,33 +612,159 @@ void edgeric::get_qos_from_er() {
                         params.override_pdb = true;
                     }
                     if (drb.has_gbr_dl() || drb.has_gbr_ul()) {
-                        if (drb.has_gbr_dl()) {
-                            params.gbr_dl = drb.gbr_dl();
-                        }
-                        if (drb.has_gbr_ul()) {
-                            params.gbr_ul = drb.gbr_ul();
-                        }
+                        if (drb.has_gbr_dl()) params.gbr_dl = drb.gbr_dl();
+                        if (drb.has_gbr_ul()) params.gbr_ul = drb.gbr_ul();
                         params.override_gbr = true;
                     }
                 }
             }
-        } else {
-            std::cerr << "Failed to parse QosControl message." << std::endl;
         }
     }
-    // If no message received, keep existing overrides (they persist until cleared)
 }
 
-//////////////////////////////////////////////////////////////////////////////
-// Centralized Telemetry Collection
-//////////////////////////////////////////////////////////////////////////////
+//==============================================================================
+// Control Getters
+//==============================================================================
 
-void edgeric::collect_ue_telemetry(uint16_t rnti, float cqi, float snr, 
-                                    uint32_t dl_buffer_bytes, uint32_t ul_buffer_bytes) {
-    // Store metrics in the static maps - these will be logged via printmyvariables()
-    // and sent via send_to_er() which are already called in cell_scheduler::run_slot()
-    ue_cqis[rnti] = cqi;
-    ue_snrs[rnti] = snr;
-    ue_dl_buffers[rnti] = dl_buffer_bytes;
-    ue_ul_buffers[rnti] = ul_buffer_bytes;
+std::optional<float> edgeric::get_weights(uint16_t rnti) {
+    auto it = weights_recved.find(rnti);
+    return (it != weights_recved.end()) ? std::optional<float>(it->second) : std::nullopt;
+}
+
+std::optional<uint8_t> edgeric::get_mcs(uint16_t rnti) {
+    auto it = mcs_recved.find(rnti);
+    return (it != mcs_recved.end()) ? std::optional<uint8_t>(it->second) : std::nullopt;
+}
+
+//==============================================================================
+// QoS Override API
+//==============================================================================
+
+void edgeric::set_dynamic_qos(uint16_t rnti, uint8_t lcid, const dynamic_qos_params& params) {
+    qos_overrides[{rnti, lcid}] = params;
+}
+
+void edgeric::clear_dynamic_qos(uint16_t rnti, uint8_t lcid) {
+    qos_overrides.erase({rnti, lcid});
+}
+
+void edgeric::clear_all_dynamic_qos(uint16_t rnti) {
+    for (auto it = qos_overrides.begin(); it != qos_overrides.end(); ) {
+        if (it->first.first == rnti) {
+            it = qos_overrides.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+std::optional<dynamic_qos_params> edgeric::get_dynamic_qos(uint16_t rnti, uint8_t lcid) {
+    auto it = qos_overrides.find({rnti, lcid});
+    return (it != qos_overrides.end()) ? std::optional<dynamic_qos_params>(it->second) : std::nullopt;
+}
+
+void edgeric::set_qos_priority(uint16_t rnti, uint8_t lcid, uint8_t priority) {
+    auto& p = qos_overrides[{rnti, lcid}];
+    p.qos_priority = priority;
+    p.override_qos_priority = true;
+}
+
+void edgeric::set_arp_priority(uint16_t rnti, uint8_t lcid, uint8_t arp) {
+    auto& p = qos_overrides[{rnti, lcid}];
+    p.arp_priority = arp;
+    p.override_arp_priority = true;
+}
+
+void edgeric::set_pdb(uint16_t rnti, uint8_t lcid, uint32_t pdb_ms) {
+    auto& p = qos_overrides[{rnti, lcid}];
+    p.pdb_ms = pdb_ms;
+    p.override_pdb = true;
+}
+
+void edgeric::set_gbr(uint16_t rnti, uint8_t lcid, uint64_t gbr_dl, uint64_t gbr_ul) {
+    auto& p = qos_overrides[{rnti, lcid}];
+    p.gbr_dl = gbr_dl;
+    p.gbr_ul = gbr_ul;
+    p.override_gbr = true;
+}
+
+std::optional<uint8_t> edgeric::get_qos_priority(uint16_t rnti, uint8_t lcid) {
+    auto it = qos_overrides.find({rnti, lcid});
+    if (it != qos_overrides.end() && it->second.override_qos_priority) {
+        return it->second.qos_priority;
+    }
+    return std::nullopt;
+}
+
+std::optional<uint8_t> edgeric::get_arp_priority(uint16_t rnti, uint8_t lcid) {
+    auto it = qos_overrides.find({rnti, lcid});
+    if (it != qos_overrides.end() && it->second.override_arp_priority) {
+        return it->second.arp_priority;
+    }
+    return std::nullopt;
+}
+
+std::optional<uint32_t> edgeric::get_pdb(uint16_t rnti, uint8_t lcid) {
+    auto it = qos_overrides.find({rnti, lcid});
+    if (it != qos_overrides.end() && it->second.override_pdb) {
+        return it->second.pdb_ms;
+    }
+    return std::nullopt;
+}
+
+std::optional<uint64_t> edgeric::get_gbr_dl(uint16_t rnti, uint8_t lcid) {
+    auto it = qos_overrides.find({rnti, lcid});
+    if (it != qos_overrides.end() && it->second.override_gbr) {
+        return it->second.gbr_dl;
+    }
+    return std::nullopt;
+}
+
+std::optional<uint64_t> edgeric::get_gbr_ul(uint16_t rnti, uint8_t lcid) {
+    auto it = qos_overrides.find({rnti, lcid});
+    if (it != qos_overrides.end() && it->second.override_gbr) {
+        return it->second.gbr_ul;
+    }
+    return std::nullopt;
+}
+
+//==============================================================================
+// Legacy Helper Functions
+//==============================================================================
+
+std::vector<uint8_t> edgeric::get_drb_lcids(uint16_t rnti) {
+    std::set<uint8_t> lcids;
+    for (const auto& [key, _] : mac_drb) {
+        if (key.first == rnti) lcids.insert(key.second);
+    }
+    return std::vector<uint8_t>(lcids.begin(), lcids.end());
+}
+
+std::vector<uint8_t> edgeric::get_pdcp_drb_ids(uint16_t rnti) {
+    // Deprecated - use get_pdcp_drb_ids_by_ue_index
+    return {};
+}
+
+std::vector<uint8_t> edgeric::get_pdcp_drb_ids_by_ue_index(uint32_t ue_index) {
+    std::lock_guard<std::mutex> lock(pdcp_mutex);
+    std::set<uint8_t> drb_ids;
+    for (const auto& [key, _] : pdcp_drb) {
+        if (key.first == ue_index) drb_ids.insert(key.second);
+    }
+    return std::vector<uint8_t>(drb_ids.begin(), drb_ids.end());
+}
+
+std::optional<gtp_ue_metrics> edgeric::get_gtp_metrics(uint16_t rnti) {
+    std::lock_guard<std::mutex> lock(gtp_mutex);
+    for (const auto& [cu_up_idx, gtp] : gtp_ue) {
+        if (get_rnti_from_cu_up_ue_index(cu_up_idx) == rnti) {
+            return gtp;
+        }
+    }
+    return std::nullopt;
+}
+
+void edgeric::collect_ue_telemetry(uint16_t rnti, float cqi, float snr,
+                                   uint32_t dl_buffer_bytes, uint32_t ul_buffer_bytes) {
+    set_mac_ue(rnti, static_cast<uint32_t>(cqi), snr, dl_buffer_bytes, ul_buffer_bytes, 0, 0);
 }

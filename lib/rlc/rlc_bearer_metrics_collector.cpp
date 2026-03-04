@@ -21,6 +21,7 @@
  */
 
 #include "rlc_bearer_metrics_collector.h"
+#include "../edgeric/edgeric.h"
 
 using namespace srsran;
 
@@ -92,4 +93,50 @@ void rlc_bearer_metrics_collector::push_report()
   }
   rlc_metrics report = {du, ue, rb, {m_higher, m_lower}, m_rx_high, 0, metrics_period};
   rlc_metrics_notif->report_metrics(report);
+  
+  // Report to EdgeRIC (only for DRBs, LCID >= 4)
+  if (rb.is_drb()) {
+    uint8_t lcid = static_cast<uint8_t>(rb.get_drb_id()) + 3;  // DRB ID to LCID conversion
+    
+    // Build RLC metrics struct for EdgeRIC
+    rlc_drb_metrics er_metrics;
+    
+    // TX (DL) metrics
+    er_metrics.tx_sdus = m_higher.num_sdus;
+    er_metrics.tx_sdu_bytes = m_higher.num_sdu_bytes;
+    er_metrics.tx_dropped_sdus = m_higher.num_dropped_sdus + m_higher.num_discarded_sdus;
+    er_metrics.tx_pdus = m_lower.num_pdus_no_segmentation;
+    er_metrics.tx_pdu_bytes = m_lower.num_pdu_bytes_no_segmentation;
+    
+    // Calculate average TX SDU latency
+    if (m_lower.num_of_pulled_sdus > 0) {
+      er_metrics.tx_sdu_latency_us = m_lower.sum_sdu_latency_us / m_lower.num_of_pulled_sdus;
+    }
+    
+    // AM mode specific: retransmissions
+    if (std::holds_alternative<rlc_am_tx_metrics_lower>(m_lower.mode_specific)) {
+      const auto& am = std::get<rlc_am_tx_metrics_lower>(m_lower.mode_specific);
+      er_metrics.tx_retx_pdus = am.num_retx_pdus;
+      // Add segmented PDUs to total
+      er_metrics.tx_pdus += am.num_pdus_with_segmentation;
+      er_metrics.tx_pdu_bytes += am.num_pdu_bytes_with_segmentation;
+    } else if (std::holds_alternative<rlc_um_tx_metrics_lower>(m_lower.mode_specific)) {
+      const auto& um = std::get<rlc_um_tx_metrics_lower>(m_lower.mode_specific);
+      er_metrics.tx_pdus += um.num_pdus_with_segmentation;
+      er_metrics.tx_pdu_bytes += um.num_pdu_bytes_with_segmentation;
+    }
+    
+    // RX (UL) metrics
+    er_metrics.rx_sdus = m_rx_high.num_sdus;
+    er_metrics.rx_sdu_bytes = m_rx_high.num_sdu_bytes;
+    er_metrics.rx_pdus = m_rx_high.num_pdus;
+    er_metrics.rx_pdu_bytes = m_rx_high.num_pdu_bytes;
+    er_metrics.rx_lost_pdus = m_rx_high.num_lost_pdus;
+    
+    // RX SDU latency (reassembly time) - already an average in sdu_latency_us
+    er_metrics.rx_sdu_latency_us = static_cast<uint32_t>(m_rx_high.sdu_latency_us);
+    
+    // Report to EdgeRIC
+    edgeric::report_rlc_metrics(static_cast<uint32_t>(ue), lcid, er_metrics);
+  }
 }

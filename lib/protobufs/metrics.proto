@@ -1,59 +1,137 @@
 syntax = "proto3";
 
-// Per-DRB (Data Radio Bearer) metrics from MAC/RLC layer
-message DrbMetrics {
-    uint32 lcid = 1;           // Logical Channel ID (4+ for DRBs, 1-3 for SRBs)
-    uint32 dl_buffer = 2;      // DL pending bytes for this DRB (RLC buffer)
-    uint32 ul_buffer = 3;      // UL pending bytes for this DRB (from BSR)
-    float tx_bytes = 4;        // DL bytes scheduled for this DRB
-    float rx_bytes = 5;        // UL bytes received for this DRB
+// TTI Metrics - sent every TTI (1ms) with rollover at 10000
+// Structure: TTI -> UE (RNTI) -> DRB (LCID) -> [MAC, RLC, PDCP metrics]
+
+// MAC/PHY metrics per DRB (real-time, per-TTI)
+message MacDrbMetrics {
+    uint32 lcid = 1;              // Logical Channel ID (4+ for DRBs)
+    uint32 dl_buffer = 2;         // DL pending bytes (RLC buffer)
+    uint32 ul_buffer = 3;         // UL pending bytes (from BSR)
+    uint32 dl_bytes = 4;          // DL bytes scheduled this TTI
+    uint32 ul_bytes = 5;          // UL bytes received this TTI
 }
 
-// Per-DRB PDCP layer metrics (from CU-UP)
-message PdcpDrbMetrics {
-    uint32 drb_id = 1;         // DRB ID (1-32)
+// RLC metrics per DRB (accumulated, snapshot at TTI)
+message RlcDrbMetrics {
+    uint32 lcid = 1;              // Logical Channel ID (matches MAC LCID)
+    // Buffer status (from scheduler)
+    uint32 dl_buffer = 15;        // DL pending bytes (RLC TX buffer)
+    uint32 ul_buffer = 16;        // UL pending bytes (from BSR, per LCG)
     // TX (DL) metrics
-    uint32 tx_pdus = 2;        // Number of PDCP PDUs transmitted
-    uint32 tx_pdu_bytes = 3;   // Total TX PDU bytes
-    uint32 tx_dropped_sdus = 4; // SDUs dropped (buffer full, early drop)
-    // RX (UL) metrics  
-    uint32 rx_pdus = 5;        // Number of PDCP PDUs received
-    uint32 rx_pdu_bytes = 6;   // Total RX PDU bytes
-    uint32 rx_dropped_pdus = 7; // PDUs dropped (integrity fail, etc)
-    uint32 rx_delivered_sdus = 8; // SDUs delivered to upper layer
+    uint64 tx_sdus = 2;           // SDUs received from PDCP
+    uint64 tx_sdu_bytes = 3;      // SDU bytes received from PDCP
+    uint64 tx_pdus = 4;           // PDUs sent to MAC
+    uint64 tx_pdu_bytes = 5;      // PDU bytes sent to MAC
+    uint64 tx_dropped_sdus = 6;   // SDUs dropped (discard timer, buffer full)
+    uint64 tx_retx_pdus = 7;      // Retransmitted PDUs (AM mode)
+    uint32 tx_sdu_latency_us = 8; // Avg SDU latency: PDCP->MAC (queue delay)
+    // RX (UL) metrics
+    uint64 rx_sdus = 9;           // SDUs delivered to PDCP
+    uint64 rx_sdu_bytes = 10;     // SDU bytes delivered to PDCP
+    uint64 rx_pdus = 11;          // PDUs received from MAC
+    uint64 rx_pdu_bytes = 12;     // PDU bytes received from MAC
+    uint64 rx_lost_pdus = 13;     // Lost PDUs (detected gaps)
+    uint32 rx_sdu_latency_us = 14;// Avg SDU reassembly latency
+}
+
+// PDCP metrics per DRB (from CU-UP, accumulated snapshot)
+message PdcpDrbMetrics {
+    uint32 drb_id = 1;            // DRB ID (1-32)
+    uint32 lcid = 13;             // LCID = drb_id + 3 (for correlation with MAC/RLC)
+    // TX (DL) metrics
+    uint64 tx_pdus = 2;           // PDCP PDUs transmitted
+    uint64 tx_pdu_bytes = 3;      // TX PDU bytes
+    uint64 tx_sdus = 4;           // SDUs received from SDAP
+    uint64 tx_dropped_sdus = 5;   // SDUs dropped (discard timer, etc)
+    uint32 tx_discard_timeouts = 10;  // Discard timer expirations
+    uint32 tx_pdu_latency_ns = 11;    // Avg latency: SDU in → PDU out (ns)
+    // RX (UL) metrics
+    uint64 rx_pdus = 6;           // PDCP PDUs received
+    uint64 rx_pdu_bytes = 7;      // RX PDU bytes
+    uint64 rx_delivered_sdus = 8; // SDUs delivered to SDAP
+    uint64 rx_dropped_pdus = 9;   // PDUs dropped (integrity fail, etc)
+    uint32 rx_sdu_latency_ns = 12;    // Avg latency: PDU in → SDU out (ns)
 }
 
 // GTP-U metrics per UE (N3 interface to/from UPF)
 message GtpMetrics {
-    uint32 dl_pkts = 1;        // DL GTP-U packets received from core (UPF)
-    uint32 dl_bytes = 2;       // DL GTP-U bytes received from core
-    uint32 ul_pkts = 3;        // UL GTP-U packets sent to core (UPF)
-    uint32 ul_bytes = 4;       // UL GTP-U bytes sent to core
+    uint64 dl_pkts = 1;           // DL GTP-U packets from core
+    uint64 dl_bytes = 2;          // DL GTP-U bytes from core
+    uint64 ul_pkts = 3;           // UL GTP-U packets to core
+    uint64 ul_bytes = 4;          // UL GTP-U bytes to core
 }
 
+// MAC-level UE metrics (aggregate, per-TTI)
+message MacUeMetrics {
+    uint32 cqi = 1;               // Wideband CQI (0-15)
+    float snr = 2;                // PUSCH SNR in dB
+    uint32 dl_buffer = 3;         // Total DL pending bytes
+    uint32 ul_buffer = 4;         // Total UL pending bytes
+    uint32 dl_tbs = 5;            // DL TBS this TTI
+    uint32 ul_tbs = 6;            // UL TBS this TTI
+    uint32 dl_mcs = 11;           // DL MCS index this TTI
+    uint32 ul_mcs = 12;           // UL MCS index this TTI
+    uint32 dl_prbs = 13;          // DL PRBs scheduled this TTI
+    uint32 ul_prbs = 14;          // UL PRBs scheduled this TTI
+    // HARQ feedback this TTI
+    uint32 dl_harq_ack = 7;       // DL HARQ ACKs received
+    uint32 dl_harq_nack = 8;      // DL HARQ NACKs received
+    uint32 ul_crc_ok = 9;         // UL CRC passes
+    uint32 ul_crc_fail = 10;      // UL CRC failures
+}
+
+// Per-UE metrics container
 message UeMetrics {
+    uint32 rnti = 1;              // C-RNTI
+    
+    // MAC-level aggregate metrics
+    MacUeMetrics mac = 2;
+    
+    // Per-DRB metrics
+    repeated MacDrbMetrics mac_drb = 3;
+    repeated RlcDrbMetrics rlc_drb = 4;
+    repeated PdcpDrbMetrics pdcp_drb = 5;
+    
+    // GTP-U metrics (per UE, not per DRB)
+    GtpMetrics gtp = 6;
+}
+
+// Top-level metrics message - sent every TTI
+message TtiMetrics {
+    uint32 tti_index = 1;         // TTI index (0-9999, rolls over)
+    uint64 timestamp_us = 2;      // Unix timestamp in microseconds
+    repeated UeMetrics ues = 3;   // Per-UE metrics
+}
+
+// Legacy Metrics message (for backwards compatibility)
+message Metrics {
+    uint32 tti_cnt = 1;
+    repeated UeMetricsLegacy ue_metrics = 2;
+}
+
+// Legacy UeMetrics (for backwards compatibility)
+message UeMetricsLegacy {
     uint32 rnti = 1;
     uint32 cqi = 2;
     float snr = 3;
-    float tx_bytes = 4;        // Total DL bytes (aggregate)
-    float rx_bytes = 5;        // Total UL bytes (aggregate)
-    uint32 dl_buffer = 6;      // Total DL pending bytes (aggregate)
-    uint32 ul_buffer = 7;      // Total UL pending bytes (aggregate)
+    float tx_bytes = 4;
+    float rx_bytes = 5;
+    uint32 dl_buffer = 6;
+    uint32 ul_buffer = 7;
     float dl_tbs = 8;
-    // HARQ ACK/NACK counters per TTI
-    uint32 dl_ok = 9;          // DL packets ACKed (HARQ ACK from UE)
-    uint32 dl_nok = 10;        // DL packets NACKed (HARQ NACK from UE)
-    uint32 ul_ok = 11;         // UL packets OK (CRC pass)
-    uint32 ul_nok = 12;        // UL packets NOK (CRC fail)
-    // Per-DRB metrics (MAC/RLC layer)
-    repeated DrbMetrics drb_metrics = 13;
-    // Per-DRB PDCP metrics (from CU-UP)
-    repeated PdcpDrbMetrics pdcp_drb_metrics = 14;
-    // GTP-U metrics (N3 interface)
-    GtpMetrics gtp_metrics = 15;
+    uint32 dl_ok = 9;
+    uint32 dl_nok = 10;
+    uint32 ul_ok = 11;
+    uint32 ul_nok = 12;
+    repeated DrbMetricsLegacy drb_metrics = 13;
 }
 
-message Metrics {
-    uint32 tti_cnt = 1;
-    repeated UeMetrics ue_metrics = 2;
+// Legacy DrbMetrics (for backwards compatibility)
+message DrbMetricsLegacy {
+    uint32 lcid = 1;
+    uint32 dl_buffer = 2;
+    uint32 ul_buffer = 3;
+    float tx_bytes = 4;
+    float rx_bytes = 5;
 }

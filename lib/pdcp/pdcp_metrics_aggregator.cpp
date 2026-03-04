@@ -83,19 +83,27 @@ void pdcp_metrics_aggregator::push_report()
   pdcp_metrics_notif->report_metrics(metrics);
   
   // EdgeRIC: Report PDCP metrics for this UE/DRB
-  // Only report for DRBs (drb_id starts at 1)
   if (rb_id.is_drb()) {
     uint8_t drb_id = static_cast<uint8_t>(rb_id.get_drb_id());
-    edgeric::report_pdcp_metrics(
-      ue_index,
-      drb_id,
-      m_tx.num_pdus,
-      m_tx.num_pdu_bytes,
-      m_tx.num_dropped_sdus,
-      m_rx.num_pdus,
-      m_rx.num_pdu_bytes,
-      m_rx.num_dropped_pdus,
-      m_rx.num_sdus
-    );
+    
+    pdcp_drb_metrics er_metrics;
+    // TX (DL) metrics
+    er_metrics.tx_pdus = m_tx.num_pdus;
+    er_metrics.tx_pdu_bytes = m_tx.num_pdu_bytes;
+    er_metrics.tx_sdus = m_tx.num_sdus;
+    er_metrics.tx_dropped_sdus = m_tx.num_dropped_sdus;
+    er_metrics.tx_discard_timeouts = m_tx.num_discard_timeouts;
+    // TX PDU latency: average time from SDU arrival to PDU transmission
+    er_metrics.tx_pdu_latency_ns = (m_tx.num_pdus > 0) ? (m_tx.sum_pdu_latency_ns / m_tx.num_pdus) : 0;
+    
+    // RX (UL) metrics
+    er_metrics.rx_pdus = m_rx.num_pdus;
+    er_metrics.rx_pdu_bytes = m_rx.num_pdu_bytes;
+    er_metrics.rx_delivered_sdus = m_rx.num_sdus;
+    er_metrics.rx_dropped_pdus = m_rx.num_dropped_pdus;
+    // RX SDU latency: average time from PDU arrival to SDU delivery
+    er_metrics.rx_sdu_latency_ns = (m_rx.num_sdus > 0) ? (m_rx.sum_sdu_latency_ns / m_rx.num_sdus) : 0;
+    
+    edgeric::report_pdcp_metrics(ue_index, drb_id, er_metrics);
   }
 }

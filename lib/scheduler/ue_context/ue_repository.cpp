@@ -23,6 +23,7 @@
 #include "ue_repository.h"
 #include "srsran/scheduler/resource_grid_util.h"
 #include "srsran/srslog/srslog.h"
+#include "../../edgeric/edgeric.h"
 
 using namespace srsran;
 
@@ -179,6 +180,9 @@ void ue_repository::add_ue(std::unique_ptr<ue> u, logical_channel_config_list_pt
   // Update RNTI -> UE index lookup.
   auto res = rnti_to_ue_index_lookup.insert(std::make_pair(rnti, ue_index));
   srsran_assert(res.second, "UE with duplicate RNTI being added to the repository");
+  
+  // EdgeRIC: Register DU UE index to RNTI mapping (for RLC metrics correlation)
+  edgeric::register_du_ue(static_cast<uint32_t>(ue_index), static_cast<uint16_t>(rnti));
 
   // Add UE in cell-specific repositories.
   auto& ue_added = ues[ue_index];

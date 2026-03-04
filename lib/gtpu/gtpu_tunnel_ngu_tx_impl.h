@@ -62,7 +62,7 @@ public:
       return;
     }
 
-    // Report GTP-U UL packet to edgeric for telemetry (before adding headers)
+    // Report GTP-U UL packet to edgeric for telemetry
     edgeric::report_gtp_ul_pkt(ue_idx, buf.length());
 
     gtpu_header hdr         = {};
