@@ -22,6 +22,9 @@ python3 collector.py
 # JSON output (one line per TTI)
 python3 collector.py --json
 
+# JSON to file
+python3 collector.py --json --output metrics.json
+
 # Quiet mode (MAC-level only, no per-DRB details)
 python3 collector.py --quiet
 ```

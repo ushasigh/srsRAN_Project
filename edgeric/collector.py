@@ -6,7 +6,22 @@ Subscribes to real-time metrics from srsRAN gNB and displays them.
 Uses ZMQ conflate mode to always get the latest metrics (no queueing).
 
 Usage:
-    python3 collector.py [--json] [--quiet]
+    python3 collector.py [--json] [--output FILE] [--quiet] [--address ADDR]
+    
+    --json          Output as JSON (one line per TTI)
+    --output, -o    Save JSON output to file (only with --json)
+    --quiet, -q     Only show MAC-level metrics, skip per-DRB
+    --address       ZMQ address (default: ipc:///tmp/metrics_data)
+    
+Examples:
+    # Pretty print to terminal
+    python3 collector.py
+    
+    # JSON to stdout
+    python3 collector.py --json
+    
+    # JSON to file
+    python3 collector.py --json --output metrics.json
 """
 
 import zmq
@@ -178,7 +193,10 @@ def print_tti_metrics(tti_msg, quiet=False):
                 
                 print(f"{C.CYAN}║{C.RESET}   {C.BOLD}DRB {drb_id} (LCID {lcid}){C.RESET}")
                 if rlc:
-                    print(f"{C.CYAN}║{C.RESET}     {C.MAGENTA}RLC:{C.RESET}  buf={fmt_bytes(rlc.ul_buffer):>8s}  RX {rlc.rx_sdus:6d} SDU / {fmt_bytes(rlc.rx_sdu_bytes):>8s}  lat={fmt_latency_us(rlc.rx_sdu_latency_us):>8s}  lost={rlc.rx_lost_pdus}")
+                    # RLC UL: SDU metrics (from RLC to PDCP)
+                    print(f"{C.CYAN}║{C.RESET}     {C.MAGENTA}RLC:{C.RESET}  buf={fmt_bytes(rlc.ul_buffer):>8s}")
+                    print(f"{C.CYAN}║{C.RESET}           SDU: RX {rlc.rx_sdus:6d} / {fmt_bytes(rlc.rx_sdu_bytes):>8s}  lat={fmt_latency_us(rlc.rx_sdu_latency_us):>8s}")
+                    print(f"{C.CYAN}║{C.RESET}           PDU: RX {rlc.rx_pdus:6d} / {fmt_bytes(rlc.rx_pdu_bytes):>8s}  lost={rlc.rx_lost_pdus}")
                 if pdcp:
                     print(f"{C.CYAN}║{C.RESET}     {C.BLUE}PDCP:{C.RESET} RX {pdcp.rx_pdus:6d} PDU / {fmt_bytes(pdcp.rx_pdu_bytes):>8s}  lat={fmt_latency_ns(pdcp.rx_sdu_latency_ns):>8s}  drop={pdcp.rx_dropped_pdus}")
             
@@ -201,7 +219,10 @@ def print_tti_metrics(tti_msg, quiet=False):
                 
                 print(f"{C.CYAN}║{C.RESET}   {C.BOLD}DRB {drb_id} (LCID {lcid}){C.RESET}")
                 if rlc:
-                    print(f"{C.CYAN}║{C.RESET}     {C.MAGENTA}RLC:{C.RESET}  buf={fmt_bytes(rlc.dl_buffer):>8s}  TX {rlc.tx_sdus:6d} SDU / {fmt_bytes(rlc.tx_sdu_bytes):>8s}  lat={fmt_latency_us(rlc.tx_sdu_latency_us):>8s}  retx={rlc.tx_retx_pdus}")
+                    # RLC DL: SDU metrics (from PDCP to RLC) and PDU metrics (from RLC to MAC)
+                    print(f"{C.CYAN}║{C.RESET}     {C.MAGENTA}RLC:{C.RESET}  buf={fmt_bytes(rlc.dl_buffer):>8s}")
+                    print(f"{C.CYAN}║{C.RESET}           SDU: TX {rlc.tx_sdus:6d} / {fmt_bytes(rlc.tx_sdu_bytes):>8s}  lat={fmt_latency_us(rlc.tx_sdu_latency_us):>8s}  drop={rlc.tx_dropped_sdus}")
+                    print(f"{C.CYAN}║{C.RESET}           PDU: TX {rlc.tx_pdus:6d} / {fmt_bytes(rlc.tx_pdu_bytes):>8s}  retx={rlc.tx_retx_pdus}")
                 if pdcp:
                     print(f"{C.CYAN}║{C.RESET}     {C.BLUE}PDCP:{C.RESET} TX {pdcp.tx_pdus:6d} PDU / {fmt_bytes(pdcp.tx_pdu_bytes):>8s}  lat={fmt_latency_ns(pdcp.tx_pdu_latency_ns):>8s}  drop={pdcp.tx_dropped_sdus}  discard={pdcp.tx_discard_timeouts}")
             
@@ -212,7 +233,7 @@ def print_tti_metrics(tti_msg, quiet=False):
         
         print(f"{C.CYAN}╚{'═'*60}{C.RESET}")
 
-def print_json(tti_msg):
+def print_json(tti_msg, output_file=None):
     """Print metrics as JSON with DL/UL separation"""
     data = {
         "tti_index": tti_msg.tti_index,
@@ -272,15 +293,19 @@ def print_json(tti_msg):
                         "buffer": rlc.dl_buffer,
                         "sdus": rlc.tx_sdus,
                         "sdu_bytes": rlc.tx_sdu_bytes,
-                        "latency_us": rlc.tx_sdu_latency_us,
-                        "retx_pdus": rlc.tx_retx_pdus,
+                        "sdu_latency_us": rlc.tx_sdu_latency_us,
                         "dropped_sdus": rlc.tx_dropped_sdus,
+                        "pdus": rlc.tx_pdus,
+                        "pdu_bytes": rlc.tx_pdu_bytes,
+                        "retx_pdus": rlc.tx_retx_pdus,
                     },
                     "ul": {
                         "buffer": rlc.ul_buffer,
                         "sdus": rlc.rx_sdus,
                         "sdu_bytes": rlc.rx_sdu_bytes,
-                        "latency_us": rlc.rx_sdu_latency_us,
+                        "sdu_latency_us": rlc.rx_sdu_latency_us,
+                        "pdus": rlc.rx_pdus,
+                        "pdu_bytes": rlc.rx_pdu_bytes,
                         "lost_pdus": rlc.rx_lost_pdus,
                     }
                 }
@@ -314,11 +339,17 @@ def print_json(tti_msg):
         
         data["ues"].append(ue_data)
     
-    print(json.dumps(data))
+    json_str = json.dumps(data)
+    if output_file:
+        output_file.write(json_str + '\n')
+        output_file.flush()  # Ensure data is written immediately
+    else:
+        print(json_str)
 
 def main():
     parser = argparse.ArgumentParser(description='EdgeRIC Metrics Collector')
     parser.add_argument('--json', action='store_true', help='Output as JSON (one line per TTI)')
+    parser.add_argument('--output', '-o', type=str, help='Output file path (for JSON mode). If not specified, writes to stdout.')
     parser.add_argument('--quiet', '-q', action='store_true', help='Only show MAC-level metrics, skip per-DRB')
     parser.add_argument('--address', default='ipc:///tmp/metrics_data', help='ZMQ address to connect to')
     args = parser.parse_args()
@@ -330,8 +361,20 @@ def main():
     socket.setsockopt_string(zmq.SUBSCRIBE, "")  # Subscribe to all
     socket.connect(args.address)
     
-    print(f"{C.BOLD}EdgeRIC Collector{C.RESET} connected to {C.CYAN}{args.address}{C.RESET}")
-    print(f"Waiting for metrics... (Ctrl+C to exit)\n")
+    # Open output file if specified
+    output_file = None
+    if args.json and args.output:
+        try:
+            output_file = open(args.output, 'w')
+            print(f"{C.BOLD}EdgeRIC Collector{C.RESET} connected to {C.CYAN}{args.address}{C.RESET}")
+            print(f"Writing JSON metrics to {C.CYAN}{args.output}{C.RESET}")
+            print(f"Waiting for metrics... (Ctrl+C to exit)\n")
+        except Exception as e:
+            print(f"{C.RED}Error opening output file {args.output}: {e}{C.RESET}")
+            sys.exit(1)
+    else:
+        print(f"{C.BOLD}EdgeRIC Collector{C.RESET} connected to {C.CYAN}{args.address}{C.RESET}")
+        print(f"Waiting for metrics... (Ctrl+C to exit)\n")
     
     msg_count = 0
     try:
@@ -345,17 +388,22 @@ def main():
             try:
                 tti_msg.ParseFromString(data)
             except Exception as e:
-                print(f"[{msg_count}] Failed to parse protobuf: {e}")
+                print(f"[{msg_count}] Failed to parse protobuf: {e}", file=sys.stderr)
                 continue
             
             if args.json:
-                print_json(tti_msg)
+                print_json(tti_msg, output_file)
             else:
                 print_tti_metrics(tti_msg, quiet=args.quiet)
                 
     except KeyboardInterrupt:
-        print(f"\n\n{C.BOLD}Received {msg_count} messages.{C.RESET} Exiting...")
+        if output_file:
+            print(f"\n\n{C.BOLD}Received {msg_count} messages. Saved to {args.output}{C.RESET}")
+        else:
+            print(f"\n\n{C.BOLD}Received {msg_count} messages.{C.RESET} Exiting...")
     finally:
+        if output_file:
+            output_file.close()
         socket.close()
         context.term()
 
