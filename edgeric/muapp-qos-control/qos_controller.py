@@ -16,6 +16,9 @@ import time
 import sys
 import argparse
 
+# Add parent directory to path for protobuf imports
+sys.path.insert(0, '..')
+
 # Import the generated protobuf
 import control_qos_pb2
 
