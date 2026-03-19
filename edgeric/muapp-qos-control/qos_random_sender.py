@@ -26,7 +26,7 @@ def main():
     # Give time for connection to establish
     time.sleep(0.5)
     print("QoS Random Sender started - sending updates every 200ms")
-    print("Target UEs: RNTI 17922 and 17923, LCID 4")
+    print("Target UEs: RNTI 17922 and 17921, LCID 4")
     print("Press Ctrl+C to stop\n")
     
     ran_index = 0
@@ -56,7 +56,7 @@ def main():
             
             # Generate random QoS for RNTI 17923
             drb2 = msg.drb_qos.add()
-            drb2.rnti = 17923
+            drb2.rnti = 17921
             drb2.lcid = 4
             drb2.qos_priority = random.randint(*QOS_PRIO_RANGE)
             drb2.arp_priority = random.randint(*ARP_PRIO_RANGE)

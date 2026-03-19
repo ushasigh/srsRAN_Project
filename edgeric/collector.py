@@ -148,9 +148,9 @@ def print_tti_metrics(tti_msg, quiet=False):
         # Buffers
         print(f"{C.CYAN}║{C.RESET}   {C.DIM}Buffers:{C.RESET}  DL={fmt_bytes(mac.dl_buffer):>8s}  UL={fmt_bytes(mac.ul_buffer):>8s}")
         
-        # Scheduling (TBS, MCS, PRBs)
-        print(f"{C.CYAN}║{C.RESET}   {C.DIM}DL Sched:{C.RESET} TBS={mac.dl_tbs:5d}  MCS={C.YELLOW}{mac.dl_mcs:2d}{C.RESET}  PRBs={C.YELLOW}{mac.dl_prbs:3d}{C.RESET}  Rate={fmt_rate(mac.dl_tbs)}")
-        print(f"{C.CYAN}║{C.RESET}   {C.DIM}UL Sched:{C.RESET} TBS={mac.ul_tbs:5d}  MCS={C.YELLOW}{mac.ul_mcs:2d}{C.RESET}  PRBs={C.YELLOW}{mac.ul_prbs:3d}{C.RESET}  Rate={fmt_rate(mac.ul_tbs)}")
+        # Scheduling (TBS, MCS, PRBs) and Goodput
+        print(f"{C.CYAN}║{C.RESET}   {C.DIM}DL Sched:{C.RESET} TBS={mac.dl_tbs:5d}  MCS={C.YELLOW}{mac.dl_mcs:2d}{C.RESET}  PRBs={C.YELLOW}{mac.dl_prbs:3d}{C.RESET}  Goodput={C.GREEN}{fmt_rate(mac.dl_acked_bytes)}{C.RESET}")
+        print(f"{C.CYAN}║{C.RESET}   {C.DIM}UL Sched:{C.RESET} TBS={mac.ul_tbs:5d}  MCS={C.YELLOW}{mac.ul_mcs:2d}{C.RESET}  PRBs={C.YELLOW}{mac.ul_prbs:3d}{C.RESET}  Goodput={C.GREEN}{fmt_rate(mac.ul_ok_bytes)}{C.RESET}")
         
         # HARQ - Update rolling BLER tracker and display
         bler_tracker.update(ue.rnti, mac.dl_harq_ack, mac.dl_harq_nack, mac.ul_crc_ok, mac.ul_crc_fail)
@@ -159,6 +159,11 @@ def print_tti_metrics(tti_msg, quiet=False):
         # Show this TTI's counts and rolling BLER
         print(f"{C.CYAN}║{C.RESET}   {C.DIM}HARQ TTI:{C.RESET}  DL +{mac.dl_harq_ack}/+{mac.dl_harq_nack}  UL +{mac.ul_crc_ok}/+{mac.ul_crc_fail}")
         print(f"{C.CYAN}║{C.RESET}   {C.DIM}BLER:{C.RESET}      DL {harq_color}{dl_bler:5.2f}%{C.RESET} ({dl_total} total)  UL {harq_color}{ul_bler:5.2f}%{C.RESET} ({ul_total} total)")
+        
+        # MAC Layer Delays (from scheduler metrics)
+        if mac.avg_sum_mac_delay_ms > 0:
+            print(f"{C.CYAN}║{C.RESET}   {C.DIM}MAC Delays:{C.RESET} CE={mac.avg_ce_delay_ms:.2f}ms  CRC={mac.avg_crc_delay_ms:.2f}ms  PUCCH={mac.avg_pucch_harq_delay_ms:.2f}ms  PUSCH={mac.avg_pusch_harq_delay_ms:.2f}ms  SR→PUSCH={mac.avg_sr_to_pusch_delay_ms:.2f}ms")
+            print(f"{C.CYAN}║{C.RESET}   {C.DIM}Sum MAC:{C.RESET}    {C.YELLOW}{mac.avg_sum_mac_delay_ms:.2f}ms{C.RESET}")
         
         if quiet:
             print(f"{C.CYAN}╚{'═'*60}{C.RESET}")
@@ -255,6 +260,7 @@ def print_json(tti_msg, output_file=None):
                 "dl": {
                     "buffer": ue.mac.dl_buffer,
                     "tbs": ue.mac.dl_tbs,
+                    "acked_bytes": ue.mac.dl_acked_bytes,
                     "mcs": ue.mac.dl_mcs,
                     "prbs": ue.mac.dl_prbs,
                     "harq_ack_tti": ue.mac.dl_harq_ack,
@@ -265,6 +271,7 @@ def print_json(tti_msg, output_file=None):
                 "ul": {
                     "buffer": ue.mac.ul_buffer,
                     "tbs": ue.mac.ul_tbs,
+                    "ok_bytes": ue.mac.ul_ok_bytes,
                     "mcs": ue.mac.ul_mcs,
                     "prbs": ue.mac.ul_prbs,
                     "crc_ok_tti": ue.mac.ul_crc_ok,
@@ -272,6 +279,12 @@ def print_json(tti_msg, output_file=None):
                     "bler_pct": round(ul_bler, 2),
                     "crc_total": ul_total,
                 },
+                "avg_ce_delay_ms": round(ue.mac.avg_ce_delay_ms, 3),
+                "avg_crc_delay_ms": round(ue.mac.avg_crc_delay_ms, 3),
+                "avg_pucch_harq_delay_ms": round(ue.mac.avg_pucch_harq_delay_ms, 3),
+                "avg_pusch_harq_delay_ms": round(ue.mac.avg_pusch_harq_delay_ms, 3),
+                "avg_sr_to_pusch_delay_ms": round(ue.mac.avg_sr_to_pusch_delay_ms, 3),
+                "avg_sum_mac_delay_ms": round(ue.mac.avg_sum_mac_delay_ms, 3),
             },
             "drbs": [],
             "gtp": {

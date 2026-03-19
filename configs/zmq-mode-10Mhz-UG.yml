@@ -1,0 +1,153 @@
+# This configuration file example shows how to configure the srsRAN Project gNB to allow srsUE to connect to it. 
+# This specific example uses ZMQ in place of a USRP for the RF-frontend, and creates an FDD cell with 10 MHz bandwidth. 
+# To run the srsRAN Project gNB with this config, use the following command: 
+#   sudo ./gnb -c gnb_zmq.yaml
+
+# This example configuration outlines how to configure the srsRAN Project gNB to create a single FDD cell
+# transmitting in band 3, with 20 MHz bandwidth and 15 kHz sub-carrier-spacing. A USRP B200 is configured
+# as the RF frontend using split 8, with a Leo Bodnar GPSDO as an external reference clock.
+
+# This particular configuration is intended to be used with srsUE. Note the `pdcch` parameters set in the
+# `cell_cfg` section. These are set to match the capabilities of srsUE.
+
+cu_cp:
+  amf:
+    addr: 137.110.111.11 #10.53.1.2
+    port: 38412
+    bind_addr: 137.110.198.151 #127.0.0.100 #10.53.1.1
+    supported_tracking_areas:
+      - tac: 1
+        plmn_list:
+          - plmn: "00101"
+            tai_slice_support_list:
+              - sst: 1
+cu_up:
+  warn_on_drop: false
+
+  ngu:
+    no_core: false
+    socket:
+      - bind_addr: 137.110.198.151     # External IP to reach CN at 137.110.111.11
+        udp:
+          max_rx_msgs: 256
+          pool_threshold: 0.9
+
+
+ru_sdr:
+  device_driver: zmq                # The RF driver name.
+  # device_args: tx_port=tcp://127.0.0.1:2000,rx_port=tcp://127.0.0.1:2001,base_srate=23.04e6 # Optionally pass arguments to the selected RF driver.
+  device_args: tx_port=tcp://127.0.0.1:2101,rx_port=tcp://127.0.0.1:2100,base_srate=11.52e6 #23.04e6
+  srate: 11.52  #23.04                     # RF sample rate might need to be adjusted according to selected bandwidth.
+  tx_gain: 75                       # Transmit gain of the RF might need to adjusted to the given situation.
+  rx_gain: 75   
+
+cell_cfg:
+  dl_arfcn: 368500
+  band: 3
+  channel_bandwidth_MHz: 10 #20
+  common_scs: 15
+  plmn: "00101"
+  tac: 1 #7
+  pdcch:
+    dedicated:
+      ss2_type: common
+      dci_format_0_1_and_1_1: false
+    common:
+      ss0_index: 0
+      coreset0_index: 6 #12
+  prach:                            ########## Ushasi: Important when you run multiple UEs
+    prach_config_index: 1           # Sets PRACH config to match what is expected by srsUE
+    total_nof_ra_preambles: 64      # Sets number of available PRACH preambles
+    # nof_ssb_per_ro: 1             # Commented out - let srsRAN calculate this automatically
+    # nof_cb_preambles_per_ssb: 64  # Commented out - let srsRAN calculate this automatically
+  pdsch:
+    mcs_table: qam64
+  pusch:
+    mcs_table: qam64
+  scheduler:
+    policy:
+      # pf_sched:
+      #   pf_fairness_coeff: 1.0
+      qos_sched:
+
+log:
+  filename: /tmp/gnb.log
+  all_level: info #none #info
+
+pcap:
+  mac_enable: enable
+  mac_filename: /tmp/gnb_mac.pcap
+  ngap_enable: enable
+  ngap_filename: /tmp/gnb_ngap.pcap
+
+remote_control:
+  enabled: true                        # Enable remote control server for JSON metrics
+  bind_addr: 127.0.0.1                 # Remote control server bind address
+  port: 55555                          # Remote control server port (must match metrics receiver)
+  # enable_metrics_subscription: true    # Enable metrics subscription via remote control
+
+metrics:
+  enable_json: true                    # Enable JSON metrics reporting
+  autostart_stdout_metrics: true       # Optional BOOLEAN (false). Sets whether or not to autostart stdout metrics reporting. Supported [false, true].
+  enable_log: false                     # Optional BOOLEAN (false). Enables log metrics reporting.
+  enable_verbose: false                 # Optional BOOLEAN (false). Enables extended detail metrics reporting.
+  layers: 
+    enable_app_usage: false             # Optional BOOLEAN (false). Enables application usage metrics.
+    enable_ngap: false                  # Optional BOOLEAN (false). Enables NGAP metrics.
+    enable_e1ap: false                  # Optional BOOLEAN (false). Enables E1AP metrics.
+    enable_pdcp: true                  # Optional BOOLEAN (false). Enables PDCP metrics.
+    enable_rrc: false                   # Optional BOOLEAN (false). Enables RRC metrics.
+    skip_cu_up_executor: true           # Optional BOOLEAN (true). Whether to skip logging CU-UP executor metrics when executor logging is enabled application wide.
+    enable_sched: true                  # Optional BOOLEAN (true). Enables DU scheduler metrics.
+    enable_rlc: true                   # Optional BOOLEAN (false). Enables RLC metrics.
+    enable_mac: true                   # Optional BOOLEAN (false). Enables MAC metrics.
+    enable_executor: false              # Optional BOOLEAN (false). Whether to log application executors metrics.
+    enable_du_low: true                # Optional BOOLEAN (false). Enables DU low metrics (upper physical layer).
+    enable_ru: true                    # Optional BOOLEAN (false). Enables Radio Unit metrics.
+  periodicity: 
+    app_usage_report_period: 100 #1000       # Optional UINT (1000). Application resource usage metrics report period in milliseconds.
+    cu_cp_report_period: 100 #1000           # Optional UINT (1000). CU-CP metrics report period in milliseconds.
+    cu_up_report_period: 100 #1000           # Optional UINT (1000). CU-UP metrics report period in milliseconds.
+    du_report_period: 100 #1000              # Optional UINT (1000). DU statistics report period in milliseconds. Supported: [0 - 10485760].
+    executors_report_period: 100 #1000       # Optional UINT (1000). Executors metrics report period in milliseconds. Supported: [0 - 10485760].
+
+# ru_sdr:
+#   device_driver: zmq                # The RF driver name.
+#   device_args: tx_port=tcp://127.0.0.1:2000,rx_port=tcp://127.0.0.1:2001,base_srate=23.04e6 # Optionally pass arguments to the selected RF driver.
+#   srate: 23.04                      # RF sample rate might need to be adjusted according to selected bandwidth.
+#   tx_gain: 75                       # Transmit gain of the RF might need to adjusted to the given situation.
+#   rx_gain: 75                       # Receive gain of the RF might need to adjusted to the given situation.
+
+# cell_cfg:
+#   dl_arfcn: 368500                  # ARFCN of the downlink carrier (center frequency).
+#   band: 3                           # The NR band.
+#   channel_bandwidth_MHz: 20         # Bandwith in MHz. Number of PRBs will be automatically derived.
+#   common_scs: 15                    # Subcarrier spacing in kHz used for data.
+#   plmn: "00101"                     # PLMN broadcasted by the gNB.
+#   tac: 1 #7                            # Tracking area code (needs to match the core configuration).
+#   pdcch:
+#     common:
+#       ss0_index: 0                  # Set search space zero index to match srsUE capabilities
+#       coreset0_index: 12            # Set search CORESET Zero index to match srsUE capabilities
+#     dedicated:
+#       ss2_type: ue_dedicated        # Search Space type, set to ue_dedicated for non-fallback DCI
+#       dci_format_0_1_and_1_1: true  # Use DCI format 0_1 and 1_1 (required for 256QAM)
+#   prach:
+#     prach_config_index: 1           # Sets PRACH config to match what is expected by srsUE
+
+# cu_cp:
+#   inactivity_timer: 7200            # Sets the UE/PDU Session/DRB inactivity timer to 7200 seconds. Supported: [1 - 7200].
+#   amf:
+#     addr: 137.110.198.151           # The address or hostname of the AMF.
+#     bind_addr: 127.0.0.1            # A local IP that the gNB binds to for traffic from the AMF.
+
+# log:
+#   filename: /tmp/gnb.log            # Path of the log file.
+#   all_level: info                   # Logging level applied to all layers.
+#   hex_max_size: 0
+
+# pcap:
+#   mac_enable: false                 # Set to true to enable MAC-layer PCAPs.
+#   mac_filename: /tmp/gnb_mac.pcap   # Path where the MAC PCAP is stored.
+#   ngap_enable: false                # Set to true to enable NGAP PCAPs.
+#   ngap_filename: /tmp/gnb_ngap.pcap # Path where the NGAP PCAP is stored.

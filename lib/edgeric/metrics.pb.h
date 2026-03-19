@@ -1190,6 +1190,14 @@ class MacUeMetrics final :
     kUlMcsFieldNumber = 12,
     kDlPrbsFieldNumber = 13,
     kUlPrbsFieldNumber = 14,
+    kAvgCeDelayMsFieldNumber = 16,
+    kAvgCrcDelayMsFieldNumber = 17,
+    kAvgPucchHarqDelayMsFieldNumber = 18,
+    kAvgPuschHarqDelayMsFieldNumber = 19,
+    kAvgSrToPuschDelayMsFieldNumber = 20,
+    kAvgSumMacDelayMsFieldNumber = 21,
+    kDlAckedBytesFieldNumber = 22,
+    kUlOkBytesFieldNumber = 23,
   };
   // uint32 cqi = 1;
   void clear_cqi();
@@ -1317,6 +1325,78 @@ class MacUeMetrics final :
   void _internal_set_ul_prbs(uint32_t value);
   public:
 
+  // float avg_ce_delay_ms = 16;
+  void clear_avg_ce_delay_ms();
+  float avg_ce_delay_ms() const;
+  void set_avg_ce_delay_ms(float value);
+  private:
+  float _internal_avg_ce_delay_ms() const;
+  void _internal_set_avg_ce_delay_ms(float value);
+  public:
+
+  // float avg_crc_delay_ms = 17;
+  void clear_avg_crc_delay_ms();
+  float avg_crc_delay_ms() const;
+  void set_avg_crc_delay_ms(float value);
+  private:
+  float _internal_avg_crc_delay_ms() const;
+  void _internal_set_avg_crc_delay_ms(float value);
+  public:
+
+  // float avg_pucch_harq_delay_ms = 18;
+  void clear_avg_pucch_harq_delay_ms();
+  float avg_pucch_harq_delay_ms() const;
+  void set_avg_pucch_harq_delay_ms(float value);
+  private:
+  float _internal_avg_pucch_harq_delay_ms() const;
+  void _internal_set_avg_pucch_harq_delay_ms(float value);
+  public:
+
+  // float avg_pusch_harq_delay_ms = 19;
+  void clear_avg_pusch_harq_delay_ms();
+  float avg_pusch_harq_delay_ms() const;
+  void set_avg_pusch_harq_delay_ms(float value);
+  private:
+  float _internal_avg_pusch_harq_delay_ms() const;
+  void _internal_set_avg_pusch_harq_delay_ms(float value);
+  public:
+
+  // float avg_sr_to_pusch_delay_ms = 20;
+  void clear_avg_sr_to_pusch_delay_ms();
+  float avg_sr_to_pusch_delay_ms() const;
+  void set_avg_sr_to_pusch_delay_ms(float value);
+  private:
+  float _internal_avg_sr_to_pusch_delay_ms() const;
+  void _internal_set_avg_sr_to_pusch_delay_ms(float value);
+  public:
+
+  // float avg_sum_mac_delay_ms = 21;
+  void clear_avg_sum_mac_delay_ms();
+  float avg_sum_mac_delay_ms() const;
+  void set_avg_sum_mac_delay_ms(float value);
+  private:
+  float _internal_avg_sum_mac_delay_ms() const;
+  void _internal_set_avg_sum_mac_delay_ms(float value);
+  public:
+
+  // uint32 dl_acked_bytes = 22;
+  void clear_dl_acked_bytes();
+  uint32_t dl_acked_bytes() const;
+  void set_dl_acked_bytes(uint32_t value);
+  private:
+  uint32_t _internal_dl_acked_bytes() const;
+  void _internal_set_dl_acked_bytes(uint32_t value);
+  public:
+
+  // uint32 ul_ok_bytes = 23;
+  void clear_ul_ok_bytes();
+  uint32_t ul_ok_bytes() const;
+  void set_ul_ok_bytes(uint32_t value);
+  private:
+  uint32_t _internal_ul_ok_bytes() const;
+  void _internal_set_ul_ok_bytes(uint32_t value);
+  public:
+
   // @@protoc_insertion_point(class_scope:MacUeMetrics)
  private:
   class _Internal;
@@ -1339,6 +1419,14 @@ class MacUeMetrics final :
     uint32_t ul_mcs_;
     uint32_t dl_prbs_;
     uint32_t ul_prbs_;
+    float avg_ce_delay_ms_;
+    float avg_crc_delay_ms_;
+    float avg_pucch_harq_delay_ms_;
+    float avg_pusch_harq_delay_ms_;
+    float avg_sr_to_pusch_delay_ms_;
+    float avg_sum_mac_delay_ms_;
+    uint32_t dl_acked_bytes_;
+    uint32_t ul_ok_bytes_;
     mutable ::PROTOBUF_NAMESPACE_ID::internal::CachedSize _cached_size_;
   };
   union { Impl_ _impl_; };
@@ -3327,6 +3415,46 @@ inline void MacUeMetrics::set_ul_tbs(uint32_t value) {
   // @@protoc_insertion_point(field_set:MacUeMetrics.ul_tbs)
 }
 
+// uint32 dl_acked_bytes = 22;
+inline void MacUeMetrics::clear_dl_acked_bytes() {
+  _impl_.dl_acked_bytes_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_dl_acked_bytes() const {
+  return _impl_.dl_acked_bytes_;
+}
+inline uint32_t MacUeMetrics::dl_acked_bytes() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.dl_acked_bytes)
+  return _internal_dl_acked_bytes();
+}
+inline void MacUeMetrics::_internal_set_dl_acked_bytes(uint32_t value) {
+  
+  _impl_.dl_acked_bytes_ = value;
+}
+inline void MacUeMetrics::set_dl_acked_bytes(uint32_t value) {
+  _internal_set_dl_acked_bytes(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.dl_acked_bytes)
+}
+
+// uint32 ul_ok_bytes = 23;
+inline void MacUeMetrics::clear_ul_ok_bytes() {
+  _impl_.ul_ok_bytes_ = 0u;
+}
+inline uint32_t MacUeMetrics::_internal_ul_ok_bytes() const {
+  return _impl_.ul_ok_bytes_;
+}
+inline uint32_t MacUeMetrics::ul_ok_bytes() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.ul_ok_bytes)
+  return _internal_ul_ok_bytes();
+}
+inline void MacUeMetrics::_internal_set_ul_ok_bytes(uint32_t value) {
+  
+  _impl_.ul_ok_bytes_ = value;
+}
+inline void MacUeMetrics::set_ul_ok_bytes(uint32_t value) {
+  _internal_set_ul_ok_bytes(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.ul_ok_bytes)
+}
+
 // uint32 dl_mcs = 11;
 inline void MacUeMetrics::clear_dl_mcs() {
   _impl_.dl_mcs_ = 0u;
@@ -3485,6 +3613,126 @@ inline void MacUeMetrics::_internal_set_ul_crc_fail(uint32_t value) {
 inline void MacUeMetrics::set_ul_crc_fail(uint32_t value) {
   _internal_set_ul_crc_fail(value);
   // @@protoc_insertion_point(field_set:MacUeMetrics.ul_crc_fail)
+}
+
+// float avg_ce_delay_ms = 16;
+inline void MacUeMetrics::clear_avg_ce_delay_ms() {
+  _impl_.avg_ce_delay_ms_ = 0;
+}
+inline float MacUeMetrics::_internal_avg_ce_delay_ms() const {
+  return _impl_.avg_ce_delay_ms_;
+}
+inline float MacUeMetrics::avg_ce_delay_ms() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.avg_ce_delay_ms)
+  return _internal_avg_ce_delay_ms();
+}
+inline void MacUeMetrics::_internal_set_avg_ce_delay_ms(float value) {
+  
+  _impl_.avg_ce_delay_ms_ = value;
+}
+inline void MacUeMetrics::set_avg_ce_delay_ms(float value) {
+  _internal_set_avg_ce_delay_ms(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.avg_ce_delay_ms)
+}
+
+// float avg_crc_delay_ms = 17;
+inline void MacUeMetrics::clear_avg_crc_delay_ms() {
+  _impl_.avg_crc_delay_ms_ = 0;
+}
+inline float MacUeMetrics::_internal_avg_crc_delay_ms() const {
+  return _impl_.avg_crc_delay_ms_;
+}
+inline float MacUeMetrics::avg_crc_delay_ms() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.avg_crc_delay_ms)
+  return _internal_avg_crc_delay_ms();
+}
+inline void MacUeMetrics::_internal_set_avg_crc_delay_ms(float value) {
+  
+  _impl_.avg_crc_delay_ms_ = value;
+}
+inline void MacUeMetrics::set_avg_crc_delay_ms(float value) {
+  _internal_set_avg_crc_delay_ms(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.avg_crc_delay_ms)
+}
+
+// float avg_pucch_harq_delay_ms = 18;
+inline void MacUeMetrics::clear_avg_pucch_harq_delay_ms() {
+  _impl_.avg_pucch_harq_delay_ms_ = 0;
+}
+inline float MacUeMetrics::_internal_avg_pucch_harq_delay_ms() const {
+  return _impl_.avg_pucch_harq_delay_ms_;
+}
+inline float MacUeMetrics::avg_pucch_harq_delay_ms() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.avg_pucch_harq_delay_ms)
+  return _internal_avg_pucch_harq_delay_ms();
+}
+inline void MacUeMetrics::_internal_set_avg_pucch_harq_delay_ms(float value) {
+  
+  _impl_.avg_pucch_harq_delay_ms_ = value;
+}
+inline void MacUeMetrics::set_avg_pucch_harq_delay_ms(float value) {
+  _internal_set_avg_pucch_harq_delay_ms(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.avg_pucch_harq_delay_ms)
+}
+
+// float avg_pusch_harq_delay_ms = 19;
+inline void MacUeMetrics::clear_avg_pusch_harq_delay_ms() {
+  _impl_.avg_pusch_harq_delay_ms_ = 0;
+}
+inline float MacUeMetrics::_internal_avg_pusch_harq_delay_ms() const {
+  return _impl_.avg_pusch_harq_delay_ms_;
+}
+inline float MacUeMetrics::avg_pusch_harq_delay_ms() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.avg_pusch_harq_delay_ms)
+  return _internal_avg_pusch_harq_delay_ms();
+}
+inline void MacUeMetrics::_internal_set_avg_pusch_harq_delay_ms(float value) {
+  
+  _impl_.avg_pusch_harq_delay_ms_ = value;
+}
+inline void MacUeMetrics::set_avg_pusch_harq_delay_ms(float value) {
+  _internal_set_avg_pusch_harq_delay_ms(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.avg_pusch_harq_delay_ms)
+}
+
+// float avg_sr_to_pusch_delay_ms = 20;
+inline void MacUeMetrics::clear_avg_sr_to_pusch_delay_ms() {
+  _impl_.avg_sr_to_pusch_delay_ms_ = 0;
+}
+inline float MacUeMetrics::_internal_avg_sr_to_pusch_delay_ms() const {
+  return _impl_.avg_sr_to_pusch_delay_ms_;
+}
+inline float MacUeMetrics::avg_sr_to_pusch_delay_ms() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.avg_sr_to_pusch_delay_ms)
+  return _internal_avg_sr_to_pusch_delay_ms();
+}
+inline void MacUeMetrics::_internal_set_avg_sr_to_pusch_delay_ms(float value) {
+  
+  _impl_.avg_sr_to_pusch_delay_ms_ = value;
+}
+inline void MacUeMetrics::set_avg_sr_to_pusch_delay_ms(float value) {
+  _internal_set_avg_sr_to_pusch_delay_ms(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.avg_sr_to_pusch_delay_ms)
+}
+
+// float avg_sum_mac_delay_ms = 21;
+inline void MacUeMetrics::clear_avg_sum_mac_delay_ms() {
+  _impl_.avg_sum_mac_delay_ms_ = 0;
+}
+inline float MacUeMetrics::_internal_avg_sum_mac_delay_ms() const {
+  return _impl_.avg_sum_mac_delay_ms_;
+}
+inline float MacUeMetrics::avg_sum_mac_delay_ms() const {
+  // @@protoc_insertion_point(field_get:MacUeMetrics.avg_sum_mac_delay_ms)
+  return _internal_avg_sum_mac_delay_ms();
+}
+inline void MacUeMetrics::_internal_set_avg_sum_mac_delay_ms(float value) {
+  
+  _impl_.avg_sum_mac_delay_ms_ = value;
+}
+inline void MacUeMetrics::set_avg_sum_mac_delay_ms(float value) {
+  _internal_set_avg_sum_mac_delay_ms(value);
+  // @@protoc_insertion_point(field_set:MacUeMetrics.avg_sum_mac_delay_ms)
 }
 
 // -------------------------------------------------------------------

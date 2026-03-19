@@ -128,6 +128,9 @@ void cell_metrics_handler::handle_ue_deletion(du_ue_index_t ue_index)
       data.filtered_events_counter++;
     }
 
+    // Clean up EdgeRIC metrics for this UE
+    edgeric::unregister_ue_by_rnti(static_cast<uint16_t>(rnti));
+
     rnti_to_ue_index_lookup.erase(rnti);
     ues.erase(ue_index);
   }
@@ -170,9 +173,9 @@ void cell_metrics_handler::handle_crc_indication(slot_point                   sl
     u.data.count_crc_acks += crc_pdu.tb_crc_success ? 1 : 0;
     ++u.data.count_crc_pdus;
     
-    // EdgeRIC: Track UL OK/NOK (CRC pass/fail)
+    // EdgeRIC: Track UL OK/NOK (CRC pass/fail) with TBS for goodput
     if (crc_pdu.tb_crc_success) {
-      edgeric::inc_ul_ok(static_cast<uint16_t>(u.rnti));
+      edgeric::inc_ul_ok(static_cast<uint16_t>(u.rnti), static_cast<uint32_t>(tbs.value()));
     } else {
       edgeric::inc_ul_nok(static_cast<uint16_t>(u.rnti));
     }
@@ -256,9 +259,9 @@ void cell_metrics_handler::handle_dl_harq_ack(du_ue_index_t ue_index, bool ack, 
       u.data.sum_dl_tb_bytes += tbs.value();
     }
     
-    // EdgeRIC: Track DL OK/NOK (HARQ ACK/NACK)
+    // EdgeRIC: Track DL OK/NOK (HARQ ACK/NACK) with TBS for goodput
     if (ack) {
-      edgeric::inc_dl_ok(static_cast<uint16_t>(u.rnti));
+      edgeric::inc_dl_ok(static_cast<uint16_t>(u.rnti), static_cast<uint32_t>(tbs.value()));
     } else {
       edgeric::inc_dl_nok(static_cast<uint16_t>(u.rnti));
     }
@@ -422,7 +425,17 @@ void cell_metrics_handler::report_metrics()
   const std::chrono::milliseconds report_period{data.nof_slots / last_slot_tx.nof_slots_per_subframe()};
   for (ue_metric_context& ue : ues) {
     // Compute statistics of the UE metrics and push the result to the report.
-    next_report->ue_metrics.push_back(ue.compute_report(report_period, nof_slots_per_sf));
+    scheduler_ue_metrics ue_metrics = ue.compute_report(report_period, nof_slots_per_sf);
+    next_report->ue_metrics.push_back(ue_metrics);
+    
+    // Report MAC layer delays to EdgeRIC
+    edgeric::report_mac_delays(
+        static_cast<uint16_t>(ue_metrics.rnti),
+        ue_metrics.avg_ce_delay_ms.value_or(0.0f),
+        ue_metrics.avg_crc_delay_ms.value_or(0.0f),
+        ue_metrics.avg_pucch_harq_delay_ms.value_or(0.0f),
+        ue_metrics.avg_pusch_harq_delay_ms.value_or(0.0f),
+        ue_metrics.avg_sr_to_pusch_delay_ms.value_or(0.0f));
   }
   next_report->events.swap(pending_events);
 

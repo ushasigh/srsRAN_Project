@@ -160,6 +160,23 @@ void edgeric::set_ul_prbs(uint16_t rnti, uint32_t prbs) {
     mac_ue[rnti].ul_prbs += prbs;  // Accumulate
 }
 
+void edgeric::report_mac_delays(uint16_t rnti,
+                                float avg_ce_delay_ms,
+                                float avg_crc_delay_ms,
+                                float avg_pucch_harq_delay_ms,
+                                float avg_pusch_harq_delay_ms,
+                                float avg_sr_to_pusch_delay_ms) {
+    auto& m = mac_ue[rnti];
+    m.avg_ce_delay_ms = avg_ce_delay_ms;
+    m.avg_crc_delay_ms = avg_crc_delay_ms;
+    m.avg_pucch_harq_delay_ms = avg_pucch_harq_delay_ms;
+    m.avg_pusch_harq_delay_ms = avg_pusch_harq_delay_ms;
+    m.avg_sr_to_pusch_delay_ms = avg_sr_to_pusch_delay_ms;
+    m.avg_sum_mac_delay_ms = avg_ce_delay_ms + avg_crc_delay_ms + 
+                             avg_pucch_harq_delay_ms + avg_pusch_harq_delay_ms + 
+                             avg_sr_to_pusch_delay_ms;
+}
+
 //==============================================================================
 // RLC Metrics (RLC thread - needs locking)
 //==============================================================================
@@ -219,6 +236,118 @@ void edgeric::register_ue(uint32_t ue_index, uint16_t rnti) {
 
 void edgeric::unregister_ue(uint32_t ue_index) {
     ue_index_to_rnti.erase(ue_index);
+}
+
+void edgeric::unregister_ue_by_rnti(uint16_t rnti) {
+    // Clean up MAC UE metrics
+    mac_ue.erase(rnti);
+    
+    // Clean up MAC DRB metrics for this RNTI
+    for (auto it = mac_drb.begin(); it != mac_drb.end(); ) {
+        if (it->first.first == rnti) {
+            it = mac_drb.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Clean up RLC DRB metrics for this RNTI (with lock)
+    {
+        std::lock_guard<std::mutex> lock(rlc_mutex);
+        for (auto it = rlc_drb.begin(); it != rlc_drb.end(); ) {
+            if (it->first.first == rnti) {
+                it = rlc_drb.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    
+    // Clean up QoS overrides for this RNTI
+    for (auto it = qos_overrides.begin(); it != qos_overrides.end(); ) {
+        if (it->first.first == rnti) {
+            it = qos_overrides.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Clean up ue_index_to_rnti entries pointing to this RNTI
+    for (auto it = ue_index_to_rnti.begin(); it != ue_index_to_rnti.end(); ) {
+        if (it->second == rnti) {
+            it = ue_index_to_rnti.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Clean up DU UE to RNTI mapping (with lock)
+    {
+        std::lock_guard<std::mutex> lock(du_ue_mutex);
+        for (auto it = du_ue_to_rnti.begin(); it != du_ue_to_rnti.end(); ) {
+            if (it->second == rnti) {
+                it = du_ue_to_rnti.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    
+    // Clean up E1AP to RNTI mapping and collect e1ap_ids to remove
+    std::vector<uint32_t> e1ap_ids_to_remove;
+    for (auto it = e1ap_id_to_rnti.begin(); it != e1ap_id_to_rnti.end(); ) {
+        if (it->second == rnti) {
+            e1ap_ids_to_remove.push_back(it->first);
+            it = e1ap_id_to_rnti.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Clean up cu_up_ue_to_e1ap_id and collect cu_up_ue_indices to clean up PDCP/GTP
+    std::vector<uint32_t> cu_up_indices_to_remove;
+    for (auto it = cu_up_ue_to_e1ap_id.begin(); it != cu_up_ue_to_e1ap_id.end(); ) {
+        bool should_remove = false;
+        for (uint32_t e1ap_id : e1ap_ids_to_remove) {
+            if (it->second == e1ap_id) {
+                should_remove = true;
+                break;
+            }
+        }
+        if (should_remove) {
+            cu_up_indices_to_remove.push_back(it->first);
+            it = cu_up_ue_to_e1ap_id.erase(it);
+        } else {
+            ++it;
+        }
+    }
+    
+    // Clean up PDCP metrics for the CU-UP UE indices (with lock)
+    {
+        std::lock_guard<std::mutex> lock(pdcp_mutex);
+        for (auto it = pdcp_drb.begin(); it != pdcp_drb.end(); ) {
+            bool should_remove = false;
+            for (uint32_t cu_up_idx : cu_up_indices_to_remove) {
+                if (it->first.first == cu_up_idx) {
+                    should_remove = true;
+                    break;
+                }
+            }
+            if (should_remove) {
+                it = pdcp_drb.erase(it);
+            } else {
+                ++it;
+            }
+        }
+    }
+    
+    // Clean up GTP metrics for the CU-UP UE indices (with lock)
+    {
+        std::lock_guard<std::mutex> lock(gtp_mutex);
+        for (uint32_t cu_up_idx : cu_up_indices_to_remove) {
+            gtp_ue.erase(cu_up_idx);
+        }
+    }
 }
 
 uint16_t edgeric::get_rnti_from_ue_index(uint32_t ue_index) {
@@ -309,6 +438,8 @@ void edgeric::send_tti_metrics() {
             mac_msg->set_ul_buffer(mac_it->second.ul_buffer);
             mac_msg->set_dl_tbs(mac_it->second.dl_tbs);
             mac_msg->set_ul_tbs(mac_it->second.ul_tbs);
+            mac_msg->set_dl_acked_bytes(mac_it->second.dl_acked_bytes);
+            mac_msg->set_ul_ok_bytes(mac_it->second.ul_ok_bytes);
             mac_msg->set_dl_mcs(mac_it->second.dl_mcs);
             mac_msg->set_ul_mcs(mac_it->second.ul_mcs);
             mac_msg->set_dl_prbs(mac_it->second.dl_prbs);
@@ -317,6 +448,13 @@ void edgeric::send_tti_metrics() {
             mac_msg->set_dl_harq_nack(mac_it->second.dl_harq_nack);
             mac_msg->set_ul_crc_ok(mac_it->second.ul_crc_ok);
             mac_msg->set_ul_crc_fail(mac_it->second.ul_crc_fail);
+            // MAC layer delays in ms
+            mac_msg->set_avg_ce_delay_ms(mac_it->second.avg_ce_delay_ms);
+            mac_msg->set_avg_crc_delay_ms(mac_it->second.avg_crc_delay_ms);
+            mac_msg->set_avg_pucch_harq_delay_ms(mac_it->second.avg_pucch_harq_delay_ms);
+            mac_msg->set_avg_pusch_harq_delay_ms(mac_it->second.avg_pusch_harq_delay_ms);
+            mac_msg->set_avg_sr_to_pusch_delay_ms(mac_it->second.avg_sr_to_pusch_delay_ms);
+            mac_msg->set_avg_sum_mac_delay_ms(mac_it->second.avg_sum_mac_delay_ms);
         }
         
         // MAC per-DRB metrics
@@ -411,6 +549,7 @@ void edgeric::send_tti_metrics() {
     publisher.send(msg, zmq::send_flags::dontwait);
     
     // Reset per-TTI MAC counters (HARQ, scheduling info)
+    // Note: MAC delays are NOT reset here as they are updated per-report-period
     for (auto& [rnti, m] : mac_ue) {
         m.dl_harq_ack = 0;
         m.dl_harq_nack = 0;
@@ -418,6 +557,8 @@ void edgeric::send_tti_metrics() {
         m.ul_crc_fail = 0;
         m.dl_tbs = 0;
         m.ul_tbs = 0;
+        m.dl_acked_bytes = 0;  // Reset goodput counters
+        m.ul_ok_bytes = 0;
         m.dl_mcs = 0;
         m.ul_mcs = 0;
         m.dl_prbs = 0;

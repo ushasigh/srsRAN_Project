@@ -122,6 +122,14 @@ PROTOBUF_CONSTEXPR MacUeMetrics::MacUeMetrics(
   , /*decltype(_impl_.ul_mcs_)*/0u
   , /*decltype(_impl_.dl_prbs_)*/0u
   , /*decltype(_impl_.ul_prbs_)*/0u
+  , /*decltype(_impl_.avg_ce_delay_ms_)*/0
+  , /*decltype(_impl_.avg_crc_delay_ms_)*/0
+  , /*decltype(_impl_.avg_pucch_harq_delay_ms_)*/0
+  , /*decltype(_impl_.avg_pusch_harq_delay_ms_)*/0
+  , /*decltype(_impl_.avg_sr_to_pusch_delay_ms_)*/0
+  , /*decltype(_impl_.avg_sum_mac_delay_ms_)*/0
+  , /*decltype(_impl_.dl_acked_bytes_)*/0u
+  , /*decltype(_impl_.ul_ok_bytes_)*/0u
   , /*decltype(_impl_._cached_size_)*/{}} {}
 struct MacUeMetricsDefaultTypeInternal {
   PROTOBUF_CONSTEXPR MacUeMetricsDefaultTypeInternal()
@@ -300,6 +308,8 @@ const uint32_t TableStruct_metrics_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.ul_buffer_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.dl_tbs_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.ul_tbs_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.dl_acked_bytes_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.ul_ok_bytes_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.dl_mcs_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.ul_mcs_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.dl_prbs_),
@@ -308,6 +318,12 @@ const uint32_t TableStruct_metrics_2eproto::offsets[] PROTOBUF_SECTION_VARIABLE(
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.dl_harq_nack_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.ul_crc_ok_),
   PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.ul_crc_fail_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.avg_ce_delay_ms_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.avg_crc_delay_ms_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.avg_pucch_harq_delay_ms_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.avg_pusch_harq_delay_ms_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.avg_sr_to_pusch_delay_ms_),
+  PROTOBUF_FIELD_OFFSET(::MacUeMetrics, _impl_.avg_sum_mac_delay_ms_),
   ~0u,  // no _has_bits_
   PROTOBUF_FIELD_OFFSET(::UeMetrics, _internal_metadata_),
   ~0u,  // no _extensions_
@@ -374,11 +390,11 @@ static const ::_pbi::MigrationSchema schemas[] PROTOBUF_SECTION_VARIABLE(protode
   { 33, -1, -1, sizeof(::PdcpDrbMetrics)},
   { 52, -1, -1, sizeof(::GtpMetrics)},
   { 62, -1, -1, sizeof(::MacUeMetrics)},
-  { 82, -1, -1, sizeof(::UeMetrics)},
-  { 94, -1, -1, sizeof(::TtiMetrics)},
-  { 103, -1, -1, sizeof(::Metrics)},
-  { 111, -1, -1, sizeof(::UeMetricsLegacy)},
-  { 130, -1, -1, sizeof(::DrbMetricsLegacy)},
+  { 90, -1, -1, sizeof(::UeMetrics)},
+  { 102, -1, -1, sizeof(::TtiMetrics)},
+  { 111, -1, -1, sizeof(::Metrics)},
+  { 119, -1, -1, sizeof(::UeMetricsLegacy)},
+  { 138, -1, -1, sizeof(::DrbMetricsLegacy)},
 };
 
 static const ::_pb::Message* const file_default_instances[] = {
@@ -416,35 +432,41 @@ const char descriptor_table_protodef_metrics_2eproto[] PROTOBUF_SECTION_VARIABLE
   "\004\022\027\n\017rx_dropped_pdus\030\t \001(\004\022\031\n\021rx_sdu_lat"
   "ency_ns\030\014 \001(\r\"R\n\nGtpMetrics\022\017\n\007dl_pkts\030\001"
   " \001(\004\022\020\n\010dl_bytes\030\002 \001(\004\022\017\n\007ul_pkts\030\003 \001(\004\022"
-  "\020\n\010ul_bytes\030\004 \001(\004\"\203\002\n\014MacUeMetrics\022\013\n\003cq"
+  "\020\n\010ul_bytes\030\004 \001(\004\"\345\003\n\014MacUeMetrics\022\013\n\003cq"
   "i\030\001 \001(\r\022\013\n\003snr\030\002 \001(\002\022\021\n\tdl_buffer\030\003 \001(\r\022"
   "\021\n\tul_buffer\030\004 \001(\r\022\016\n\006dl_tbs\030\005 \001(\r\022\016\n\006ul"
-  "_tbs\030\006 \001(\r\022\016\n\006dl_mcs\030\013 \001(\r\022\016\n\006ul_mcs\030\014 \001"
-  "(\r\022\017\n\007dl_prbs\030\r \001(\r\022\017\n\007ul_prbs\030\016 \001(\r\022\023\n\013"
-  "dl_harq_ack\030\007 \001(\r\022\024\n\014dl_harq_nack\030\010 \001(\r\022"
-  "\021\n\tul_crc_ok\030\t \001(\r\022\023\n\013ul_crc_fail\030\n \001(\r\""
-  "\264\001\n\tUeMetrics\022\014\n\004rnti\030\001 \001(\r\022\032\n\003mac\030\002 \001(\013"
-  "2\r.MacUeMetrics\022\037\n\007mac_drb\030\003 \003(\0132\016.MacDr"
-  "bMetrics\022\037\n\007rlc_drb\030\004 \003(\0132\016.RlcDrbMetric"
-  "s\022!\n\010pdcp_drb\030\005 \003(\0132\017.PdcpDrbMetrics\022\030\n\003"
-  "gtp\030\006 \001(\0132\013.GtpMetrics\"N\n\nTtiMetrics\022\021\n\t"
-  "tti_index\030\001 \001(\r\022\024\n\014timestamp_us\030\002 \001(\004\022\027\n"
-  "\003ues\030\003 \003(\0132\n.UeMetrics\"@\n\007Metrics\022\017\n\007tti"
-  "_cnt\030\001 \001(\r\022$\n\nue_metrics\030\002 \003(\0132\020.UeMetri"
-  "csLegacy\"\371\001\n\017UeMetricsLegacy\022\014\n\004rnti\030\001 \001"
-  "(\r\022\013\n\003cqi\030\002 \001(\r\022\013\n\003snr\030\003 \001(\002\022\020\n\010tx_bytes"
-  "\030\004 \001(\002\022\020\n\010rx_bytes\030\005 \001(\002\022\021\n\tdl_buffer\030\006 "
-  "\001(\r\022\021\n\tul_buffer\030\007 \001(\r\022\016\n\006dl_tbs\030\010 \001(\002\022\r"
-  "\n\005dl_ok\030\t \001(\r\022\016\n\006dl_nok\030\n \001(\r\022\r\n\005ul_ok\030\013"
-  " \001(\r\022\016\n\006ul_nok\030\014 \001(\r\022&\n\013drb_metrics\030\r \003("
-  "\0132\021.DrbMetricsLegacy\"j\n\020DrbMetricsLegacy"
-  "\022\014\n\004lcid\030\001 \001(\r\022\021\n\tdl_buffer\030\002 \001(\r\022\021\n\tul_"
-  "buffer\030\003 \001(\r\022\020\n\010tx_bytes\030\004 \001(\002\022\020\n\010rx_byt"
-  "es\030\005 \001(\002b\006proto3"
+  "_tbs\030\006 \001(\r\022\026\n\016dl_acked_bytes\030\026 \001(\r\022\023\n\013ul"
+  "_ok_bytes\030\027 \001(\r\022\016\n\006dl_mcs\030\013 \001(\r\022\016\n\006ul_mc"
+  "s\030\014 \001(\r\022\017\n\007dl_prbs\030\r \001(\r\022\017\n\007ul_prbs\030\016 \001("
+  "\r\022\023\n\013dl_harq_ack\030\007 \001(\r\022\024\n\014dl_harq_nack\030\010"
+  " \001(\r\022\021\n\tul_crc_ok\030\t \001(\r\022\023\n\013ul_crc_fail\030\n"
+  " \001(\r\022\027\n\017avg_ce_delay_ms\030\020 \001(\002\022\030\n\020avg_crc"
+  "_delay_ms\030\021 \001(\002\022\037\n\027avg_pucch_harq_delay_"
+  "ms\030\022 \001(\002\022\037\n\027avg_pusch_harq_delay_ms\030\023 \001("
+  "\002\022 \n\030avg_sr_to_pusch_delay_ms\030\024 \001(\002\022\034\n\024a"
+  "vg_sum_mac_delay_ms\030\025 \001(\002\"\264\001\n\tUeMetrics\022"
+  "\014\n\004rnti\030\001 \001(\r\022\032\n\003mac\030\002 \001(\0132\r.MacUeMetric"
+  "s\022\037\n\007mac_drb\030\003 \003(\0132\016.MacDrbMetrics\022\037\n\007rl"
+  "c_drb\030\004 \003(\0132\016.RlcDrbMetrics\022!\n\010pdcp_drb\030"
+  "\005 \003(\0132\017.PdcpDrbMetrics\022\030\n\003gtp\030\006 \001(\0132\013.Gt"
+  "pMetrics\"N\n\nTtiMetrics\022\021\n\ttti_index\030\001 \001("
+  "\r\022\024\n\014timestamp_us\030\002 \001(\004\022\027\n\003ues\030\003 \003(\0132\n.U"
+  "eMetrics\"@\n\007Metrics\022\017\n\007tti_cnt\030\001 \001(\r\022$\n\n"
+  "ue_metrics\030\002 \003(\0132\020.UeMetricsLegacy\"\371\001\n\017U"
+  "eMetricsLegacy\022\014\n\004rnti\030\001 \001(\r\022\013\n\003cqi\030\002 \001("
+  "\r\022\013\n\003snr\030\003 \001(\002\022\020\n\010tx_bytes\030\004 \001(\002\022\020\n\010rx_b"
+  "ytes\030\005 \001(\002\022\021\n\tdl_buffer\030\006 \001(\r\022\021\n\tul_buff"
+  "er\030\007 \001(\r\022\016\n\006dl_tbs\030\010 \001(\002\022\r\n\005dl_ok\030\t \001(\r\022"
+  "\016\n\006dl_nok\030\n \001(\r\022\r\n\005ul_ok\030\013 \001(\r\022\016\n\006ul_nok"
+  "\030\014 \001(\r\022&\n\013drb_metrics\030\r \003(\0132\021.DrbMetrics"
+  "Legacy\"j\n\020DrbMetricsLegacy\022\014\n\004lcid\030\001 \001(\r"
+  "\022\021\n\tdl_buffer\030\002 \001(\r\022\021\n\tul_buffer\030\003 \001(\r\022\020"
+  "\n\010tx_bytes\030\004 \001(\002\022\020\n\010rx_bytes\030\005 \001(\002b\006prot"
+  "o3"
   ;
 static ::_pbi::once_flag descriptor_table_metrics_2eproto_once;
 const ::_pbi::DescriptorTable descriptor_table_metrics_2eproto = {
-    false, false, 1816, descriptor_table_protodef_metrics_2eproto,
+    false, false, 2042, descriptor_table_protodef_metrics_2eproto,
     "metrics.proto",
     &descriptor_table_metrics_2eproto_once, nullptr, 0, 10,
     schemas, file_default_instances, TableStruct_metrics_2eproto::offsets,
@@ -2054,12 +2076,20 @@ MacUeMetrics::MacUeMetrics(const MacUeMetrics& from)
     , decltype(_impl_.ul_mcs_){}
     , decltype(_impl_.dl_prbs_){}
     , decltype(_impl_.ul_prbs_){}
+    , decltype(_impl_.avg_ce_delay_ms_){}
+    , decltype(_impl_.avg_crc_delay_ms_){}
+    , decltype(_impl_.avg_pucch_harq_delay_ms_){}
+    , decltype(_impl_.avg_pusch_harq_delay_ms_){}
+    , decltype(_impl_.avg_sr_to_pusch_delay_ms_){}
+    , decltype(_impl_.avg_sum_mac_delay_ms_){}
+    , decltype(_impl_.dl_acked_bytes_){}
+    , decltype(_impl_.ul_ok_bytes_){}
     , /*decltype(_impl_._cached_size_)*/{}};
 
   _internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
   ::memcpy(&_impl_.cqi_, &from._impl_.cqi_,
-    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.ul_prbs_) -
-    reinterpret_cast<char*>(&_impl_.cqi_)) + sizeof(_impl_.ul_prbs_));
+    static_cast<size_t>(reinterpret_cast<char*>(&_impl_.ul_ok_bytes_) -
+    reinterpret_cast<char*>(&_impl_.cqi_)) + sizeof(_impl_.ul_ok_bytes_));
   // @@protoc_insertion_point(copy_constructor:MacUeMetrics)
 }
 
@@ -2082,6 +2112,14 @@ inline void MacUeMetrics::SharedCtor(
     , decltype(_impl_.ul_mcs_){0u}
     , decltype(_impl_.dl_prbs_){0u}
     , decltype(_impl_.ul_prbs_){0u}
+    , decltype(_impl_.avg_ce_delay_ms_){0}
+    , decltype(_impl_.avg_crc_delay_ms_){0}
+    , decltype(_impl_.avg_pucch_harq_delay_ms_){0}
+    , decltype(_impl_.avg_pusch_harq_delay_ms_){0}
+    , decltype(_impl_.avg_sr_to_pusch_delay_ms_){0}
+    , decltype(_impl_.avg_sum_mac_delay_ms_){0}
+    , decltype(_impl_.dl_acked_bytes_){0u}
+    , decltype(_impl_.ul_ok_bytes_){0u}
     , /*decltype(_impl_._cached_size_)*/{}
   };
 }
@@ -2110,8 +2148,8 @@ void MacUeMetrics::Clear() {
   (void) cached_has_bits;
 
   ::memset(&_impl_.cqi_, 0, static_cast<size_t>(
-      reinterpret_cast<char*>(&_impl_.ul_prbs_) -
-      reinterpret_cast<char*>(&_impl_.cqi_)) + sizeof(_impl_.ul_prbs_));
+      reinterpret_cast<char*>(&_impl_.ul_ok_bytes_) -
+      reinterpret_cast<char*>(&_impl_.cqi_)) + sizeof(_impl_.ul_ok_bytes_));
   _internal_metadata_.Clear<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>();
 }
 
@@ -2233,6 +2271,70 @@ const char* MacUeMetrics::_InternalParse(const char* ptr, ::_pbi::ParseContext* 
         } else
           goto handle_unusual;
         continue;
+      // float avg_ce_delay_ms = 16;
+      case 16:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 133)) {
+          _impl_.avg_ce_delay_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // float avg_crc_delay_ms = 17;
+      case 17:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 141)) {
+          _impl_.avg_crc_delay_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // float avg_pucch_harq_delay_ms = 18;
+      case 18:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 149)) {
+          _impl_.avg_pucch_harq_delay_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // float avg_pusch_harq_delay_ms = 19;
+      case 19:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 157)) {
+          _impl_.avg_pusch_harq_delay_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // float avg_sr_to_pusch_delay_ms = 20;
+      case 20:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 165)) {
+          _impl_.avg_sr_to_pusch_delay_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // float avg_sum_mac_delay_ms = 21;
+      case 21:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 173)) {
+          _impl_.avg_sum_mac_delay_ms_ = ::PROTOBUF_NAMESPACE_ID::internal::UnalignedLoad<float>(ptr);
+          ptr += sizeof(float);
+        } else
+          goto handle_unusual;
+        continue;
+      // uint32 dl_acked_bytes = 22;
+      case 22:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 176)) {
+          _impl_.dl_acked_bytes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
+      // uint32 ul_ok_bytes = 23;
+      case 23:
+        if (PROTOBUF_PREDICT_TRUE(static_cast<uint8_t>(tag) == 184)) {
+          _impl_.ul_ok_bytes_ = ::PROTOBUF_NAMESPACE_ID::internal::ReadVarint32(&ptr);
+          CHK_(ptr);
+        } else
+          goto handle_unusual;
+        continue;
       default:
         goto handle_unusual;
     }  // switch
@@ -2350,6 +2452,78 @@ uint8_t* MacUeMetrics::_InternalSerialize(
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(14, this->_internal_ul_prbs(), target);
   }
 
+  // float avg_ce_delay_ms = 16;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_ce_delay_ms = this->_internal_avg_ce_delay_ms();
+  uint32_t raw_avg_ce_delay_ms;
+  memcpy(&raw_avg_ce_delay_ms, &tmp_avg_ce_delay_ms, sizeof(tmp_avg_ce_delay_ms));
+  if (raw_avg_ce_delay_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(16, this->_internal_avg_ce_delay_ms(), target);
+  }
+
+  // float avg_crc_delay_ms = 17;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_crc_delay_ms = this->_internal_avg_crc_delay_ms();
+  uint32_t raw_avg_crc_delay_ms;
+  memcpy(&raw_avg_crc_delay_ms, &tmp_avg_crc_delay_ms, sizeof(tmp_avg_crc_delay_ms));
+  if (raw_avg_crc_delay_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(17, this->_internal_avg_crc_delay_ms(), target);
+  }
+
+  // float avg_pucch_harq_delay_ms = 18;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_pucch_harq_delay_ms = this->_internal_avg_pucch_harq_delay_ms();
+  uint32_t raw_avg_pucch_harq_delay_ms;
+  memcpy(&raw_avg_pucch_harq_delay_ms, &tmp_avg_pucch_harq_delay_ms, sizeof(tmp_avg_pucch_harq_delay_ms));
+  if (raw_avg_pucch_harq_delay_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(18, this->_internal_avg_pucch_harq_delay_ms(), target);
+  }
+
+  // float avg_pusch_harq_delay_ms = 19;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_pusch_harq_delay_ms = this->_internal_avg_pusch_harq_delay_ms();
+  uint32_t raw_avg_pusch_harq_delay_ms;
+  memcpy(&raw_avg_pusch_harq_delay_ms, &tmp_avg_pusch_harq_delay_ms, sizeof(tmp_avg_pusch_harq_delay_ms));
+  if (raw_avg_pusch_harq_delay_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(19, this->_internal_avg_pusch_harq_delay_ms(), target);
+  }
+
+  // float avg_sr_to_pusch_delay_ms = 20;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_sr_to_pusch_delay_ms = this->_internal_avg_sr_to_pusch_delay_ms();
+  uint32_t raw_avg_sr_to_pusch_delay_ms;
+  memcpy(&raw_avg_sr_to_pusch_delay_ms, &tmp_avg_sr_to_pusch_delay_ms, sizeof(tmp_avg_sr_to_pusch_delay_ms));
+  if (raw_avg_sr_to_pusch_delay_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(20, this->_internal_avg_sr_to_pusch_delay_ms(), target);
+  }
+
+  // float avg_sum_mac_delay_ms = 21;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_sum_mac_delay_ms = this->_internal_avg_sum_mac_delay_ms();
+  uint32_t raw_avg_sum_mac_delay_ms;
+  memcpy(&raw_avg_sum_mac_delay_ms, &tmp_avg_sum_mac_delay_ms, sizeof(tmp_avg_sum_mac_delay_ms));
+  if (raw_avg_sum_mac_delay_ms != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteFloatToArray(21, this->_internal_avg_sum_mac_delay_ms(), target);
+  }
+
+  // uint32 dl_acked_bytes = 22;
+  if (this->_internal_dl_acked_bytes() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(22, this->_internal_dl_acked_bytes(), target);
+  }
+
+  // uint32 ul_ok_bytes = 23;
+  if (this->_internal_ul_ok_bytes() != 0) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt32ToArray(23, this->_internal_ul_ok_bytes(), target);
+  }
+
   if (PROTOBUF_PREDICT_FALSE(_internal_metadata_.have_unknown_fields())) {
     target = ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
         _internal_metadata_.unknown_fields<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(::PROTOBUF_NAMESPACE_ID::UnknownFieldSet::default_instance), target, stream);
@@ -2440,6 +2614,74 @@ size_t MacUeMetrics::ByteSizeLong() const {
     total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(this->_internal_ul_prbs());
   }
 
+  // float avg_ce_delay_ms = 16;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_ce_delay_ms = this->_internal_avg_ce_delay_ms();
+  uint32_t raw_avg_ce_delay_ms;
+  memcpy(&raw_avg_ce_delay_ms, &tmp_avg_ce_delay_ms, sizeof(tmp_avg_ce_delay_ms));
+  if (raw_avg_ce_delay_ms != 0) {
+    total_size += 2 + 4;
+  }
+
+  // float avg_crc_delay_ms = 17;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_crc_delay_ms = this->_internal_avg_crc_delay_ms();
+  uint32_t raw_avg_crc_delay_ms;
+  memcpy(&raw_avg_crc_delay_ms, &tmp_avg_crc_delay_ms, sizeof(tmp_avg_crc_delay_ms));
+  if (raw_avg_crc_delay_ms != 0) {
+    total_size += 2 + 4;
+  }
+
+  // float avg_pucch_harq_delay_ms = 18;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_pucch_harq_delay_ms = this->_internal_avg_pucch_harq_delay_ms();
+  uint32_t raw_avg_pucch_harq_delay_ms;
+  memcpy(&raw_avg_pucch_harq_delay_ms, &tmp_avg_pucch_harq_delay_ms, sizeof(tmp_avg_pucch_harq_delay_ms));
+  if (raw_avg_pucch_harq_delay_ms != 0) {
+    total_size += 2 + 4;
+  }
+
+  // float avg_pusch_harq_delay_ms = 19;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_pusch_harq_delay_ms = this->_internal_avg_pusch_harq_delay_ms();
+  uint32_t raw_avg_pusch_harq_delay_ms;
+  memcpy(&raw_avg_pusch_harq_delay_ms, &tmp_avg_pusch_harq_delay_ms, sizeof(tmp_avg_pusch_harq_delay_ms));
+  if (raw_avg_pusch_harq_delay_ms != 0) {
+    total_size += 2 + 4;
+  }
+
+  // float avg_sr_to_pusch_delay_ms = 20;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_sr_to_pusch_delay_ms = this->_internal_avg_sr_to_pusch_delay_ms();
+  uint32_t raw_avg_sr_to_pusch_delay_ms;
+  memcpy(&raw_avg_sr_to_pusch_delay_ms, &tmp_avg_sr_to_pusch_delay_ms, sizeof(tmp_avg_sr_to_pusch_delay_ms));
+  if (raw_avg_sr_to_pusch_delay_ms != 0) {
+    total_size += 2 + 4;
+  }
+
+  // float avg_sum_mac_delay_ms = 21;
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_sum_mac_delay_ms = this->_internal_avg_sum_mac_delay_ms();
+  uint32_t raw_avg_sum_mac_delay_ms;
+  memcpy(&raw_avg_sum_mac_delay_ms, &tmp_avg_sum_mac_delay_ms, sizeof(tmp_avg_sum_mac_delay_ms));
+  if (raw_avg_sum_mac_delay_ms != 0) {
+    total_size += 2 + 4;
+  }
+
+  // uint32 dl_acked_bytes = 22;
+  if (this->_internal_dl_acked_bytes() != 0) {
+    total_size += 2 +
+      ::_pbi::WireFormatLite::UInt32Size(
+        this->_internal_dl_acked_bytes());
+  }
+
+  // uint32 ul_ok_bytes = 23;
+  if (this->_internal_ul_ok_bytes() != 0) {
+    total_size += 2 +
+      ::_pbi::WireFormatLite::UInt32Size(
+        this->_internal_ul_ok_bytes());
+  }
+
   return MaybeComputeUnknownFieldsSize(total_size, &_impl_._cached_size_);
 }
 
@@ -2504,6 +2746,54 @@ void MacUeMetrics::MergeImpl(::PROTOBUF_NAMESPACE_ID::Message& to_msg, const ::P
   if (from._internal_ul_prbs() != 0) {
     _this->_internal_set_ul_prbs(from._internal_ul_prbs());
   }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_ce_delay_ms = from._internal_avg_ce_delay_ms();
+  uint32_t raw_avg_ce_delay_ms;
+  memcpy(&raw_avg_ce_delay_ms, &tmp_avg_ce_delay_ms, sizeof(tmp_avg_ce_delay_ms));
+  if (raw_avg_ce_delay_ms != 0) {
+    _this->_internal_set_avg_ce_delay_ms(from._internal_avg_ce_delay_ms());
+  }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_crc_delay_ms = from._internal_avg_crc_delay_ms();
+  uint32_t raw_avg_crc_delay_ms;
+  memcpy(&raw_avg_crc_delay_ms, &tmp_avg_crc_delay_ms, sizeof(tmp_avg_crc_delay_ms));
+  if (raw_avg_crc_delay_ms != 0) {
+    _this->_internal_set_avg_crc_delay_ms(from._internal_avg_crc_delay_ms());
+  }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_pucch_harq_delay_ms = from._internal_avg_pucch_harq_delay_ms();
+  uint32_t raw_avg_pucch_harq_delay_ms;
+  memcpy(&raw_avg_pucch_harq_delay_ms, &tmp_avg_pucch_harq_delay_ms, sizeof(tmp_avg_pucch_harq_delay_ms));
+  if (raw_avg_pucch_harq_delay_ms != 0) {
+    _this->_internal_set_avg_pucch_harq_delay_ms(from._internal_avg_pucch_harq_delay_ms());
+  }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_pusch_harq_delay_ms = from._internal_avg_pusch_harq_delay_ms();
+  uint32_t raw_avg_pusch_harq_delay_ms;
+  memcpy(&raw_avg_pusch_harq_delay_ms, &tmp_avg_pusch_harq_delay_ms, sizeof(tmp_avg_pusch_harq_delay_ms));
+  if (raw_avg_pusch_harq_delay_ms != 0) {
+    _this->_internal_set_avg_pusch_harq_delay_ms(from._internal_avg_pusch_harq_delay_ms());
+  }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_sr_to_pusch_delay_ms = from._internal_avg_sr_to_pusch_delay_ms();
+  uint32_t raw_avg_sr_to_pusch_delay_ms;
+  memcpy(&raw_avg_sr_to_pusch_delay_ms, &tmp_avg_sr_to_pusch_delay_ms, sizeof(tmp_avg_sr_to_pusch_delay_ms));
+  if (raw_avg_sr_to_pusch_delay_ms != 0) {
+    _this->_internal_set_avg_sr_to_pusch_delay_ms(from._internal_avg_sr_to_pusch_delay_ms());
+  }
+  static_assert(sizeof(uint32_t) == sizeof(float), "Code assumes uint32_t and float are the same size.");
+  float tmp_avg_sum_mac_delay_ms = from._internal_avg_sum_mac_delay_ms();
+  uint32_t raw_avg_sum_mac_delay_ms;
+  memcpy(&raw_avg_sum_mac_delay_ms, &tmp_avg_sum_mac_delay_ms, sizeof(tmp_avg_sum_mac_delay_ms));
+  if (raw_avg_sum_mac_delay_ms != 0) {
+    _this->_internal_set_avg_sum_mac_delay_ms(from._internal_avg_sum_mac_delay_ms());
+  }
+  if (from._internal_dl_acked_bytes() != 0) {
+    _this->_internal_set_dl_acked_bytes(from._internal_dl_acked_bytes());
+  }
+  if (from._internal_ul_ok_bytes() != 0) {
+    _this->_internal_set_ul_ok_bytes(from._internal_ul_ok_bytes());
+  }
   _this->_internal_metadata_.MergeFrom<::PROTOBUF_NAMESPACE_ID::UnknownFieldSet>(from._internal_metadata_);
 }
 
@@ -2522,8 +2812,8 @@ void MacUeMetrics::InternalSwap(MacUeMetrics* other) {
   using std::swap;
   _internal_metadata_.InternalSwap(&other->_internal_metadata_);
   ::PROTOBUF_NAMESPACE_ID::internal::memswap<
-      PROTOBUF_FIELD_OFFSET(MacUeMetrics, _impl_.ul_prbs_)
-      + sizeof(MacUeMetrics::_impl_.ul_prbs_)
+      PROTOBUF_FIELD_OFFSET(MacUeMetrics, _impl_.ul_ok_bytes_)
+      + sizeof(MacUeMetrics::_impl_.ul_ok_bytes_)
       - PROTOBUF_FIELD_OFFSET(MacUeMetrics, _impl_.cqi_)>(
           reinterpret_cast<char*>(&_impl_.cqi_),
           reinterpret_cast<char*>(&other->_impl_.cqi_));

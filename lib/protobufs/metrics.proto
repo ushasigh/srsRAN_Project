@@ -68,8 +68,10 @@ message MacUeMetrics {
     float snr = 2;                // PUSCH SNR in dB
     uint32 dl_buffer = 3;         // Total DL pending bytes
     uint32 ul_buffer = 4;         // Total UL pending bytes
-    uint32 dl_tbs = 5;            // DL TBS this TTI
-    uint32 ul_tbs = 6;            // UL TBS this TTI
+    uint32 dl_tbs = 5;            // DL TBS scheduled this TTI
+    uint32 ul_tbs = 6;            // UL TBS scheduled this TTI
+    uint32 dl_acked_bytes = 22;   // DL bytes successfully ACK'd this TTI (goodput)
+    uint32 ul_ok_bytes = 23;      // UL bytes successfully decoded this TTI (goodput)
     uint32 dl_mcs = 11;           // DL MCS index this TTI
     uint32 ul_mcs = 12;           // UL MCS index this TTI
     uint32 dl_prbs = 13;          // DL PRBs scheduled this TTI
@@ -79,6 +81,14 @@ message MacUeMetrics {
     uint32 dl_harq_nack = 8;      // DL HARQ NACKs received
     uint32 ul_crc_ok = 9;         // UL CRC passes
     uint32 ul_crc_fail = 10;      // UL CRC failures
+    
+    // MAC layer delays in milliseconds (averaged over metrics report period)
+    float avg_ce_delay_ms = 16;         // Avg CE (Control Element) processing delay
+    float avg_crc_delay_ms = 17;        // Avg CRC indication processing delay
+    float avg_pucch_harq_delay_ms = 18; // Avg PUCCH HARQ feedback delay
+    float avg_pusch_harq_delay_ms = 19; // Avg PUSCH HARQ feedback delay
+    float avg_sr_to_pusch_delay_ms = 20;// Avg SR to PUSCH grant delay
+    float avg_sum_mac_delay_ms = 21;    // Sum of all MAC delays (ce + crc + pucch_harq + pusch_harq + sr_to_pusch)
 }
 
 // Per-UE metrics container

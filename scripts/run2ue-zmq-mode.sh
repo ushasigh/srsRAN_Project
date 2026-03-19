@@ -1,0 +1,5 @@
+cd ../../srsRAN_4G/build
+sudo ./srsue/src/srsue ../.config/ue1-4g-zmq.conf & 
+
+sleep 2
+sudo ./srsue/src/srsue ../.config/ue2-4g-zmq.conf 

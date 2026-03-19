@@ -57,8 +57,10 @@ struct mac_ue_metrics {
     float snr = 0.0f;
     uint32_t dl_buffer = 0;    // Total DL buffer
     uint32_t ul_buffer = 0;    // Total UL buffer
-    uint32_t dl_tbs = 0;       // DL TBS this TTI
-    uint32_t ul_tbs = 0;       // UL TBS this TTI
+    uint32_t dl_tbs = 0;       // DL TBS scheduled this TTI
+    uint32_t ul_tbs = 0;       // UL TBS scheduled this TTI
+    uint32_t dl_acked_bytes = 0;  // DL bytes ACK'd this TTI (goodput)
+    uint32_t ul_ok_bytes = 0;     // UL bytes CRC OK this TTI (goodput)
     uint32_t dl_mcs = 0;       // DL MCS this TTI
     uint32_t ul_mcs = 0;       // UL MCS this TTI
     uint32_t dl_prbs = 0;      // DL PRBs scheduled this TTI
@@ -67,6 +69,14 @@ struct mac_ue_metrics {
     uint32_t dl_harq_nack = 0; // DL HARQ NACKs this TTI
     uint32_t ul_crc_ok = 0;    // UL CRC OK this TTI
     uint32_t ul_crc_fail = 0;  // UL CRC fail this TTI
+    
+    // MAC layer delays in ms (from scheduler metrics, updated per report period)
+    float avg_ce_delay_ms = 0.0f;          // Avg CE processing delay
+    float avg_crc_delay_ms = 0.0f;         // Avg CRC indication delay
+    float avg_pucch_harq_delay_ms = 0.0f;  // Avg PUCCH HARQ feedback delay
+    float avg_pusch_harq_delay_ms = 0.0f;  // Avg PUSCH HARQ feedback delay
+    float avg_sr_to_pusch_delay_ms = 0.0f; // Avg SR to PUSCH grant delay
+    float avg_sum_mac_delay_ms = 0.0f;     // Sum of all delays
 };
 
 /// RLC-level per-DRB metrics (accumulated, snapshot at TTI boundary)
@@ -199,11 +209,29 @@ public:
                            uint32_t dl_buffer, uint32_t ul_buffer,
                            uint32_t dl_tbs, uint32_t ul_tbs);
     
-    /// Increment HARQ ACK/NACK counters
-    static void inc_dl_harq_ack(uint16_t rnti) { mac_ue[rnti].dl_harq_ack++; }
-    static void inc_dl_harq_nack(uint16_t rnti) { mac_ue[rnti].dl_harq_nack++; }
-    static void inc_ul_crc_ok(uint16_t rnti) { mac_ue[rnti].ul_crc_ok++; }
-    static void inc_ul_crc_fail(uint16_t rnti) { mac_ue[rnti].ul_crc_fail++; }
+    /// Increment HARQ ACK/NACK counters with TBS for goodput tracking
+    static void inc_dl_harq_ack(uint16_t rnti, uint32_t tbs = 0) { 
+        mac_ue[rnti].dl_harq_ack++; 
+        mac_ue[rnti].dl_acked_bytes += tbs;  // Track goodput
+    }
+    static void inc_dl_harq_nack(uint16_t rnti) { 
+        mac_ue[rnti].dl_harq_nack++;
+    }
+    static void inc_ul_crc_ok(uint16_t rnti, uint32_t tbs = 0) { 
+        mac_ue[rnti].ul_crc_ok++; 
+        mac_ue[rnti].ul_ok_bytes += tbs;  // Track goodput
+    }
+    static void inc_ul_crc_fail(uint16_t rnti) { 
+        mac_ue[rnti].ul_crc_fail++;
+    }
+    
+    /// Report MAC layer delays from scheduler metrics (called per metrics report period)
+    static void report_mac_delays(uint16_t rnti,
+                                  float avg_ce_delay_ms,
+                                  float avg_crc_delay_ms,
+                                  float avg_pucch_harq_delay_ms,
+                                  float avg_pusch_harq_delay_ms,
+                                  float avg_sr_to_pusch_delay_ms);
     
     /// Set per-DRB MAC metrics
     static void set_mac_drb(uint16_t rnti, uint8_t lcid,
@@ -250,6 +278,7 @@ public:
     /// Register UE (CU-CP ue_index -> RNTI)
     static void register_ue(uint32_t ue_index, uint16_t rnti);
     static void unregister_ue(uint32_t ue_index);
+    static void unregister_ue_by_rnti(uint16_t rnti);  // Clean up all metrics for a RNTI
     static uint16_t get_rnti_from_ue_index(uint32_t ue_index);
     
     /// E1AP-based correlation (CU-UP ue_index -> RNTI)
@@ -324,9 +353,9 @@ public:
     static void set_ul_mcs(uint16_t rnti, uint32_t mcs);
     static void set_dl_prbs(uint16_t rnti, uint32_t prbs);
     static void set_ul_prbs(uint16_t rnti, uint32_t prbs);
-    static void inc_dl_ok(uint16_t rnti) { inc_dl_harq_ack(rnti); }
+    static void inc_dl_ok(uint16_t rnti, uint32_t tbs = 0) { inc_dl_harq_ack(rnti, tbs); }
     static void inc_dl_nok(uint16_t rnti) { inc_dl_harq_nack(rnti); }
-    static void inc_ul_ok(uint16_t rnti) { inc_ul_crc_ok(rnti); }
+    static void inc_ul_ok(uint16_t rnti, uint32_t tbs = 0) { inc_ul_crc_ok(rnti, tbs); }
     static void inc_ul_nok(uint16_t rnti) { inc_ul_crc_fail(rnti); }
     
     // RLC buffer setters (called from scheduler with LCID granularity)
@@ -335,9 +364,13 @@ public:
         rlc_drb[{rnti, lcid}].dl_buffer = dl_buffer;
     }
     static void set_rlc_ul_buffer(uint16_t rnti, uint8_t lcg, uint32_t ul_buffer) {
-        // Note: UL buffer is per LCG, we store it mapped to LCID=lcg+4 for simplicity
-        std::lock_guard<std::mutex> lock(rlc_mutex);
-        rlc_drb[{rnti, static_cast<uint8_t>(lcg + 4)}].ul_buffer = ul_buffer;
+        // UL buffer is per LCG (not per LCID). Only update if entry already exists
+        // to avoid creating phantom DRB entries from BSR reports.
+        // For now, we skip LCG-based buffer tracking since it creates confusion.
+        // The actual RLC metrics come from report_rlc_metrics() with real LCIDs.
+        (void)rnti;
+        (void)lcg;
+        (void)ul_buffer;
     }
     // Legacy aliases
     static void set_drb_dl_buffer(uint16_t rnti, uint8_t lcid, uint32_t dl_buffer) {
