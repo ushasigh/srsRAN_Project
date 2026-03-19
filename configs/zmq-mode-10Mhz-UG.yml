@@ -69,6 +69,11 @@ cell_cfg:
       # pf_sched:
       #   pf_fairness_coeff: 1.0
       qos_sched:
+  csi:
+    csi_rs_enabled: true
+    csi_rs_period: 10
+    meas_csi_rs_slot_offset: 2
+    tracking_csi_rs_slot_offset: 4
 
 log:
   filename: /tmp/gnb.log
